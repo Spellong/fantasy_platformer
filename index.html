@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimalist Fantasy Platformer</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui-layer" class="overlay hidden">
+            <h1 id="level-title">Level 1</h1>
+        </div>
+        <div id="fade-layer" class="fade-overlay"></div>
+        <div id="level-menu-container">
+            <button id="menu-toggle" onclick="toggleMenu()">Levels</button>
+            <div id="level-list" class="hidden">
+                <button onclick="selectLevel(0)">Lvl 1</button>
+                <button onclick="selectLevel(1)">Lvl 2</button>
+                <button onclick="selectLevel(2)">Lvl 3</button>
+                <button onclick="selectLevel(3)">Lvl 4</button>
+                <button onclick="selectLevel(4)">Lvl 5</button>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
