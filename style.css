@@ -110,6 +110,9 @@ canvas {
     opacity: 1;
     transition: opacity 0.3s ease, transform 0.3s ease;
     transform: translateY(0);
+    max-height: 80vh;
+    overflow-y: auto;
+    padding-right: 5px;
 }
 
 #level-list.hidden {
