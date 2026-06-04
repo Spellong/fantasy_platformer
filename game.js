@@ -29,6 +29,7 @@ window.addEventListener('keyup', e => keys[e.code] = false);
 let playerHasMoved = false;
 let gameTime = 0;
 let lightningStrikes = [];
+let fallingLeaves = [];
 
 // Player state
 let player = {
@@ -38,7 +39,11 @@ let player = {
     isGrounded: false,
     jumpsLeft: 1,
     touchWallDir: 0, 
-    jumpProcessed: false
+    jumpProcessed: false,
+    jumpBufferTimer: 0,
+    coyoteTimer: 0,
+    wallCoyoteTimer: 0,
+    lastWallDir: 0
 };
 
 // Camera state
@@ -51,7 +56,7 @@ const themeStorm = {
     platform: '#1f2833', 
     platformBorder: '#45a29e', 
     hazard: '#c5c6c7', 
-    enemy: '#f05454', 
+    enemy: '#00ffff', 
     goal: '#66fcf1', 
     bg: '#0b0c10', 
     particle: '#45a29e',
@@ -65,7 +70,7 @@ const themeForest = {
     enemy: '#2e7d32', // Dark leafy green pinecone base
     enemyLeaf: '#4ade80', // Bright leafy green top
     goal: '#ffd700', // Golden sunlight
-    bg: '#050805', // Deep dark forest
+    bg: '#0a100a', // Deep dark forest (slightly lighter)
     particle: '#658b54', // Falling leaves
     player: '#ffffff'
 };
@@ -136,6 +141,7 @@ let activeEnemies = [];
 const levels = [
     { // Level 1: Basic mechanics
         title: "Jump. That's literally it.",
+        quote: "Hold the right arrow key. I believe in you.",
         platforms: [
             {x: 0, y: 500, w: 1000, h: 20},
             {x: 300, y: 350, w: 200, h: 20},
@@ -145,11 +151,12 @@ const levels = [
         enemies: [
             { x: 500, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
         ],
-        goal: {x: 850, y: 100, w: 50, h: 50}, 
+        goal: {x: 850, y: 150, w: 50, h: 50}, 
         spawn: {x: 100, y: 400}
     },
     { // Level 2: Gravity is a harsh mistress
         title: "Gravity is a harsh mistress.",
+        quote: "Press the up arrow to jump. Groundbreaking, I know.",
         platforms: [
             {x: 0, y: 500, w: 300, h: 20},
             {x: 400, y: 400, w: 300, h: 20},
@@ -162,11 +169,12 @@ const levels = [
             { x: 500, y: 350, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
             { x: 900, y: 250, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
         ],
-        goal: {x: 50, y: 0, w: 50, h: 50}, 
+        goal: {x: 50, y: 50, w: 50, h: 50}, 
         spawn: {x: 100, y: 400}
     },
     { // Level 3: Don't look down
         title: "Don't look down. Or do, I'm not your dad.",
+        quote: "Sometimes you have to jump twice. It's called a double jump.",
         platforms: [
             {x: 0, y: 400, w: 200, h: 20},
             {x: 400, y: 500, w: 150, h: 20},
@@ -179,29 +187,32 @@ const levels = [
             { x: 450, y: 300, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
             { x: 1250, y: 300, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
         ],
-        goal: {x: 1650, y: 300, w: 50, h: 50}, 
+        goal: {x: 1650, y: 350, w: 50, h: 50}, 
         spawn: {x: 100, y: 300}
     },
     { // Level 4: Parkour
-        title: "Floor is lava, but only metaphorically.",
+        title: "The Wall Jump Cavern.",
+        quote: "Hug the walls. They won't hurt you... much.",
         platforms: [
-            {x: 0, y: 500, w: 200, h: 20},
-            {x: 300, y: 600, w: 150, h: 20},
-            {x: 600, y: 500, w: 150, h: 20},
-            {x: 900, y: 400, w: 150, h: 20},
-            {x: 1200, y: 300, w: 150, h: 20},
-            {x: 1500, y: 200, w: 200, h: 20}
+            {x: 0, y: 500, w: 350, h: 20}, // Start platform
+            // Thin walls to wall jump between
+            {x: 350, y: -300, w: 20, h: 900},
+            {x: 650, y: -300, w: 20, h: 900},
+            // Bottom pit floor
+            {x: 370, y: 600, w: 280, h: 20},
+            // High landing platform
+            {x: 670, y: -300, w: 200, h: 20}
         ],
         hazards: [],
         enemies: [
-            { x: 600, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 },
-            { x: 900, y: 350, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
+            { x: 500, y: 550, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
         ],
-        goal: {x: 1600, y: 100, w: 50, h: 50},
+        goal: {x: 800, y: -350, w: 50, h: 50},
         spawn: {x: 100, y: 400}
     },
     { // Level 5: Boss Fight
         title: "It's a boss. Try not to die immediately.",
+        quote: "Just don't stand in the giant glowing lightning indicators. Simple.",
         platforms: [
             {x: -500, y: 600, w: 3000, h: 200}, // Huge arena floor
             {x: 400, y: 450, w: 200, h: 20},
@@ -217,6 +228,7 @@ const levels = [
     },
     { // Level 6: Introduction to Smart AI (Forest Green)
         title: "These ones actually went to college.",
+        quote: "They learned how to turn around! The horror!",
         platforms: [
             {x: 0, y: 500, w: 300, h: 20},
             {x: 400, y: 500, w: 400, h: 20}, // Enemy patrols here and doesn't fall off!
@@ -226,74 +238,83 @@ const levels = [
         enemies: [
             { x: 550, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1000 }
         ],
-        goal: {x: 1100, y: 400, w: 50, h: 50},
+        goal: {x: 1100, y: 450, w: 50, h: 50},
         spawn: {x: 100, y: 400}
     },
     { // Level 7: Multiple smart enemies
-        title: "They won't fall for the old 'jump over the pit' trick anymore.",
+        title: "Precision platforming required.",
+        quote: "I hope you brought your precision boots.",
         platforms: [
-            {x: 0, y: 600, w: 200, h: 20},
-            {x: 300, y: 500, w: 300, h: 20},
-            {x: 700, y: 400, w: 300, h: 20},
-            {x: 1100, y: 500, w: 300, h: 20},
-            {x: 1500, y: 600, w: 200, h: 20}
+            {x: 0, y: 600, w: 100, h: 20}, // Start
+            {x: 400, y: 500, w: 80, h: 20}, // Gap 300
+            {x: 900, y: 400, w: 80, h: 20}, // Gap 420 (hard double jump)
+            {x: 1400, y: 500, w: 80, h: 20}, // Gap 420
+            {x: 1800, y: 600, w: 200, h: 20} // End
         ],
         hazards: [],
         enemies: [
-            { x: 450, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 },
-            { x: 850, y: 300, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 },
-            { x: 1250, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
+            { x: 420, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 },
+            { x: 920, y: 350, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 },
+            { x: 1420, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
         ],
-        goal: {x: 1600, y: 500, w: 50, h: 50},
+        goal: {x: 1900, y: 550, w: 50, h: 50},
         spawn: {x: 50, y: 500}
     },
     { // Level 8: Vertical Tree Climbing
-        title: "Tree climbing 101.",
+        title: "Tree climbing 101. Wall jumps and double jumps.",
+        quote: "You're basically a squirrel now. Act like one.",
         platforms: [
-            {x: 0, y: 600, w: 200, h: 20},
-            {x: 300, y: 450, w: 100, h: 20},
-            {x: 100, y: 300, w: 100, h: 20},
-            {x: 300, y: 150, w: 100, h: 20},
-            {x: 500, y: 50, w: 300, h: 20}, // Top platform with enemy
-            {x: 700, y: 250, w: 100, h: 20},
-            {x: 900, y: 400, w: 200, h: 20}
+            {x: 0, y: 600, w: 200, h: 20}, // Start
+            {x: 400, y: 100, w: 20, h: 600}, // Main Trunk (standard 20px width)
+            {x: 200, y: 400, w: 120, h: 20}, // Branch left
+            {x: 500, y: 250, w: 120, h: 20}, // Branch right
+            {x: 200, y: 100, w: 120, h: 20}, // Branch left high
+            {x: 460, y: -100, w: 200, h: 20} // Top canopy
         ],
         hazards: [],
         enemies: [
-            { x: 600, y: -50, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
+            { x: 520, y: 200, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
         ],
-        goal: {x: 1000, y: 300, w: 50, h: 50},
+        goal: {x: 550, y: -150, w: 50, h: 50},
         spawn: {x: 50, y: 500}
     },
-    { // Level 9: Tight quarters
-        title: "Personal space is a myth.",
+    { // Level 9: The Bridge
+        title: "No running. Nowhere to hide.",
+        quote: "Paaatttiiiieeeennnnccceeeee... or just run screaming, your call.",
         platforms: [
-            {x: 0, y: 500, w: 150, h: 20},
-            {x: 250, y: 500, w: 800, h: 20}, // Long corridor
-            {x: 250, y: 350, w: 800, h: 20}, // Roof
-            {x: 1150, y: 500, w: 150, h: 20}
+            {x: 0, y: 500, w: 150, h: 20}, // Start
+            {x: 200, y: 500, w: 850, h: 20}, // Long flat bridge
+            {x: 1150, y: 500, w: 150, h: 20} // End
         ],
         hazards: [],
         enemies: [
             { x: 400, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1000 },
             { x: 700, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1000 }
         ],
-        goal: {x: 1200, y: 400, w: 50, h: 50},
+        goal: {x: 1200, y: 450, w: 50, h: 50},
         spawn: {x: 50, y: 400}
     },
     { // Level 10: Forest Boss
         title: "The big angry salad.",
+        quote: "It's literally raining leaves of death. Look up.",
         platforms: [
-            {x: -500, y: 600, w: 3000, h: 200}, // Huge arena floor
-            {x: 200, y: 450, w: 200, h: 20},
-            {x: 600, y: 350, w: 200, h: 20},
-            {x: 1000, y: 450, w: 200, h: 20},
+            {x: 0, y: 600, w: 400, h: 200}, // Start floor
+            {x: 500, y: 500, w: 100, h: 20}, // Steps up
+            {x: 700, y: 400, w: 100, h: 20},
+            {x: 500, y: 300, w: 100, h: 20},
+            {x: 300, y: 200, w: 100, h: 20},
+            {x: 500, y: 100, w: 100, h: 20},
+            {x: 700, y: 0, w: 100, h: 20},
+            {x: 900, y: -100, w: 100, h: 20},
+            {x: 1100, y: -200, w: 400, h: 20}, // Boss arena canopy
+            // Massive wall on the right to prevent falling out
+            {x: 1500, y: -200, w: 20, h: 1000}
         ],
         hazards: [],
         enemies: [
-            { x: 700, y: 400, width: 100, height: 100, vx: 0, vy: 0, speed: 14, aggro: 3000, isBoss: true, jumpTimer: 0 }
+            { x: 1200, y: -300, width: 100, height: 100, vx: 0, vy: 0, speed: 14, aggro: 3000, isBoss: true, jumpTimer: 0 }
         ],
-        goal: {x: 1800, y: 550, w: 50, h: 50},
+        goal: {x: 1400, y: -250, w: 50, h: 50},
         spawn: {x: 100, y: 500}
     }
 ];
@@ -311,10 +332,20 @@ function loadLevel(index) {
     level = levels[index];
 
     // Switch Themes
-    colors = (index < 5) ? { ...themeStorm } : { ...themeForest };
+    if (index < 5) {
+        colors = { ...themeStorm };
+        levelTitle.style.color = '#66fcf1';
+        levelTitle.style.textShadow = '0 0 25px rgba(102, 252, 241, 0.8), 0 0 10px #45a29e';
+        levelTitle.style.fontFamily = "'Cinzel', serif";
+    } else {
+        colors = { ...themeForest };
+        levelTitle.style.color = '#4ade80';
+        levelTitle.style.textShadow = '0 0 25px rgba(74, 222, 128, 0.8), 0 0 10px #2e7d32';
+        levelTitle.style.fontFamily = "'Caveat', cursive";
+    }
     
     // Set UI Title
-    levelTitle.innerHTML = `Level ${index + 1}<br><span style="font-size: 0.4em; font-style: italic; color: #ccc;">${level.title}</span>`;
+    levelTitle.innerHTML = `Level ${index + 1}<br><span style="font-size: 0.5em; font-style: italic; color: #ccc;">${level.title}</span><br><span style="font-size: 0.4em; font-weight: normal; color: #aaa;">"${level.quote}"</span>`;
 
     player.x = level.spawn.x;
     player.y = level.spawn.y;
@@ -326,6 +357,7 @@ function loadLevel(index) {
     
     playerHasMoved = false; // Reset movement flag
     lightningStrikes = []; // Reset lightning
+    fallingLeaves = []; // Reset falling leaves
     
     camera.x = player.x - canvas.width / 2;
     activeEnemies = level.enemies.map(e => {
@@ -355,7 +387,6 @@ function loadLevel(index) {
     camera.x = player.x - canvas.width / 2;
     camera.y = player.y - canvas.height / 2;
     
-    levelTitle.innerText = `Level ${index + 1}`;
     uiLayer.classList.remove('hidden');
     
     fadeLayer.classList.add('transparent');
@@ -364,7 +395,7 @@ function loadLevel(index) {
     setTimeout(() => {
         uiLayer.classList.add('hidden');
         state = 'playing';
-    }, 2000);
+    }, 3500); // Increased from 2000ms to give time to read the quote
 }
 
 function toggleMenu() {
@@ -420,13 +451,10 @@ function updateEnemies() {
     if (!playerHasMoved) return;
 
     for (let enemy of activeEnemies) {
-        // AI Logic
-        let dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
-        if (dist < enemy.aggro) {
-            
-            let atLedge = false;
-            let moveLeft = (player.x < enemy.x - 10);
-            let moveRight = (player.x > enemy.x + 10);
+        // AI Logic: Always active regardless of distance
+        let atLedge = false;
+        let moveLeft = (player.x < enemy.x - 10);
+        let moveRight = (player.x > enemy.x + 10);
             
             // Forest Enemies: Look ahead and release movement to stop naturally using friction
             if (currentLevelIndex >= 5 && enemy.isGrounded) {
@@ -475,7 +503,7 @@ function updateEnemies() {
             if (enemy.isGrounded && enemy.jumpCooldown <= 0 && !enemy.isBoss) {
                 if (enemy.touchWallDir !== 0 || (player.y < enemy.y - 40 && Math.abs(player.x - enemy.x) < 200) || atLedge) {
                     if (Math.random() < 0.1) { 
-                        enemy.vy = JUMP_FORCE;
+                        enemy.vy = (currentLevelIndex >= 5) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
                         if (atLedge) {
                             // Give them forward momentum to clear the gap!
                             enemy.vx = (player.x > enemy.x ? MAX_SPEED : -MAX_SPEED);
@@ -489,7 +517,7 @@ function updateEnemies() {
             if (enemy.jumpCooldown <= 0 && !enemy.isBoss) {
                 if (enemy.touchWallDir !== 0 && !enemy.isGrounded) {
                     // Wall jump
-                    enemy.vy = JUMP_FORCE;
+                    enemy.vy = (currentLevelIndex >= 5) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
                     enemy.vx = -enemy.touchWallDir * MAX_SPEED * 1.5;
                     enemy.jumpsLeft = 1;
                     enemy.jumpCooldown = 20;
@@ -498,7 +526,7 @@ function updateEnemies() {
                     spawnParticles(enemy.x + (enemy.touchWallDir === 1 ? enemy.width : 0), enemy.y + enemy.height / 2, colors.enemy, 10, 1);
                 } else if (enemy.isGrounded && player.y < enemy.y - 80) {
                     // Ground Jump
-                    enemy.vy = JUMP_FORCE;
+                    enemy.vy = (currentLevelIndex >= 5) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
                     enemy.jumpsLeft = 1;
                     enemy.isGrounded = false;
                     enemy.jumpCooldown = 15;
@@ -506,23 +534,20 @@ function updateEnemies() {
                     enemy.renderH = enemy.height + 12;
                 } else if (!enemy.isGrounded && enemy.jumpsLeft > 0 && enemy.vy > 5 && player.y < enemy.y - 20) {
                     // Double jump
-                    enemy.vy = JUMP_FORCE * 0.9;
+                    enemy.vy = (currentLevelIndex >= 5) ? JUMP_FORCE * 1.8 : JUMP_FORCE * 0.9;
                     enemy.jumpsLeft--;
                     enemy.jumpCooldown = 20;
                     enemy.renderW = enemy.width - 9.6;
                     enemy.renderH = enemy.height + 9.6;
                 } else if (enemy.isGrounded && enemy.touchWallDir !== 0) {
                     // Jump over a block
-                    enemy.vy = JUMP_FORCE;
+                    enemy.vy = (currentLevelIndex >= 5) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
                     enemy.isGrounded = false;
                     enemy.jumpCooldown = 15;
                     enemy.renderW = enemy.width - 12;
                     enemy.renderH = enemy.height + 12;
                 }
             }
-        } else {
-            enemy.vx *= FRICTION;
-        }
 
         // Boss jump timer
         if (enemy.isBoss) {
@@ -578,6 +603,23 @@ function updatePhysics() {
     if (jumpPressed) player.jumpProcessed = true;
     else player.jumpProcessed = false;
 
+    if (jumpJustPressed) {
+        player.jumpBufferTimer = 8; // 8 frames of input buffering
+    }
+
+    if (player.isGrounded) {
+        player.coyoteTimer = 8; // 8 frames of ground coyote time
+    } else {
+        player.coyoteTimer--;
+    }
+    
+    if (player.touchWallDir !== 0) {
+        player.wallCoyoteTimer = 10; // 10 frames of wall coyote time
+        player.lastWallDir = player.touchWallDir;
+    } else {
+        player.wallCoyoteTimer--;
+    }
+
     // Wake up enemies when player moves
     if (jumpPressed || keys['ArrowLeft'] || keys['KeyA'] || keys['ArrowRight'] || keys['KeyD']) {
         playerHasMoved = true;
@@ -593,32 +635,39 @@ function updatePhysics() {
     if (player.vx < -MAX_SPEED) player.vx = -MAX_SPEED;
 
     // Jump Logic
-    if (jumpJustPressed) {
-        if (player.touchWallDir !== 0 && !player.isGrounded) {
+    if (player.jumpBufferTimer > 0) {
+        if (player.wallCoyoteTimer > 0 && !player.isGrounded) {
             // Wall Jump
             player.vy = JUMP_FORCE;
-            player.vx = -player.touchWallDir * MAX_SPEED * 1.5;
+            player.vx = -player.lastWallDir * MAX_SPEED * 1.5;
             player.jumpsLeft = 1;
+            player.jumpBufferTimer = 0;
+            player.wallCoyoteTimer = 0;
             player.renderW = player.width * 0.4;
             player.renderH = player.height * 1.6;
-            spawnParticles(player.x + (player.touchWallDir === 1 ? player.width : 0), player.y + player.height / 2, colors.player, 15, 1);
-        } else if (player.isGrounded) {
+            spawnParticles(player.x + (player.lastWallDir === 1 ? player.width : 0), player.y + player.height / 2, colors.player, 15, 1);
+        } else if (player.coyoteTimer > 0) {
             // Ground Jump
             player.vy = JUMP_FORCE;
             player.jumpsLeft = 1; 
             player.isGrounded = false;
+            player.jumpBufferTimer = 0;
+            player.coyoteTimer = 0;
             player.renderW = player.width * 0.5;
             player.renderH = player.height * 1.5;
             spawnParticles(player.x + player.width / 2, player.y + player.height, colors.player, 10, 0.5);
-        } else if (player.jumpsLeft > 0) {
+        } else if (jumpJustPressed && player.jumpsLeft > 0) {
             // Double Jump
             player.vy = JUMP_FORCE * 0.9;
             player.jumpsLeft--;
+            player.jumpBufferTimer = 0;
             player.renderW = player.width * 0.6;
             player.renderH = player.height * 1.4;
             spawnParticles(player.x + player.width / 2, player.y + player.height, colors.goal, 15, 0.8);
         }
     }
+    
+    player.jumpBufferTimer--;
 
     player.vy += GRAVITY;
 
@@ -651,16 +700,30 @@ function updatePhysics() {
     // Update Enemies
     updateEnemies();
     
-    // Boss Lightning Mechanic
+    // Boss Mechanics
     if (level && level.enemies.some(e => e.isBoss) && state === 'playing') {
-        if (gameTime % 120 === 0) { // Every 2 seconds
-            lightningStrikes.push({
-                x: player.x + (Math.random() * 300 - 150),
-                timer: 60 // 1 second indicator
-            });
+        if (currentLevelIndex === 4) { // Storm Boss Lightning
+            if (gameTime % 120 === 0) { // Every 2 seconds
+                lightningStrikes.push({
+                    x: player.x + (Math.random() * 300 - 150),
+                    timer: 60 // 1 second indicator
+                });
+            }
+        } else if (currentLevelIndex === 9) { // Leaf Boss Falling Leaves
+            if (gameTime % 25 === 0) { // Light flurry
+                fallingLeaves.push({
+                    x: player.x + (Math.random() * 800 - 400),
+                    y: camera.y - 100,
+                    vx: (Math.random() - 0.5) * 3, // Drift left/right
+                    vy: 3 + Math.random() * 3, // Fall speed
+                    seed: Math.random() * 100, // For drift animation
+                    width: 24, height: 24
+                });
+            }
         }
     }
     
+    // Handle Lightning
     for (let i = lightningStrikes.length - 1; i >= 0; i--) {
         let strike = lightningStrikes[i];
         strike.timer--;
@@ -677,6 +740,35 @@ function updatePhysics() {
         
         if (strike.timer < -15) {
             lightningStrikes.splice(i, 1);
+        }
+    }
+    
+    // Handle Falling Leaves
+    for (let i = fallingLeaves.length - 1; i >= 0; i--) {
+        let leaf = fallingLeaves[i];
+        
+        // Homing behavior: actively track the player's X position
+        if (leaf.x < player.x) leaf.vx += 0.05;
+        if (leaf.x > player.x) leaf.vx -= 0.05;
+        
+        // Cap the horizontal speed
+        if (leaf.vx > 4) leaf.vx = 4;
+        if (leaf.vx < -4) leaf.vx = -4;
+        
+        // Sine wave drift
+        leaf.x += leaf.vx + Math.sin(gameTime * 0.05 + leaf.seed) * 1.5;
+        leaf.y += leaf.vy;
+        
+        // Death check
+        if (checkRectOverlap(player, leaf)) {
+            spawnParticles(player.x + player.width/2, player.y + player.height/2, colors.enemyLeaf, 20, 1.5);
+            die();
+            return;
+        }
+        
+        // Clean up
+        if (leaf.y > camera.y + canvas.height + 100) {
+            fallingLeaves.splice(i, 1);
         }
     }
     
@@ -789,16 +881,7 @@ function drawLeafEnemy(ctx, x, y, width, height) {
 }
 
 function drawBossLeaf(ctx, x, y, width, height) {
-    drawLeafEnemy(ctx, x, y, width, height);
-    // Add glowing red eyes for the boss
-    ctx.fillStyle = '#ff0000';
-    ctx.shadowBlur = 20;
-    ctx.shadowColor = '#ff0000';
-    ctx.beginPath();
-    ctx.arc(x + width*0.35, y + height*0.6, width*0.08, 0, Math.PI*2);
-    ctx.arc(x + width*0.65, y + height*0.6, width*0.08, 0, Math.PI*2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
+    drawLeafEnemy(ctx, x, y, width, height); // Faceless, clean aesthetic
 }
 
 function draw() {
@@ -842,6 +925,11 @@ function draw() {
                 drawStormcloud(ctx, drawX, drawY, enemy.renderW, enemy.renderH, enemy.puffs);
             }
         }
+    }
+    
+    // Draw Falling Leaves
+    for (let leaf of fallingLeaves) {
+        drawLeafEnemy(ctx, leaf.x, leaf.y, leaf.width, leaf.height);
     }
     
     // Draw Lightning Strikes
