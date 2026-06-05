@@ -30,6 +30,8 @@ let playerHasMoved = false;
 let gameTime = 0;
 let lightningStrikes = [];
 let fallingLeaves = [];
+let fallingIcicles = [];
+let snowflakes = [];
 
 // Player state
 let player = {
@@ -72,6 +74,17 @@ const themeForest = {
     goal: '#ffd700', // Golden sunlight
     bg: '#0a100a', // Deep dark forest (slightly lighter)
     particle: '#658b54', // Falling leaves
+    player: '#ffffff'
+};
+
+const themeIce = {
+    platform: '#001f3f', 
+    platformBorder: '#bde0fe', 
+    hazard: '#8ecae6', 
+    enemy: '#00ffff', 
+    goal: '#caf0f8', 
+    bg: '#02040a', 
+    particle: '#caf0f8',
     player: '#ffffff'
 };
 
@@ -187,8 +200,8 @@ const levels = [
             { x: 450, y: 300, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
             { x: 1250, y: 300, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
         ],
-        goal: {x: 1650, y: 350, w: 50, h: 50}, 
-        spawn: {x: 100, y: 300}
+        goal: {x: 50, y: 350, w: 50, h: 50}, 
+        spawn: {x: 1700, y: 300}
     },
     { // Level 4: Parkour
         title: "The Wall Jump Cavern.",
@@ -238,27 +251,26 @@ const levels = [
         enemies: [
             { x: 550, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1000 }
         ],
-        goal: {x: 1100, y: 450, w: 50, h: 50},
-        spawn: {x: 100, y: 400}
+        goal: {x: 50, y: 450, w: 50, h: 50},
+        spawn: {x: 1100, y: 400}
     },
     { // Level 7: Multiple smart enemies
         title: "Precision platforming required.",
         quote: "I hope you brought your precision boots.",
         platforms: [
-            {x: 0, y: 600, w: 100, h: 20}, // Start
-            {x: 400, y: 500, w: 80, h: 20}, // Gap 300
-            {x: 900, y: 400, w: 80, h: 20}, // Gap 420 (hard double jump)
-            {x: 1400, y: 500, w: 80, h: 20}, // Gap 420
-            {x: 1800, y: 600, w: 200, h: 20} // End
+            {x: 0, y: 600, w: 100, h: 20}, // End
+            {x: 400, y: 500, w: 140, h: 20}, // Widened platform
+            {x: 900, y: 400, w: 140, h: 20}, // Widened platform
+            {x: 1400, y: 500, w: 140, h: 20}, // Widened platform
+            {x: 1800, y: 600, w: 200, h: 20} // Start
         ],
         hazards: [],
         enemies: [
             { x: 420, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 },
-            { x: 920, y: 350, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 },
             { x: 1420, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
         ],
-        goal: {x: 1900, y: 550, w: 50, h: 50},
-        spawn: {x: 50, y: 500}
+        goal: {x: 25, y: 550, w: 50, h: 50},
+        spawn: {x: 1900, y: 500}
     },
     { // Level 8: Vertical Tree Climbing
         title: "Tree climbing 101. Wall jumps and double jumps.",
@@ -316,6 +328,98 @@ const levels = [
         ],
         goal: {x: 1400, y: -250, w: 50, h: 50},
         spawn: {x: 100, y: 500}
+    },
+    { // Level 11: Glacial Peaks Intro
+        title: "Welcome to the Glacial Peaks.",
+        quote: "They move fast. Don't blink.",
+        platforms: [
+            {x: 0, y: 500, w: 300, h: 20},
+            {x: 400, y: 500, w: 400, h: 20},
+            {x: 900, y: 500, w: 300, h: 20}
+        ],
+        hazards: [],
+        enemies: [
+            { x: 550, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 28, aggro: 1000 }
+        ],
+        goal: {x: 1100, y: 450, w: 50, h: 50},
+        spawn: {x: 100, y: 400}
+    },
+    { // Level 12: High platforms
+        title: "Ascension.",
+        quote: "Keep moving, they're right behind you.",
+        platforms: [
+            {x: 0, y: 500, w: 200, h: 20},
+            {x: 300, y: 400, w: 200, h: 20},
+            {x: 600, y: 300, w: 200, h: 20},
+            {x: 900, y: 200, w: 200, h: 20},
+            {x: 1200, y: 100, w: 200, h: 20}
+        ],
+        hazards: [],
+        enemies: [
+            { x: 350, y: 300, width: 40, height: 40, vx: 0, vy: 0, speed: 28, aggro: 1500 },
+            { x: 950, y: 100, width: 40, height: 40, vx: 0, vy: 0, speed: 28, aggro: 1500 }
+        ],
+        goal: {x: 1300, y: 50, w: 50, h: 50},
+        spawn: {x: 50, y: 400}
+    },
+    { // Level 13: Gauntlet (Right to Left)
+        title: "The Speed Gauntlet.",
+        quote: "Run left. Don't look back.",
+        platforms: [
+            {x: 0, y: 500, w: 200, h: 20}, // Goal
+            {x: 300, y: 500, w: 800, h: 20}, // Long run
+            {x: 1200, y: 500, w: 200, h: 20} // Spawn
+        ],
+        hazards: [],
+        enemies: [
+            { x: 800, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 28, aggro: 2000 },
+            { x: 500, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 28, aggro: 2000 }
+        ],
+        goal: {x: 50, y: 450, w: 50, h: 50},
+        spawn: {x: 1300, y: 400}
+    },
+    { // Level 14: Icicle Intro
+        title: "Look up.",
+        quote: "Falling ice is bad for your health.",
+        platforms: [
+            {x: 0, y: 500, w: 1000, h: 20}
+        ],
+        hazards: [],
+        enemies: [
+            { x: 500, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 28, aggro: 1500 }
+        ],
+        goal: {x: 900, y: 450, w: 50, h: 50},
+        spawn: {x: 100, y: 400}
+    },
+    { // Level 15: Ice Boss
+        title: "The Frost Construct.",
+        quote: "It's cold. It's fast. It wants you dead.",
+        platforms: [
+            {x: -200, y: 600, w: 2000, h: 200}, 
+            {x: 400, y: 450, w: 200, h: 20},
+            {x: 1000, y: 450, w: 200, h: 20},
+            {x: 700, y: 300, w: 200, h: 20}
+        ],
+        hazards: [],
+        enemies: [
+            { x: 1200, y: 400, width: 100, height: 100, vx: 0, vy: 0, speed: 28, aggro: 3000, isBoss: true, jumpTimer: 0 }
+        ],
+        goal: {x: 1600, y: 550, w: 50, h: 50},
+        spawn: {x: 100, y: 500}
+    },
+    { // Level 16: Speed Test Level
+        title: "Speed Comparison Test.",
+        quote: "The one on the right is a normal enemy. The one on the left is your new best friend.",
+        platforms: [
+            {x: 0, y: 500, w: 2000, h: 20}
+        ],
+        hazards: [],
+        enemies: [
+            { x: 1000, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 2000 },
+            { x: 1000, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 28, aggro: 2000 }
+        ],
+        goal: {x: 1800, y: 450, w: 50, h: 50},
+        spawn: {x: 100, y: 400}
     }
 ];
 
@@ -337,11 +441,16 @@ function loadLevel(index) {
         levelTitle.style.color = '#66fcf1';
         levelTitle.style.textShadow = '0 0 25px rgba(102, 252, 241, 0.8), 0 0 10px #45a29e';
         levelTitle.style.fontFamily = "'Cinzel', serif";
-    } else {
+    } else if (index < 10) {
         colors = { ...themeForest };
         levelTitle.style.color = '#4ade80';
         levelTitle.style.textShadow = '0 0 25px rgba(74, 222, 128, 0.8), 0 0 10px #2e7d32';
         levelTitle.style.fontFamily = "'Caveat', cursive";
+    } else {
+        colors = { ...themeIce };
+        levelTitle.style.color = '#bde0fe';
+        levelTitle.style.textShadow = '0 0 25px rgba(189, 224, 254, 0.8), 0 0 10px #00b4d8';
+        levelTitle.style.fontFamily = "'Raleway', sans-serif";
     }
     
     // Set UI Title
@@ -358,6 +467,8 @@ function loadLevel(index) {
     playerHasMoved = false; // Reset movement flag
     lightningStrikes = []; // Reset lightning
     fallingLeaves = []; // Reset falling leaves
+    fallingIcicles = []; // Reset falling icicles
+    snowflakes = []; // Reset snow
     
     camera.x = player.x - canvas.width / 2;
     activeEnemies = level.enemies.map(e => {
@@ -457,7 +568,7 @@ function updateEnemies() {
         let moveRight = (player.x > enemy.x + 10);
             
             // Forest Enemies: Look ahead and release movement to stop naturally using friction
-            if (currentLevelIndex >= 5 && enemy.isGrounded) {
+            if ((currentLevelIndex >= 5 && currentLevelIndex < 10) && enemy.isGrounded) {
                 let stopDist = 45; // Distance needed to stop using friction
                 
                 if (moveLeft) {
@@ -485,14 +596,17 @@ function updateEnemies() {
                 }
             }
             
-            // Apply physics identically to the player
-            if (moveLeft) enemy.vx -= ACCEL;
-            if (moveRight) enemy.vx += ACCEL;
+            // Apply physics scaling based on their unique speed property
+            let speedRatio = enemy.speed / MAX_SPEED;
+            let enemyAccel = ACCEL * speedRatio;
+            
+            if (moveLeft) enemy.vx -= enemyAccel;
+            if (moveRight) enemy.vx += enemyAccel;
             
             enemy.vx *= FRICTION;
             
-            if (enemy.vx > MAX_SPEED) enemy.vx = MAX_SPEED;
-            if (enemy.vx < -MAX_SPEED) enemy.vx = -MAX_SPEED;
+            if (enemy.vx > enemy.speed) enemy.vx = enemy.speed;
+            if (enemy.vx < -enemy.speed) enemy.vx = -enemy.speed;
 
             if (enemy.jumpCooldown > 0) {
                 enemy.jumpCooldown--;
@@ -503,10 +617,10 @@ function updateEnemies() {
             if (enemy.isGrounded && enemy.jumpCooldown <= 0 && !enemy.isBoss) {
                 if (enemy.touchWallDir !== 0 || (player.y < enemy.y - 40 && Math.abs(player.x - enemy.x) < 200) || atLedge) {
                     if (Math.random() < 0.1) { 
-                        enemy.vy = (currentLevelIndex >= 5) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
+                        enemy.vy = ((currentLevelIndex >= 5 && currentLevelIndex < 10)) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
                         if (atLedge) {
                             // Give them forward momentum to clear the gap!
-                            enemy.vx = (player.x > enemy.x ? MAX_SPEED : -MAX_SPEED);
+                            enemy.vx = (player.x > enemy.x ? enemy.speed : -enemy.speed);
                         }
                         enemy.isGrounded = false;
                         enemy.jumpCooldown = 60; // 1 second cooldown
@@ -517,8 +631,8 @@ function updateEnemies() {
             if (enemy.jumpCooldown <= 0 && !enemy.isBoss) {
                 if (enemy.touchWallDir !== 0 && !enemy.isGrounded) {
                     // Wall jump
-                    enemy.vy = (currentLevelIndex >= 5) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
-                    enemy.vx = -enemy.touchWallDir * MAX_SPEED * 1.5;
+                    enemy.vy = ((currentLevelIndex >= 5 && currentLevelIndex < 10)) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
+                    enemy.vx = -enemy.touchWallDir * enemy.speed * 1.5;
                     enemy.jumpsLeft = 1;
                     enemy.jumpCooldown = 20;
                     enemy.renderW = enemy.width - 14.4;
@@ -526,7 +640,7 @@ function updateEnemies() {
                     spawnParticles(enemy.x + (enemy.touchWallDir === 1 ? enemy.width : 0), enemy.y + enemy.height / 2, colors.enemy, 10, 1);
                 } else if (enemy.isGrounded && player.y < enemy.y - 80) {
                     // Ground Jump
-                    enemy.vy = (currentLevelIndex >= 5) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
+                    enemy.vy = ((currentLevelIndex >= 5 && currentLevelIndex < 10)) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
                     enemy.jumpsLeft = 1;
                     enemy.isGrounded = false;
                     enemy.jumpCooldown = 15;
@@ -534,14 +648,14 @@ function updateEnemies() {
                     enemy.renderH = enemy.height + 12;
                 } else if (!enemy.isGrounded && enemy.jumpsLeft > 0 && enemy.vy > 5 && player.y < enemy.y - 20) {
                     // Double jump
-                    enemy.vy = (currentLevelIndex >= 5) ? JUMP_FORCE * 1.8 : JUMP_FORCE * 0.9;
+                    enemy.vy = ((currentLevelIndex >= 5 && currentLevelIndex < 10)) ? JUMP_FORCE * 1.8 : JUMP_FORCE * 0.9;
                     enemy.jumpsLeft--;
                     enemy.jumpCooldown = 20;
                     enemy.renderW = enemy.width - 9.6;
                     enemy.renderH = enemy.height + 9.6;
                 } else if (enemy.isGrounded && enemy.touchWallDir !== 0) {
                     // Jump over a block
-                    enemy.vy = (currentLevelIndex >= 5) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
+                    enemy.vy = ((currentLevelIndex >= 5 && currentLevelIndex < 10)) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
                     enemy.isGrounded = false;
                     enemy.jumpCooldown = 15;
                     enemy.renderW = enemy.width - 12;
@@ -720,6 +834,43 @@ function updatePhysics() {
                     width: 24, height: 24
                 });
             }
+        } else if (currentLevelIndex >= 13) { // Ice levels icicles
+            if (activeEnemies.length > 0 && activeEnemies[0].isBoss) {
+                // Boss summons icicles
+                if (Math.random() < 0.05) {
+                    fallingIcicles.push({
+                        x: Math.random() * 2000 - 200,
+                        y: camera.y - 100,
+                        w: 10,
+                        h: 40,
+                        vy: 10 + Math.random() * 5
+                    });
+                }
+            } else if (currentLevelIndex === 13) {
+                if (Math.random() < 0.03) {
+                    fallingIcicles.push({
+                        x: player.x + (Math.random() * 800 - 200),
+                        y: camera.y - 100,
+                        w: 10,
+                        h: 40,
+                        vy: 10 + Math.random() * 5
+                    });
+                }
+            }
+            
+            // Atmospheric Snow
+            if (currentLevelIndex >= 10 && currentLevelIndex <= 15) {
+                if (gameTime % 2 === 0) { // Heavy snowfall
+                    snowflakes.push({
+                        x: player.x + (Math.random() * 1600 - 800), // Wider spread
+                        y: camera.y - 100,
+                        vx: (Math.random() - 0.5) * 3, // More horizontal drift
+                        vy: 2 + Math.random() * 3, // Faster falling
+                        size: 3 + Math.random() * 4, // Larger snowflakes
+                        seed: Math.random() * 100
+                    });
+                }
+            }
         }
     }
     
@@ -769,6 +920,34 @@ function updatePhysics() {
         // Clean up
         if (leaf.y > camera.y + canvas.height + 100) {
             fallingLeaves.splice(i, 1);
+        }
+    }
+    
+    // Handle Falling Icicles
+    for (let i = fallingIcicles.length - 1; i >= 0; i--) {
+        let icicle = fallingIcicles[i];
+        icicle.y += icicle.vy;
+        
+        // Death check
+        if (checkRectOverlap(player, {x: icicle.x, y: icicle.y, width: icicle.w, height: icicle.h})) {
+            spawnParticles(player.x + player.width/2, player.y + player.height/2, colors.hazard, 20, 1.5);
+            die();
+            return;
+        }
+        
+        if (icicle.y > camera.y + canvas.height + 100) {
+            fallingIcicles.splice(i, 1);
+        }
+    }
+    
+    // Handle Snowflakes
+    for (let i = snowflakes.length - 1; i >= 0; i--) {
+        let snow = snowflakes[i];
+        snow.y += snow.vy;
+        snow.x += snow.vx + Math.sin(gameTime * 0.02 + snow.seed) * 0.5;
+        
+        if (snow.y > camera.y + canvas.height + 100) {
+            snowflakes.splice(i, 1);
         }
     }
     
@@ -884,6 +1063,38 @@ function drawBossLeaf(ctx, x, y, width, height) {
     drawLeafEnemy(ctx, x, y, width, height); // Faceless, clean aesthetic
 }
 
+function drawIceEnemy(ctx, x, y, width, height) {
+    ctx.fillStyle = colors.enemy;
+    ctx.beginPath();
+    ctx.moveTo(x + width/2, y);
+    ctx.lineTo(x + width, y + height/2);
+    ctx.lineTo(x + width/2, y + height);
+    ctx.lineTo(x, y + height/2);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawBossIce(ctx, x, y, width, height) {
+    ctx.fillStyle = colors.enemy;
+    ctx.beginPath();
+    ctx.moveTo(x + width/2, y - 20);
+    ctx.lineTo(x + width, y + height/2);
+    ctx.lineTo(x + width/2, y + height + 20);
+    ctx.lineTo(x, y + height/2);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawIcicle(ctx, x, y, width, height) {
+    ctx.fillStyle = colors.hazard;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + width, y);
+    ctx.lineTo(x + width/2, y + height);
+    ctx.closePath();
+    ctx.fill();
+}
+
 function draw() {
     ctx.fillStyle = colors.bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -912,7 +1123,13 @@ function draw() {
         let drawX = cx - enemy.renderW / 2;
         let drawY = cy - enemy.renderH;
         
-        if (currentLevelIndex >= 5) {
+        if (currentLevelIndex >= 10) {
+            if (enemy.isBoss) {
+                drawBossIce(ctx, drawX, drawY, enemy.renderW, enemy.renderH);
+            } else {
+                drawIceEnemy(ctx, drawX, drawY, enemy.renderW, enemy.renderH);
+            }
+        } else if (currentLevelIndex >= 5) {
             if (enemy.isBoss) {
                 drawBossLeaf(ctx, drawX, drawY, enemy.renderW, enemy.renderH);
             } else {
@@ -931,6 +1148,19 @@ function draw() {
     for (let leaf of fallingLeaves) {
         drawLeafEnemy(ctx, leaf.x, leaf.y, leaf.width, leaf.height);
     }
+    
+    // Draw Falling Icicles
+    for (let icicle of fallingIcicles) {
+        drawIcicle(ctx, icicle.x, icicle.y, icicle.w, icicle.h);
+    }
+    
+    // Draw Snowflakes
+    ctx.fillStyle = '#ffffff';
+    for (let snow of snowflakes) {
+        ctx.globalAlpha = 0.6;
+        ctx.fillRect(snow.x, snow.y, snow.size, snow.size);
+    }
+    ctx.globalAlpha = 1.0;
     
     // Draw Lightning Strikes
     for (let strike of lightningStrikes) {
