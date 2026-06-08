@@ -33,6 +33,15 @@ let fallingLeaves = [];
 let fallingIcicles = [];
 let snowflakes = [];
 
+window.playerSpeedMult = 1.0;
+window.playerJumpMult = 1.0;
+window.updateCheats = function() {
+    window.playerSpeedMult = parseFloat(document.getElementById('speed-slider').value);
+    window.playerJumpMult = parseFloat(document.getElementById('jump-slider').value);
+    document.getElementById('speed-display').innerText = window.playerSpeedMult.toFixed(1);
+    document.getElementById('jump-display').innerText = window.playerJumpMult.toFixed(1);
+};
+
 // Player state
 let player = {
     x: 100, y: 100, width: 24, height: 24,
@@ -78,7 +87,7 @@ const themeForest = {
 };
 
 const themeIce = {
-    platform: '#001f3f', 
+    platform: '#30485c', 
     platformBorder: '#bde0fe', 
     hazard: '#8ecae6', 
     enemy: '#00ffff', 
@@ -104,23 +113,28 @@ function spawnParticles(x, y, color, count, speedMult = 1) {
     }
 }
 function spawnAmbientParticle() {
-    if (Math.random() < 0.15) {
-        particles.push({
-            x: camera.x + Math.random() * canvas.width,
-            y: camera.y + canvas.height + 50,
-            vx: (Math.random() - 0.5) * 2,
-            vy: -Math.random() * 3 - 1,
-            life: 2.0,
-            color: colors.particle,
-            isAmbient: true,
-            seed: Math.random() * 100 // for flutter
-        });
+    if (currentLevelIndex < 10) {
+        // Heavy magical atmosphere for first 10 levels
+        for (let i = 0; i < 2; i++) {
+            if (Math.random() < 0.3) {
+                particles.push({
+                    x: camera.x + Math.random() * canvas.width,
+                    y: camera.y + canvas.height + 50,
+                    vx: (Math.random() - 0.5) * 3,
+                    vy: -Math.random() * 4 - 1,
+                    life: 2.0 + Math.random() * 2.0,
+                    color: Math.random() < 0.5 ? colors.particle : '#ffffff', // Mix theme color and pure magic white
+                    isAmbient: true,
+                    seed: Math.random() * 100 // for flutter
+                });
+            }
+        }
     }
 }
 function updateParticles() {
     for (let i = particles.length - 1; i >= 0; i--) {
         let p = particles[i];
-        if (currentLevelIndex >= 5 && p.isAmbient) {
+        if ((currentLevelIndex >= 5 && currentLevelIndex < 10) && p.isAmbient) {
             // Leafy flutter
             p.x += p.vx + Math.sin(gameTime * 0.05 + p.seed) * 1.5;
         } else {
@@ -132,19 +146,26 @@ function updateParticles() {
     }
 }
 function drawParticles() {
+    ctx.globalCompositeOperation = 'lighter'; // Magical glowing additive blending
     for (let p of particles) {
         ctx.fillStyle = p.color;
+        // Removed shadowBlur as it causes extreme lag when there are many particles
         ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
+        
         ctx.beginPath();
-        if (currentLevelIndex >= 5 && p.isAmbient) {
-            // Draw leaf oval
+        if ((currentLevelIndex >= 5 && currentLevelIndex < 10) && p.isAmbient) {
+            // Draw leaf oval / spore
             ctx.ellipse(p.x, p.y, 4, 8, Math.sin(gameTime * 0.05 + p.seed), 0, Math.PI * 2);
         } else {
-            ctx.arc(p.x, p.y, p.isAmbient ? 2 : 4, 0, Math.PI * 2);
+            // Pulsing magical orb
+            let pulse = p.isAmbient ? Math.sin(gameTime * 0.1 + p.seed) * 2 : 0;
+            ctx.arc(p.x, p.y, Math.max(1, (p.isAmbient ? 3 : 4) + pulse), 0, Math.PI * 2);
         }
         ctx.fill();
     }
+    ctx.shadowBlur = 0;
     ctx.globalAlpha = 1.0;
+    ctx.globalCompositeOperation = 'source-over';
 }
 
 // Levels
@@ -333,16 +354,16 @@ const levels = [
         title: "Welcome to the Glacial Peaks.",
         quote: "They move fast. Don't blink.",
         platforms: [
-            {x: 0, y: 500, w: 300, h: 20},
-            {x: 400, y: 500, w: 400, h: 20},
-            {x: 900, y: 500, w: 300, h: 20}
+            {x: 0, y: 500, w: 400, h: 20},
+            {x: 500, y: 500, w: 400, h: 20},
+            {x: 1000, y: 500, w: 300, h: 20}
         ],
         hazards: [],
         enemies: [
-            { x: 550, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 28, aggro: 1000 }
+            { x: 650, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 20, aggro: 1000 }
         ],
-        goal: {x: 1100, y: 450, w: 50, h: 50},
-        spawn: {x: 100, y: 400}
+        goal: {x: 1200, y: 450, w: 50, h: 50},
+        spawn: {x: 50, y: 400}
     },
     { // Level 12: High platforms
         title: "Ascension.",
@@ -356,8 +377,8 @@ const levels = [
         ],
         hazards: [],
         enemies: [
-            { x: 350, y: 300, width: 40, height: 40, vx: 0, vy: 0, speed: 28, aggro: 1500 },
-            { x: 950, y: 100, width: 40, height: 40, vx: 0, vy: 0, speed: 28, aggro: 1500 }
+            { x: 400, y: 350, width: 40, height: 40, vx: 0, vy: 0, speed: 20, aggro: 1500 },
+            { x: 1000, y: 150, width: 40, height: 40, vx: 0, vy: 0, speed: 20, aggro: 1500 }
         ],
         goal: {x: 1300, y: 50, w: 50, h: 50},
         spawn: {x: 50, y: 400}
@@ -372,8 +393,8 @@ const levels = [
         ],
         hazards: [],
         enemies: [
-            { x: 800, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 28, aggro: 2000 },
-            { x: 500, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 28, aggro: 2000 }
+            { x: 700, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 20, aggro: 2000 },
+            { x: 400, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 20, aggro: 2000 }
         ],
         goal: {x: 50, y: 450, w: 50, h: 50},
         spawn: {x: 1300, y: 400}
@@ -386,7 +407,7 @@ const levels = [
         ],
         hazards: [],
         enemies: [
-            { x: 500, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 28, aggro: 1500 }
+            { x: 700, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 20, aggro: 1500 }
         ],
         goal: {x: 900, y: 450, w: 50, h: 50},
         spawn: {x: 100, y: 400}
@@ -402,7 +423,7 @@ const levels = [
         ],
         hazards: [],
         enemies: [
-            { x: 1200, y: 400, width: 100, height: 100, vx: 0, vy: 0, speed: 28, aggro: 3000, isBoss: true, jumpTimer: 0 }
+            { x: 1400, y: 400, width: 100, height: 100, vx: 0, vy: 0, speed: 17, aggro: 3000, isBoss: true, jumpTimer: 0 }
         ],
         goal: {x: 1600, y: 550, w: 50, h: 50},
         spawn: {x: 100, y: 500}
@@ -416,7 +437,7 @@ const levels = [
         hazards: [],
         enemies: [
             { x: 1000, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 2000 },
-            { x: 1000, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 28, aggro: 2000 }
+            { x: 1000, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 20, aggro: 2000 }
         ],
         goal: {x: 1800, y: 450, w: 50, h: 50},
         spawn: {x: 100, y: 400}
@@ -564,8 +585,27 @@ function updateEnemies() {
     for (let enemy of activeEnemies) {
         // AI Logic: Always active regardless of distance
         let atLedge = false;
-        let moveLeft = (player.x < enemy.x - 10);
-        let moveRight = (player.x > enemy.x + 10);
+        
+        if (enemy.reactionTimer === undefined) enemy.reactionTimer = 0;
+        if (enemy.targetX === undefined) enemy.targetX = player.x;
+        
+        if (enemy.reactionTimer > 0) {
+            enemy.reactionTimer--;
+        }
+        
+        if (currentLevelIndex >= 10) {
+            // Ice enemies have a slight reaction delay, but not too dumb
+            if (enemy.reactionTimer <= 0) {
+                enemy.targetX = player.x;
+                enemy.reactionTimer = 10 + Math.random() * 15; // 0.15 to 0.4 second reaction delay
+            }
+        } else {
+            // Normal enemies track instantly
+            enemy.targetX = player.x;
+        }
+
+        let moveLeft = (enemy.targetX < enemy.x - 10);
+        let moveRight = (enemy.targetX > enemy.x + 10);
             
             // Forest Enemies: Look ahead and release movement to stop naturally using friction
             if ((currentLevelIndex >= 5 && currentLevelIndex < 10) && enemy.isGrounded) {
@@ -740,20 +780,24 @@ function updatePhysics() {
     }
 
     // Horizontal movement
-    if (keys['ArrowLeft'] || keys['KeyA']) player.vx -= ACCEL;
-    if (keys['ArrowRight'] || keys['KeyD']) player.vx += ACCEL;
+    let currentSpeedMult = window.playerSpeedMult || 1.0;
+    let currentJumpMult = window.playerJumpMult || 1.0;
+    
+    if (keys['ArrowLeft'] || keys['KeyA']) player.vx -= ACCEL * currentSpeedMult;
+    if (keys['ArrowRight'] || keys['KeyD']) player.vx += ACCEL * currentSpeedMult;
     
     player.vx *= FRICTION;
     
-    if (player.vx > MAX_SPEED) player.vx = MAX_SPEED;
-    if (player.vx < -MAX_SPEED) player.vx = -MAX_SPEED;
+    let currentMaxSpeed = MAX_SPEED * currentSpeedMult;
+    if (player.vx > currentMaxSpeed) player.vx = currentMaxSpeed;
+    if (player.vx < -currentMaxSpeed) player.vx = -currentMaxSpeed;
 
     // Jump Logic
     if (player.jumpBufferTimer > 0) {
         if (player.wallCoyoteTimer > 0 && !player.isGrounded) {
             // Wall Jump
-            player.vy = JUMP_FORCE;
-            player.vx = -player.lastWallDir * MAX_SPEED * 1.5;
+            player.vy = JUMP_FORCE * currentJumpMult;
+            player.vx = -player.lastWallDir * currentMaxSpeed * 1.5;
             player.jumpsLeft = 1;
             player.jumpBufferTimer = 0;
             player.wallCoyoteTimer = 0;
@@ -762,7 +806,7 @@ function updatePhysics() {
             spawnParticles(player.x + (player.lastWallDir === 1 ? player.width : 0), player.y + player.height / 2, colors.player, 15, 1);
         } else if (player.coyoteTimer > 0) {
             // Ground Jump
-            player.vy = JUMP_FORCE;
+            player.vy = JUMP_FORCE * currentJumpMult;
             player.jumpsLeft = 1; 
             player.isGrounded = false;
             player.jumpBufferTimer = 0;
@@ -772,7 +816,7 @@ function updatePhysics() {
             spawnParticles(player.x + player.width / 2, player.y + player.height, colors.player, 10, 0.5);
         } else if (jumpJustPressed && player.jumpsLeft > 0) {
             // Double Jump
-            player.vy = JUMP_FORCE * 0.9;
+            player.vy = JUMP_FORCE * 0.9 * currentJumpMult;
             player.jumpsLeft--;
             player.jumpBufferTimer = 0;
             player.renderW = player.width * 0.6;
@@ -834,39 +878,45 @@ function updatePhysics() {
                     width: 24, height: 24
                 });
             }
-        } else if (currentLevelIndex >= 13) { // Ice levels icicles
-            if (activeEnemies.length > 0 && activeEnemies[0].isBoss) {
-                // Boss summons icicles
-                if (Math.random() < 0.05) {
-                    fallingIcicles.push({
-                        x: Math.random() * 2000 - 200,
-                        y: camera.y - 100,
-                        w: 10,
-                        h: 40,
-                        vy: 10 + Math.random() * 5
-                    });
-                }
-            } else if (currentLevelIndex === 13) {
-                if (Math.random() < 0.03) {
-                    fallingIcicles.push({
-                        x: player.x + (Math.random() * 800 - 200),
-                        y: camera.y - 100,
-                        w: 10,
-                        h: 40,
-                        vy: 10 + Math.random() * 5
-                    });
-                }
+        } else if (currentLevelIndex >= 13) {
+            // Boss summons icicles
+            if (Math.random() < 0.05) {
+                fallingIcicles.push({
+                    x: Math.random() * 2000 - 200,
+                    y: camera.y - 100,
+                    w: 10,
+                    h: 40,
+                    vy: 10 + Math.random() * 5
+                });
             }
-            
-            // Atmospheric Snow
-            if (currentLevelIndex >= 10 && currentLevelIndex <= 15) {
-                if (gameTime % 2 === 0) { // Heavy snowfall
+        }
+    }
+    
+    // Level hazards (non-boss)
+    if (state === 'playing') {
+        if (currentLevelIndex === 13 || currentLevelIndex === 14) {
+            if (Math.random() < 0.03) {
+                fallingIcicles.push({
+                    x: player.x + (Math.random() * 800 - 200),
+                    y: camera.y - 100,
+                    w: 10,
+                    h: 40,
+                    vy: 10 + Math.random() * 5
+                });
+            }
+        }
+        
+        // Atmospheric Heavy Snow
+        if (currentLevelIndex >= 10 && currentLevelIndex <= 15) {
+            // Intense blizzard - cap max flakes to prevent lag
+            if (snowflakes.length < 300) {
+                for (let s = 0; s < 3; s++) {
                     snowflakes.push({
-                        x: player.x + (Math.random() * 1600 - 800), // Wider spread
-                        y: camera.y - 100,
-                        vx: (Math.random() - 0.5) * 3, // More horizontal drift
-                        vy: 2 + Math.random() * 3, // Faster falling
-                        size: 3 + Math.random() * 4, // Larger snowflakes
+                        x: player.x + (Math.random() * 2400 - 1200), // Huge spread
+                        y: camera.y - 100 - Math.random() * 100,
+                        vx: (Math.random() - 0.2) * 6, // Strong magical wind
+                        vy: 4 + Math.random() * 6, // Fast falling
+                        size: 2 + Math.random() * 4,
                         seed: Math.random() * 100
                     });
                 }
@@ -1064,6 +1114,9 @@ function drawBossLeaf(ctx, x, y, width, height) {
 }
 
 function drawIceEnemy(ctx, x, y, width, height) {
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = colors.enemy;
+    
     ctx.fillStyle = colors.enemy;
     ctx.beginPath();
     ctx.moveTo(x + width/2, y);
@@ -1072,9 +1125,14 @@ function drawIceEnemy(ctx, x, y, width, height) {
     ctx.lineTo(x, y + height/2);
     ctx.closePath();
     ctx.fill();
+    
+    ctx.shadowBlur = 0;
 }
 
 function drawBossIce(ctx, x, y, width, height) {
+    ctx.shadowBlur = 25;
+    ctx.shadowColor = colors.enemy;
+    
     ctx.fillStyle = colors.enemy;
     ctx.beginPath();
     ctx.moveTo(x + width/2, y - 20);
@@ -1083,6 +1141,8 @@ function drawBossIce(ctx, x, y, width, height) {
     ctx.lineTo(x, y + height/2);
     ctx.closePath();
     ctx.fill();
+    
+    ctx.shadowBlur = 0;
 }
 
 function drawIcicle(ctx, x, y, width, height) {
@@ -1096,7 +1156,11 @@ function drawIcicle(ctx, x, y, width, height) {
 }
 
 function draw() {
-    ctx.fillStyle = colors.bg;
+    // Magical Gradient Background
+    let bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    bgGradient.addColorStop(0, colors.bg);
+    bgGradient.addColorStop(1, '#050a12'); // Dark abyssal bottom for depth
+    ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (!level) return;
@@ -1155,12 +1219,18 @@ function draw() {
     }
     
     // Draw Snowflakes
+    ctx.globalCompositeOperation = 'lighter';
     ctx.fillStyle = '#ffffff';
     for (let snow of snowflakes) {
-        ctx.globalAlpha = 0.6;
-        ctx.fillRect(snow.x, snow.y, snow.size, snow.size);
+        // Depth effect: larger snowflakes are more opaque
+        ctx.globalAlpha = Math.max(0.1, snow.size / 6.0);
+        ctx.beginPath();
+        ctx.arc(snow.x, snow.y, snow.size / 2, 0, Math.PI * 2);
+        ctx.fill();
     }
+    ctx.shadowBlur = 0;
     ctx.globalAlpha = 1.0;
+    ctx.globalCompositeOperation = 'source-over';
     
     // Draw Lightning Strikes
     for (let strike of lightningStrikes) {
