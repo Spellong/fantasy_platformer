@@ -32,6 +32,7 @@ let lightningStrikes = [];
 let fallingLeaves = [];
 let fallingIcicles = [];
 let snowflakes = [];
+let fireballs = []; // Fire boss projectiles
 
 window.playerSpeedMult = 1.0;
 window.playerJumpMult = 1.0;
@@ -97,6 +98,17 @@ const themeIce = {
     player: '#ffffff'
 };
 
+const themeFire = {
+    platform: '#3d1c00', // Dark scorched earth
+    platformBorder: '#ff5500', // Glowing orange lava
+    hazard: '#ff0000', // Bright red lava/spikes
+    enemy: '#ffaa00', // Core of the blaze
+    goal: '#ffdd00', // Blazing sun portal
+    bg: '#0a0200', // Deep dark ash background
+    particle: '#ff5500', // Embers
+    player: '#ffffff'
+};
+
 
 // Particles
 let particles = [];
@@ -113,17 +125,27 @@ function spawnParticles(x, y, color, count, speedMult = 1) {
     }
 }
 function spawnAmbientParticle() {
-    if (currentLevelIndex < 10) {
-        // Heavy magical atmosphere for first 10 levels
+    if (currentLevelIndex < 10 || currentLevelIndex >= 15) {
+        // Subtle magical background atmosphere
         for (let i = 0; i < 2; i++) {
-            if (Math.random() < 0.3) {
+            if (Math.random() < 0.25) {
+                let isForest = (currentLevelIndex >= 5 && currentLevelIndex < 10);
+                let isFire = (currentLevelIndex >= 15);
+                
+                let startY = camera.y + canvas.height + 50;
+                if (isForest) startY = camera.y - 50;
+                
+                let baseVy = -Math.random() * 2 - 0.5;
+                if (isForest) baseVy = Math.random() * 1.5 + 0.5;
+                if (isFire) baseVy = -Math.random() * 4 - 2; // Fast rising embers
+
                 particles.push({
                     x: camera.x + Math.random() * canvas.width,
-                    y: camera.y + canvas.height + 50,
-                    vx: (Math.random() - 0.5) * 3,
-                    vy: -Math.random() * 4 - 1,
-                    life: 2.0 + Math.random() * 2.0,
-                    color: Math.random() < 0.5 ? colors.particle : '#ffffff', // Mix theme color and pure magic white
+                    y: startY,
+                    vx: isFire ? (Math.random() - 0.5) * 4 : (Math.random() - 0.5) * 2,
+                    vy: baseVy,
+                    life: isFire ? 1.0 + Math.random() : 2.0 + Math.random() * 2.0,
+                    color: Math.random() < 0.5 ? colors.particle : '#ffffff',
                     isAmbient: true,
                     seed: Math.random() * 100 // for flutter
                 });
@@ -149,17 +171,20 @@ function drawParticles() {
     ctx.globalCompositeOperation = 'lighter'; // Magical glowing additive blending
     for (let p of particles) {
         ctx.fillStyle = p.color;
-        // Removed shadowBlur as it causes extreme lag when there are many particles
-        ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
+        
+        let isFire = (currentLevelIndex >= 15);
+        
+        // Keep ambient particles slightly faint (max 0.4 opacity)
+        ctx.globalAlpha = p.isAmbient ? Math.max(0, Math.min(isFire ? 0.6 : 0.4, p.life * (isFire ? 0.8 : 0.4))) : Math.max(0, Math.min(1, p.life));
         
         ctx.beginPath();
         if ((currentLevelIndex >= 5 && currentLevelIndex < 10) && p.isAmbient) {
-            // Draw leaf oval / spore
-            ctx.ellipse(p.x, p.y, 4, 8, Math.sin(gameTime * 0.05 + p.seed), 0, Math.PI * 2);
+            // Faint background leaf
+            ctx.ellipse(p.x, p.y, 3, 6, Math.sin(gameTime * 0.05 + p.seed), 0, Math.PI * 2);
         } else {
-            // Pulsing magical orb
-            let pulse = p.isAmbient ? Math.sin(gameTime * 0.1 + p.seed) * 2 : 0;
-            ctx.arc(p.x, p.y, Math.max(1, (p.isAmbient ? 3 : 4) + pulse), 0, Math.PI * 2);
+            // Pulsing magical orb / Ember
+            let pulse = p.isAmbient ? Math.sin(gameTime * 0.1 + p.seed) * 1.5 : 0;
+            ctx.arc(p.x, p.y, Math.max(1, (p.isAmbient ? (isFire ? 2 : 3) : 4) + pulse), 0, Math.PI * 2);
         }
         ctx.fill();
     }
@@ -428,19 +453,104 @@ const levels = [
         goal: {x: 1600, y: 550, w: 50, h: 50},
         spawn: {x: 100, y: 500}
     },
-    { // Level 16: Speed Test Level
-        title: "Speed Comparison Test.",
-        quote: "The one on the right is a normal enemy. The one on the left is your new best friend.",
+    { // Level 16: Into the Volcano
+        title: "Into the Volcano.",
+        quote: "It's getting hot in here.",
         platforms: [
-            {x: 0, y: 500, w: 2000, h: 20}
+            {x: 0, y: 500, w: 400, h: 200},
+            {x: 600, y: 400, w: 200, h: 200},
+            {x: 1000, y: 300, w: 400, h: 200}
+        ],
+        hazards: [
+            {x: 400, y: 650, w: 200, h: 50}, // Lava pit
+            {x: 800, y: 550, w: 200, h: 50}
+        ],
+        enemies: [
+            { x: 1100, y: 250, width: 35, height: 35, vx: 0, vy: 0, speed: 22, aggro: 2000 }
+        ],
+        goal: {x: 1300, y: 250, w: 50, h: 50},
+        spawn: {x: 50, y: 400}
+    },
+    { // Level 17: The Scorched Path
+        title: "The Scorched Path.",
+        quote: "Don't stop moving.",
+        platforms: [
+            {x: 0, y: 500, w: 200, h: 200},
+            {x: 400, y: 500, w: 100, h: 20},
+            {x: 700, y: 400, w: 100, h: 20},
+            {x: 1000, y: 300, w: 100, h: 20},
+            {x: 1300, y: 200, w: 300, h: 20}
+        ],
+        hazards: [
+            {x: 0, y: 700, w: 1600, h: 100} // Massive lava floor
+        ],
+        enemies: [
+            { x: 1400, y: 100, width: 35, height: 35, vx: 0, vy: 0, speed: 22, aggro: 2000 },
+            { x: 700, y: 200, width: 35, height: 35, vx: 0, vy: 0, speed: 22, aggro: 2000 } // Floating guardian
+        ],
+        goal: {x: 1500, y: 150, w: 50, h: 50},
+        spawn: {x: 50, y: 400}
+    },
+    { // Level 18: Lava Lakes
+        title: "Lava Lakes.",
+        quote: "Watch your step.",
+        platforms: [
+            {x: 0, y: 300, w: 150, h: 400},
+            {x: 350, y: 450, w: 150, h: 20},
+            {x: 700, y: 550, w: 150, h: 20},
+            {x: 1050, y: 450, w: 150, h: 20},
+            {x: 1400, y: 300, w: 200, h: 400}
+        ],
+        hazards: [
+            {x: 150, y: 650, w: 1250, h: 100} // Lake
+        ],
+        enemies: [
+            { x: 350, y: 300, width: 35, height: 35, vx: 0, vy: 0, speed: 23, aggro: 2000 },
+            { x: 700, y: 300, width: 35, height: 35, vx: 0, vy: 0, speed: 23, aggro: 2000 },
+            { x: 1050, y: 300, width: 35, height: 35, vx: 0, vy: 0, speed: 23, aggro: 2000 }
+        ],
+        goal: {x: 1500, y: 250, w: 50, h: 50},
+        spawn: {x: 50, y: 200}
+    },
+    { // Level 19: Guardian's Roost
+        title: "Guardian's Roost.",
+        quote: "They are protecting something.",
+        platforms: [
+            {x: 0, y: 700, w: 400, h: 20},
+            {x: 200, y: 500, w: 100, h: 20},
+            {x: -100, y: 350, w: 150, h: 20},
+            {x: 300, y: 200, w: 100, h: 20},
+            {x: 600, y: 150, w: 200, h: 20},
+            {x: 1000, y: 250, w: 300, h: 20}
         ],
         hazards: [],
         enemies: [
-            { x: 1000, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 2000 },
-            { x: 1000, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 20, aggro: 2000 }
+            { x: 200, y: 350, width: 35, height: 35, vx: 0, vy: 0, speed: 24, aggro: 3000 },
+            { x: 500, y: 100, width: 35, height: 35, vx: 0, vy: 0, speed: 24, aggro: 3000 },
+            { x: 1100, y: 100, width: 35, height: 35, vx: 0, vy: 0, speed: 24, aggro: 3000 }
         ],
-        goal: {x: 1800, y: 450, w: 50, h: 50},
-        spawn: {x: 100, y: 400}
+        goal: {x: 1200, y: 200, w: 50, h: 50},
+        spawn: {x: 50, y: 600}
+    },
+    { // Level 20: Fire Boss
+        title: "The Inferno Core.",
+        quote: "The heart of the fire.",
+        platforms: [
+            {x: 0, y: 600, w: 400, h: 200},
+            {x: 600, y: 600, w: 400, h: 20},
+            {x: 1200, y: 600, w: 400, h: 200},
+            {x: 200, y: 400, w: 200, h: 20},
+            {x: 1200, y: 400, w: 200, h: 20}
+        ],
+        hazards: [
+            {x: 400, y: 750, w: 200, h: 50}, // Lava between platforms
+            {x: 1000, y: 750, w: 200, h: 50}
+        ],
+        enemies: [
+            { x: 800, y: 300, width: 120, height: 120, vx: 0, vy: 0, speed: 26, aggro: 4000, isBoss: true }
+        ],
+        goal: {x: 1450, y: 550, w: 50, h: 50},
+        spawn: {x: 100, y: 500}
     }
 ];
 
@@ -467,11 +577,16 @@ function loadLevel(index) {
         levelTitle.style.color = '#4ade80';
         levelTitle.style.textShadow = '0 0 25px rgba(74, 222, 128, 0.8), 0 0 10px #2e7d32';
         levelTitle.style.fontFamily = "'Caveat', cursive";
-    } else {
+    } else if (index < 15) {
         colors = { ...themeIce };
         levelTitle.style.color = '#bde0fe';
         levelTitle.style.textShadow = '0 0 25px rgba(189, 224, 254, 0.8), 0 0 10px #00b4d8';
         levelTitle.style.fontFamily = "'Raleway', sans-serif";
+    } else {
+        colors = { ...themeFire };
+        levelTitle.style.color = '#ffaa00';
+        levelTitle.style.textShadow = '0 0 25px rgba(255, 170, 0, 0.8), 0 0 10px #ff5500';
+        levelTitle.style.fontFamily = "'Cinzel', serif";
     }
     
     // Set UI Title
@@ -490,6 +605,8 @@ function loadLevel(index) {
     fallingLeaves = []; // Reset falling leaves
     fallingIcicles = []; // Reset falling icicles
     snowflakes = []; // Reset snow
+    fireballs = []; // Reset boss fireballs
+    particles = []; // Clear lingering ambient particles
     
     camera.x = player.x - canvas.width / 2;
     activeEnemies = level.enemies.map(e => {
@@ -586,26 +703,73 @@ function updateEnemies() {
         // AI Logic: Always active regardless of distance
         let atLedge = false;
         
-        if (enemy.reactionTimer === undefined) enemy.reactionTimer = 0;
-        if (enemy.targetX === undefined) enemy.targetX = player.x;
+        if (enemy.reactionTimer === undefined) {
+            enemy.reactionTimer = 0;
+            enemy.moveDir = 0;
+        }
         
         if (enemy.reactionTimer > 0) {
             enemy.reactionTimer--;
         }
         
-        if (currentLevelIndex >= 10) {
-            // Ice enemies have a slight reaction delay, but not too dumb
-            if (enemy.reactionTimer <= 0) {
+        let moveLeft = false;
+        let moveRight = false;
+        
+        if (currentLevelIndex >= 15) {
+            // FIRE GUARDIANS
+            // They fly, hovering around their start position until the player gets close
+            if (enemy.startX === undefined) {
+                enemy.startX = enemy.x;
+                enemy.startY = enemy.y;
+                enemy.hoverTimer = Math.random() * 100;
+            }
+            
+            let distToPlayerX = player.x - enemy.x;
+            let distToPlayerY = player.y - enemy.y;
+            let distToPlayer = Math.sqrt(distToPlayerX*distToPlayerX + distToPlayerY*distToPlayerY);
+            
+            enemy.isGrounded = false; // Always flying
+            enemy.hoverTimer += 0.05;
+            
+            if (distToPlayer < 450 && !enemy.isBoss) {
+                // Aggro - chase aggressively!
                 enemy.targetX = player.x;
+                enemy.targetY = player.y;
+            } else {
+                // Idle hover around spawn
+                enemy.targetX = enemy.startX;
+                enemy.targetY = enemy.startY + Math.sin(enemy.hoverTimer) * 30;
+            }
+            
+            let dirX = enemy.targetX - enemy.x;
+            let dirY = enemy.targetY - enemy.y;
+            let distToTarget = Math.sqrt(dirX*dirX + dirY*dirY);
+            
+            if (distToTarget > 5) {
+                enemy.vx += (dirX / distToTarget) * (enemy.speed * 0.06); // Rapid acceleration
+                enemy.vy += (dirY / distToTarget) * (enemy.speed * 0.06);
+            }
+            
+            enemy.vx *= 0.85; // High friction for snappy movement
+            enemy.vy *= 0.85;
+            
+            moveLeft = false; moveRight = false; // Bypass normal physics
+        } else if (currentLevelIndex >= 10) {
+            // Ice enemies commit to a direction during their reaction delay so they don't awkwardly stop in mid-air
+            if (enemy.reactionTimer <= 0) {
+                if (player.x < enemy.x - 10) enemy.moveDir = -1;
+                else if (player.x > enemy.x + 10) enemy.moveDir = 1;
+                else enemy.moveDir = 0;
+                
                 enemy.reactionTimer = 10 + Math.random() * 15; // 0.15 to 0.4 second reaction delay
             }
+            moveLeft = (enemy.moveDir === -1);
+            moveRight = (enemy.moveDir === 1);
         } else {
             // Normal enemies track instantly
-            enemy.targetX = player.x;
+            moveLeft = (player.x < enemy.x - 10);
+            moveRight = (player.x > enemy.x + 10);
         }
-
-        let moveLeft = (enemy.targetX < enemy.x - 10);
-        let moveRight = (enemy.targetX > enemy.x + 10);
             
             // Forest Enemies: Look ahead and release movement to stop naturally using friction
             if ((currentLevelIndex >= 5 && currentLevelIndex < 10) && enemy.isGrounded) {
@@ -703,16 +867,31 @@ function updateEnemies() {
                 }
             }
 
-        // Boss jump timer
         if (enemy.isBoss) {
-            enemy.jumpTimer++;
-            if (enemy.isGrounded && enemy.jumpTimer > 100) { 
-                enemy.vy = JUMP_FORCE * 1.2;
-                enemy.jumpTimer = 0;
+            if (currentLevelIndex >= 15) {
+                // Fire Boss floats heavily and aggressively charges
+                enemy.isGrounded = false;
+                let dirX = player.x - enemy.x;
+                let dirY = player.y - enemy.y - 100; // Aim slightly above player
+                let distToTarget = Math.sqrt(dirX*dirX + dirY*dirY);
+                if (distToTarget > 5) {
+                    enemy.vx += (dirX / distToTarget) * 0.5;
+                    enemy.vy += (dirY / distToTarget) * 0.5;
+                }
+                enemy.vx *= 0.95;
+                enemy.vy *= 0.95;
+            } else {
+                enemy.jumpTimer++;
+                if (enemy.isGrounded && enemy.jumpTimer > 100) { 
+                    enemy.vy = JUMP_FORCE * 1.2;
+                    enemy.jumpTimer = 0;
+                }
             }
         }
 
-        enemy.vy += GRAVITY;
+        if (currentLevelIndex < 15) {
+            enemy.vy += GRAVITY;
+        }
 
         // Enemy Wall slide
         let isWallSliding = false;
@@ -878,7 +1057,7 @@ function updatePhysics() {
                     width: 24, height: 24
                 });
             }
-        } else if (currentLevelIndex >= 13) {
+        } else if (currentLevelIndex >= 13 && currentLevelIndex < 15) {
             // Boss summons icicles
             if (Math.random() < 0.05) {
                 fallingIcicles.push({
@@ -887,6 +1066,26 @@ function updatePhysics() {
                     w: 10,
                     h: 40,
                     vy: 10 + Math.random() * 5
+                });
+            }
+        } else if (currentLevelIndex >= 19) {
+            // Fire Boss summons fireballs (Level 20)
+            if (Math.random() < 0.06) {
+                // Aim slightly ahead of player based on their velocity
+                let targetX = player.x + player.vx * 15;
+                let startX = player.x + (Math.random() * 1200 - 600);
+                let startY = camera.y - 100 - Math.random() * 200;
+                let dx = targetX - startX;
+                let dy = player.y - startY;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                let speed = 10 + Math.random() * 5;
+                
+                fireballs.push({
+                    x: startX,
+                    y: startY,
+                    vx: (dx / dist) * speed,
+                    vy: (dy / dist) * speed,
+                    r: 10 + Math.random() * 6
                 });
             }
         }
@@ -909,14 +1108,14 @@ function updatePhysics() {
         // Atmospheric Heavy Snow
         if (currentLevelIndex >= 10 && currentLevelIndex <= 15) {
             // Intense blizzard - cap max flakes to prevent lag
-            if (snowflakes.length < 300) {
-                for (let s = 0; s < 3; s++) {
+            if (snowflakes.length < 500) {
+                for (let s = 0; s < 4; s++) {
                     snowflakes.push({
                         x: player.x + (Math.random() * 2400 - 1200), // Huge spread
                         y: camera.y - 100 - Math.random() * 100,
                         vx: (Math.random() - 0.2) * 6, // Strong magical wind
                         vy: 4 + Math.random() * 6, // Fast falling
-                        size: 2 + Math.random() * 4,
+                        size: 3 + Math.random() * 5,
                         seed: Math.random() * 100
                     });
                 }
@@ -987,6 +1186,34 @@ function updatePhysics() {
         
         if (icicle.y > camera.y + canvas.height + 100) {
             fallingIcicles.splice(i, 1);
+        }
+    }
+    
+    // Handle Fireballs
+    for (let i = fireballs.length - 1; i >= 0; i--) {
+        let fb = fireballs[i];
+        fb.x += fb.vx;
+        fb.y += fb.vy;
+        
+        // Death check (circle collision approximated as rect for simplicity)
+        if (checkRectOverlap(player, {x: fb.x - fb.r, y: fb.y - fb.r, width: fb.r*2, height: fb.r*2})) {
+            spawnParticles(player.x + player.width/2, player.y + player.height/2, colors.hazard, 30, 2);
+            die();
+            return;
+        }
+        
+        // Leave a trail
+        if (gameTime % 2 === 0) {
+            particles.push({
+                x: fb.x, y: fb.y,
+                vx: (Math.random() - 0.5) * 2,
+                vy: -Math.random() * 2,
+                life: 0.5, color: colors.hazard, isAmbient: false
+            });
+        }
+        
+        if (fb.y > camera.y + canvas.height + 100) {
+            fireballs.splice(i, 1);
         }
     }
     
@@ -1155,6 +1382,60 @@ function drawIcicle(ctx, x, y, width, height) {
     ctx.fill();
 }
 
+function drawBlazeEnemy(ctx, x, y, width, height) {
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = colors.enemy;
+    ctx.globalCompositeOperation = 'lighter';
+    
+    ctx.fillStyle = colors.enemy;
+    ctx.beginPath();
+    // Base of the flame
+    ctx.arc(x + width/2, y + height - 10, width/2, Math.PI, 0, true);
+    
+    // Flickering tips
+    let flicker1 = Math.sin(gameTime * 0.2) * 5;
+    let flicker2 = Math.cos(gameTime * 0.3) * 5;
+    
+    ctx.lineTo(x + width, y + height - 10);
+    ctx.quadraticCurveTo(x + width*0.8, y + height/2, x + width/2 + flicker1, y);
+    ctx.quadraticCurveTo(x + width*0.2, y + height/2, x, y + height - 10);
+    
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.shadowBlur = 0;
+}
+
+function drawBossBlaze(ctx, x, y, width, height) {
+    ctx.shadowBlur = 30;
+    ctx.shadowColor = colors.enemy;
+    ctx.globalCompositeOperation = 'lighter';
+    
+    ctx.fillStyle = colors.enemy;
+    ctx.beginPath();
+    ctx.arc(x + width/2, y + height - 15, width/2 + 10, Math.PI, 0, true);
+    
+    let flicker1 = Math.sin(gameTime * 0.15) * 10;
+    let flicker2 = Math.cos(gameTime * 0.25) * 10;
+    let flicker3 = Math.sin(gameTime * 0.1) * 8;
+    
+    ctx.lineTo(x + width + 10, y + height - 15);
+    ctx.quadraticCurveTo(x + width*0.9, y + height/3, x + width*0.75 + flicker1, y - 10);
+    ctx.quadraticCurveTo(x + width*0.5, y + height/2, x + width/2 + flicker2, y - 20);
+    ctx.quadraticCurveTo(x + width*0.5, y + height/2, x + width*0.25 + flicker3, y - 10);
+    ctx.quadraticCurveTo(x + width*0.1, y + height/3, x - 10, y + height - 15);
+    
+    ctx.fill();
+    
+    // Inner core
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(x + width/2, y + height - 10, width/4, 0, Math.PI*2);
+    ctx.fill();
+    
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.shadowBlur = 0;
+}
+
 function draw() {
     // Magical Gradient Background
     let bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -1187,7 +1468,13 @@ function draw() {
         let drawX = cx - enemy.renderW / 2;
         let drawY = cy - enemy.renderH;
         
-        if (currentLevelIndex >= 10) {
+        if (currentLevelIndex >= 15) {
+            if (enemy.isBoss) {
+                drawBossBlaze(ctx, drawX, drawY, enemy.renderW, enemy.renderH);
+            } else {
+                drawBlazeEnemy(ctx, drawX, drawY, enemy.renderW, enemy.renderH);
+            }
+        } else if (currentLevelIndex >= 10) {
             if (enemy.isBoss) {
                 drawBossIce(ctx, drawX, drawY, enemy.renderW, enemy.renderH);
             } else {
@@ -1218,12 +1505,30 @@ function draw() {
         drawIcicle(ctx, icicle.x, icicle.y, icicle.w, icicle.h);
     }
     
+    // Draw Fireballs
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = colors.hazard;
+    for (let fb of fireballs) {
+        ctx.fillStyle = colors.hazard;
+        ctx.beginPath();
+        ctx.arc(fb.x, fb.y, fb.r, 0, Math.PI * 2);
+        ctx.fill();
+        // Inner core
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(fb.x, fb.y, fb.r / 2, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    ctx.globalCompositeOperation = 'source-over';
+    
     // Draw Snowflakes
     ctx.globalCompositeOperation = 'lighter';
     ctx.fillStyle = '#ffffff';
     for (let snow of snowflakes) {
-        // Depth effect: larger snowflakes are more opaque
-        ctx.globalAlpha = Math.max(0.1, snow.size / 6.0);
+        // Keep snowflakes faint but visible (max 0.4 opacity)
+        ctx.globalAlpha = Math.max(0.1, Math.min(0.4, snow.size / 15.0));
         ctx.beginPath();
         ctx.arc(snow.x, snow.y, snow.size / 2, 0, Math.PI * 2);
         ctx.fill();
