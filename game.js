@@ -312,7 +312,6 @@ const levels = [
         ],
         hazards: [],
         enemies: [
-            { x: 420, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 },
             { x: 1420, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
         ],
         goal: {x: 25, y: 550, w: 50, h: 50},
@@ -346,7 +345,6 @@ const levels = [
         ],
         hazards: [],
         enemies: [
-            { x: 400, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1000 },
             { x: 700, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1000 }
         ],
         goal: {x: 1200, y: 450, w: 50, h: 50},
@@ -702,6 +700,7 @@ function updateEnemies() {
     for (let enemy of activeEnemies) {
         // AI Logic: Always active regardless of distance
         let atLedge = false;
+        let prevVy = enemy.vy;
         
         if (enemy.reactionTimer === undefined) {
             enemy.reactionTimer = 0;
@@ -717,43 +716,91 @@ function updateEnemies() {
         
         if (currentLevelIndex >= 15) {
             // FIRE GUARDIANS
-            // They fly, hovering around their start position until the player gets close
-            if (enemy.startX === undefined) {
-                enemy.startX = enemy.x;
-                enemy.startY = enemy.y;
-                enemy.hoverTimer = Math.random() * 100;
+            
+            // Phase State Logic
+            if (enemy.phaseState === undefined) {
+                enemy.phaseState = 'visible';
+                // Heavily randomize initial start time so they don't sync up at the start of the level
+                enemy.phaseTimer = 60 + Math.random() * 300; 
             }
             
-            let distToPlayerX = player.x - enemy.x;
-            let distToPlayerY = player.y - enemy.y;
-            let distToPlayer = Math.sqrt(distToPlayerX*distToPlayerX + distToPlayerY*distToPlayerY);
+            if (!enemy.isBoss) {
+                if (enemy.phaseTimer > 0) {
+                    enemy.phaseTimer--;
+                } else {
+                    if (enemy.phaseState === 'visible') {
+                        enemy.phaseState = 'flickering';
+                        enemy.phaseTimer = 45; // 0.75 seconds of flickering
+                    } else if (enemy.phaseState === 'flickering') {
+                        enemy.phaseState = 'invisible';
+                        enemy.phaseTimer = 60; // Exactly 1 second of invisibility
+                    } else if (enemy.phaseState === 'invisible') {
+                        enemy.phaseState = 'visible';
+                        enemy.phaseTimer = 60 + Math.random() * 240; // 1 to 5 seconds of being visible before doing it again
+                    }
+                }
+            }
             
-            enemy.isGrounded = false; // Always flying
-            enemy.hoverTimer += 0.05;
-            
-            if (distToPlayer < 450 && !enemy.isBoss) {
-                // Aggro - chase aggressively!
-                enemy.targetX = player.x;
-                enemy.targetY = player.y;
-            } else {
-                // Idle hover around spawn
+            if (enemy.isBoss) {
+                // Boss flies and hovers
+                if (enemy.startX === undefined) {
+                    enemy.startX = enemy.x;
+                    enemy.startY = enemy.y;
+                    enemy.hoverTimer = Math.random() * 100;
+                }
+                
+                enemy.isGrounded = false; // Always flying
+                enemy.hoverTimer += 0.05;
+                
+                // Idle hover around spawn (Boss relies on its fireball summoning in updatePhysics)
                 enemy.targetX = enemy.startX;
                 enemy.targetY = enemy.startY + Math.sin(enemy.hoverTimer) * 30;
+                
+                let dirX = enemy.targetX - enemy.x;
+                let dirY = enemy.targetY - enemy.y;
+                let distToTarget = Math.sqrt(dirX*dirX + dirY*dirY);
+                
+                if (distToTarget > 5) {
+                    enemy.vx += (dirX / distToTarget) * (enemy.speed * 0.06);
+                    enemy.vy += (dirY / distToTarget) * (enemy.speed * 0.06);
+                }
+                
+                enemy.vx *= 0.85; 
+                enemy.vy *= 0.85;
+                
+                let currentSpeed = Math.sqrt(enemy.vx*enemy.vx + enemy.vy*enemy.vy);
+                if (currentSpeed > MAX_SPEED) {
+                    enemy.vx = (enemy.vx / currentSpeed) * MAX_SPEED;
+                    enemy.vy = (enemy.vy / currentSpeed) * MAX_SPEED;
+                }
+                
+                moveLeft = false; moveRight = false; // Bypass normal physics
+            } else {
+                // Guardian AI Priorities (1. Stop the player, 2. Kill the player)
+                enemy.speed = MAX_SPEED; // Exact same physics/speed as player
+                
+                if (enemy.startX === undefined) {
+                    enemy.startX = enemy.x;
+                }
+                
+                let distToPlayerX = Math.abs(player.x - enemy.x);
+                let distToPlayerY = Math.abs(player.y - enemy.y);
+                
+                if (distToPlayerX < 250 && distToPlayerY < 300) {
+                    // Priority 2: KILL - Player got too close, abandon post and charge!
+                    moveLeft = (player.x < enemy.x - 10);
+                    moveRight = (player.x > enemy.x + 10);
+                } else if (distToPlayerX < 800) {
+                    // Priority 1: STOP - Keep a blocking position between the player and the goal (the right side)
+                    let blockTargetX = player.x + 200;
+                    moveLeft = (blockTargetX < enemy.x - 10);
+                    moveRight = (blockTargetX > enemy.x + 10);
+                } else {
+                    // Idle: Guard post
+                    moveLeft = (enemy.startX < enemy.x - 10);
+                    moveRight = (enemy.startX > enemy.x + 10);
+                }
             }
-            
-            let dirX = enemy.targetX - enemy.x;
-            let dirY = enemy.targetY - enemy.y;
-            let distToTarget = Math.sqrt(dirX*dirX + dirY*dirY);
-            
-            if (distToTarget > 5) {
-                enemy.vx += (dirX / distToTarget) * (enemy.speed * 0.06); // Rapid acceleration
-                enemy.vy += (dirY / distToTarget) * (enemy.speed * 0.06);
-            }
-            
-            enemy.vx *= 0.85; // High friction for snappy movement
-            enemy.vy *= 0.85;
-            
-            moveLeft = false; moveRight = false; // Bypass normal physics
         } else if (currentLevelIndex >= 10) {
             // Ice enemies commit to a direction during their reaction delay so they don't awkwardly stop in mid-air
             if (enemy.reactionTimer <= 0) {
@@ -867,6 +914,26 @@ function updateEnemies() {
                 }
             }
 
+            if (currentLevelIndex >= 5 && currentLevelIndex < 10 && !enemy.isBoss && enemy.vy < prevVy && enemy.isGrounded === false) {
+                // The Leaf Enemy just jumped!
+                enemy.jumpCount = (enemy.jumpCount || 0) + 1;
+                if (enemy.jumpCount >= 5) {
+                    enemy.jumpCount = 0;
+                    if (activeEnemies.length < 12) { // Cap clones to prevent infinite lag
+                        activeEnemies.push({
+                            x: enemy.x, y: enemy.y,
+                            width: enemy.width, height: enemy.height,
+                            vx: -enemy.vx, vy: enemy.vy, // Clone jumps in opposite direction
+                            speed: enemy.speed, aggro: enemy.aggro,
+                            jumpCooldown: 30, jumpsLeft: enemy.jumpsLeft,
+                            renderW: enemy.renderW, renderH: enemy.renderH,
+                            jumpCount: 0
+                        });
+                        spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, colors.enemyLeaf, 20, 1.5);
+                    }
+                }
+            }
+
         if (enemy.isBoss) {
             if (currentLevelIndex >= 15) {
                 // Fire Boss floats heavily and aggressively charges
@@ -889,7 +956,7 @@ function updateEnemies() {
             }
         }
 
-        if (currentLevelIndex < 15) {
+        if (currentLevelIndex < 15 || !enemy.isBoss) {
             enemy.vy += GRAVITY;
         }
 
@@ -921,7 +988,7 @@ function updateEnemies() {
         enemy.renderH += (enemy.height - enemy.renderH) * 0.2;
         
         // Kill player on touch
-        if (checkRectOverlap(player, enemy)) {
+        if (enemy.phaseState !== 'invisible' && checkRectOverlap(player, enemy)) {
             die();
             return;
         }
@@ -1047,7 +1114,7 @@ function updatePhysics() {
                 });
             }
         } else if (currentLevelIndex === 9) { // Leaf Boss Falling Leaves
-            if (gameTime % 25 === 0) { // Light flurry
+            if (gameTime % 60 === 0) { // Slower, less overwhelming flurry
                 fallingLeaves.push({
                     x: player.x + (Math.random() * 800 - 400),
                     y: camera.y - 100,
@@ -1106,7 +1173,7 @@ function updatePhysics() {
         }
         
         // Atmospheric Heavy Snow
-        if (currentLevelIndex >= 10 && currentLevelIndex <= 15) {
+        if (currentLevelIndex >= 10 && currentLevelIndex < 15) {
             // Intense blizzard - cap max flakes to prevent lag
             if (snowflakes.length < 500) {
                 for (let s = 0; s < 4; s++) {
@@ -1472,7 +1539,15 @@ function draw() {
             if (enemy.isBoss) {
                 drawBossBlaze(ctx, drawX, drawY, enemy.renderW, enemy.renderH);
             } else {
+                if (enemy.phaseState === 'invisible') continue; // Don't draw if invisible
+                
+                if (enemy.phaseState === 'flickering') {
+                    // Strobe opacity rapidly
+                    ctx.globalAlpha = (gameTime % 4 < 2) ? 0.3 : 1.0;
+                }
+                
                 drawBlazeEnemy(ctx, drawX, drawY, enemy.renderW, enemy.renderH);
+                ctx.globalAlpha = 1.0; // Reset alpha
             }
         } else if (currentLevelIndex >= 10) {
             if (enemy.isBoss) {
