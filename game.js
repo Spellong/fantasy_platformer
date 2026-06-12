@@ -49,7 +49,7 @@ let player = {
     vx: 0, vy: 0,
     renderW: 24, renderH: 24, 
     isGrounded: false,
-    jumpsLeft: 1,
+    jumpsLeft: 2,
     touchWallDir: 0, 
     jumpProcessed: false,
     jumpBufferTimer: 0,
@@ -383,7 +383,7 @@ const levels = [
         ],
         hazards: [],
         enemies: [
-            { x: 650, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 20, aggro: 1000 }
+            { x: 650, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1000 }
         ],
         goal: {x: 1200, y: 450, w: 50, h: 50},
         spawn: {x: 50, y: 400}
@@ -400,8 +400,8 @@ const levels = [
         ],
         hazards: [],
         enemies: [
-            { x: 400, y: 350, width: 40, height: 40, vx: 0, vy: 0, speed: 20, aggro: 1500 },
-            { x: 1000, y: 150, width: 40, height: 40, vx: 0, vy: 0, speed: 20, aggro: 1500 }
+            { x: 400, y: 350, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1500 },
+            { x: 1000, y: 150, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1500 }
         ],
         goal: {x: 1300, y: 50, w: 50, h: 50},
         spawn: {x: 50, y: 400}
@@ -416,8 +416,8 @@ const levels = [
         ],
         hazards: [],
         enemies: [
-            { x: 700, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 20, aggro: 2000 },
-            { x: 400, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 20, aggro: 2000 }
+            { x: 700, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 2000 },
+            { x: 400, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 2000 }
         ],
         goal: {x: 50, y: 450, w: 50, h: 50},
         spawn: {x: 1300, y: 400}
@@ -430,7 +430,7 @@ const levels = [
         ],
         hazards: [],
         enemies: [
-            { x: 700, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 20, aggro: 1500 }
+            { x: 700, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1500 }
         ],
         goal: {x: 900, y: 450, w: 50, h: 50},
         spawn: {x: 100, y: 400}
@@ -446,7 +446,7 @@ const levels = [
         ],
         hazards: [],
         enemies: [
-            { x: 1400, y: 400, width: 100, height: 100, vx: 0, vy: 0, speed: 17, aggro: 3000, isBoss: true, jumpTimer: 0 }
+            { x: 1400, y: 400, width: 100, height: 100, vx: 0, vy: 0, speed: 14, aggro: 3000, isBoss: true, jumpTimer: 0 }
         ],
         goal: {x: 1600, y: 550, w: 50, h: 50},
         spawn: {x: 100, y: 500}
@@ -622,7 +622,7 @@ function loadLevel(index) {
         return { 
             ...e, 
             isGrounded: false, 
-            jumpsLeft: 1, 
+            jumpsLeft: 2, 
             touchWallDir: 0,
             renderW: e.width,
             renderH: e.height,
@@ -684,7 +684,7 @@ function handleEntityCollisions(entity, isAxisX) {
                     }
                     
                     entity.isGrounded = true;
-                    entity.jumpsLeft = 1;
+                    entity.jumpsLeft = 2;
                 } else if (entity.vy < 0) {
                     entity.y = plat.y + plat.h;
                 }
@@ -713,6 +713,56 @@ function updateEnemies() {
         
         let moveLeft = false;
         let moveRight = false;
+        
+        // Storm Spirits Teleportation Logic
+        if (currentLevelIndex < 5 && !enemy.isBoss) {
+            if (enemy.tpCooldown === undefined) {
+                enemy.tpCooldown = Math.floor(60 + Math.random() * 240); // 1 to 5 seconds
+            }
+            if (enemy.tpCooldown > 0) {
+                enemy.tpCooldown--;
+                
+                // Teleport Charge-Up Phase (last 0.75 seconds)
+                if (Math.floor(enemy.tpCooldown) === 44) {
+                    // Lock in the destination
+                    if (level && level.platforms && level.platforms.length > 0) {
+                        let plat = level.platforms[Math.floor(Math.random() * level.platforms.length)];
+                        enemy.tpTargetX = plat.x + Math.random() * Math.max(0, plat.w - enemy.width);
+                        enemy.tpTargetY = plat.y - enemy.height - 5;
+                    }
+                }
+                
+                if (enemy.tpCooldown < 45) {
+                    if (gameTime % 4 === 0) {
+                        // Spark on the enemy
+                        spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, colors.enemy, 5, 2);
+                        // Spark at the destination so the player knows where they are going!
+                        if (enemy.tpTargetX !== undefined) {
+                            spawnParticles(enemy.tpTargetX + enemy.width/2, enemy.tpTargetY + enemy.height/2, colors.enemy, 3, 0.5);
+                        }
+                    }
+                }
+            } else {
+                enemy.tpCooldown = Math.floor(60 + Math.random() * 240);
+                
+                if (enemy.tpTargetX !== undefined) {
+                    // Minimal particle flash at the OLD location
+                    spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, colors.enemy, 15, 1.5);
+                    
+                    // Teleport to pre-chosen target
+                    enemy.x = enemy.tpTargetX;
+                    enemy.y = enemy.tpTargetY;
+                    enemy.vx = 0;
+                    enemy.vy = 0;
+                    
+                    // Minimal particle flash at the NEW location
+                    spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, colors.enemy, 15, 1.5);
+                    
+                    enemy.tpTargetX = undefined;
+                    enemy.tpTargetY = undefined;
+                }
+            }
+        }
         
         if (currentLevelIndex >= 15) {
             // FIRE GUARDIANS
@@ -802,6 +852,24 @@ function updateEnemies() {
                 }
             }
         } else if (currentLevelIndex >= 10) {
+            // Ice Enemies Dash Mechanic
+            if (!enemy.isBoss && currentLevelIndex < 15) {
+                if (enemy.dashCooldown === undefined) {
+                    enemy.dashCooldown = 60 + Math.random() * 240; // 1-5 seconds
+                }
+                
+                if (enemy.dashCooldown > 0) {
+                    enemy.dashCooldown--;
+                } else {
+                    enemy.dashCooldown = 60 + Math.random() * 240;
+                    enemy.dashTimer = 15; // Dash lasts for 15 frames
+                    enemy.vx = (player.x > enemy.x ? enemy.speed * 3.5 : -enemy.speed * 3.5);
+                    enemy.vy = -JUMP_FORCE * 0.4; // Slight hop
+                    enemy.isGrounded = false;
+                    spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, colors.enemy, 20, 2);
+                }
+            }
+            
             // Ice enemies commit to a direction during their reaction delay so they don't awkwardly stop in mid-air
             if (enemy.reactionTimer <= 0) {
                 if (player.x < enemy.x - 10) enemy.moveDir = -1;
@@ -813,37 +881,33 @@ function updateEnemies() {
             moveLeft = (enemy.moveDir === -1);
             moveRight = (enemy.moveDir === 1);
         } else {
-            // Normal enemies track instantly
-            moveLeft = (player.x < enemy.x - 10);
-            moveRight = (player.x > enemy.x + 10);
+            // Normal enemies track instantly (Storm Enemies)
+            if (enemy.tpCooldown !== undefined && enemy.tpCooldown < 45) {
+                // Teleport Charging Phase! Stop moving and vibrate
+                moveLeft = false;
+                moveRight = false;
+                enemy.vx *= 0.8; // Skidd to a halt
+                enemy.x += (Math.random() - 0.5) * 4; // Violent vibration
+            } else {
+                moveLeft = (player.x < enemy.x - 10);
+                moveRight = (player.x > enemy.x + 10);
+            }
         }
             
-            // Forest Enemies: Look ahead and release movement to stop naturally using friction
+            // Forest Enemies: Detect ledge to jump instantly without hesitation
             if ((currentLevelIndex >= 5 && currentLevelIndex < 10) && enemy.isGrounded) {
-                let stopDist = 45; // Distance needed to stop using friction
-                
-                if (moveLeft) {
-                    let lookAheadX = enemy.x - stopDist;
-                    let isSafe = false;
+                let lookAheadX = moveLeft ? enemy.x - 5 : (moveRight ? enemy.x + enemy.width + 5 : enemy.x);
+                let isSafe = false;
+                if (moveLeft || moveRight) {
                     for (const plat of level.platforms) {
                         if (lookAheadX >= plat.x && lookAheadX <= plat.x + plat.w &&
                             enemy.y + enemy.height + 5 >= plat.y && enemy.y + enemy.height + 5 <= plat.y + plat.h + 20) {
                             isSafe = true; break;
                         }
                     }
-                    if (!isSafe) { moveLeft = false; atLedge = true; }
-                }
-                
-                if (moveRight) {
-                    let lookAheadX = enemy.x + enemy.width + stopDist;
-                    let isSafe = false;
-                    for (const plat of level.platforms) {
-                        if (lookAheadX >= plat.x && lookAheadX <= plat.x + plat.w &&
-                            enemy.y + enemy.height + 5 >= plat.y && enemy.y + enemy.height + 5 <= plat.y + plat.h + 20) {
-                            isSafe = true; break;
-                        }
+                    if (!isSafe) { 
+                        atLedge = true; 
                     }
-                    if (!isSafe) { moveRight = false; atLedge = true; }
                 }
             }
             
@@ -856,8 +920,15 @@ function updateEnemies() {
             
             enemy.vx *= FRICTION;
             
-            if (enemy.vx > enemy.speed) enemy.vx = enemy.speed;
-            if (enemy.vx < -enemy.speed) enemy.vx = -enemy.speed;
+            if (enemy.dashTimer > 0) {
+                enemy.dashTimer--;
+                if (enemy.vx > enemy.speed * 3.5) enemy.vx = enemy.speed * 3.5;
+                if (enemy.vx < -enemy.speed * 3.5) enemy.vx = -enemy.speed * 3.5;
+                if (gameTime % 2 === 0) spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, colors.enemy, 2, 0.5); // Dash trail
+            } else {
+                if (enemy.vx > enemy.speed) enemy.vx = enemy.speed;
+                if (enemy.vx < -enemy.speed) enemy.vx = -enemy.speed;
+            }
 
             if (enemy.jumpCooldown > 0) {
                 enemy.jumpCooldown--;
@@ -867,13 +938,17 @@ function updateEnemies() {
             // If they are on the ground and moving into a wall, or they want to jump towards player, or they are at a ledge
             if (enemy.isGrounded && enemy.jumpCooldown <= 0 && !enemy.isBoss) {
                 if (enemy.touchWallDir !== 0 || (player.y < enemy.y - 40 && Math.abs(player.x - enemy.x) < 200) || atLedge) {
-                    if (Math.random() < 0.1) { 
-                        enemy.vy = ((currentLevelIndex >= 5 && currentLevelIndex < 10)) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
+                    let isForest = (currentLevelIndex >= 5 && currentLevelIndex < 10);
+                    let shouldJump = (isForest && atLedge) ? true : (Math.random() < 0.1);
+                    
+                    if (shouldJump) { 
+                        enemy.vy = JUMP_FORCE;
                         if (atLedge) {
                             // Give them forward momentum to clear the gap!
                             enemy.vx = (player.x > enemy.x ? enemy.speed : -enemy.speed);
                         }
                         enemy.isGrounded = false;
+                        enemy.jumpsLeft = 1;
                         enemy.jumpCooldown = 60; // 1 second cooldown
                     }
                 }
@@ -882,33 +957,34 @@ function updateEnemies() {
             if (enemy.jumpCooldown <= 0 && !enemy.isBoss) {
                 if (enemy.touchWallDir !== 0 && !enemy.isGrounded) {
                     // Wall jump
-                    enemy.vy = ((currentLevelIndex >= 5 && currentLevelIndex < 10)) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
+                    enemy.vy = JUMP_FORCE;
                     enemy.vx = -enemy.touchWallDir * enemy.speed * 1.5;
                     enemy.jumpsLeft = 1;
-                    enemy.jumpCooldown = 20;
+                    enemy.jumpCooldown = 10;
                     enemy.renderW = enemy.width - 14.4;
                     enemy.renderH = enemy.height + 14.4;
                     spawnParticles(enemy.x + (enemy.touchWallDir === 1 ? enemy.width : 0), enemy.y + enemy.height / 2, colors.enemy, 10, 1);
                 } else if (enemy.isGrounded && player.y < enemy.y - 80) {
                     // Ground Jump
-                    enemy.vy = ((currentLevelIndex >= 5 && currentLevelIndex < 10)) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
+                    enemy.vy = JUMP_FORCE;
                     enemy.jumpsLeft = 1;
                     enemy.isGrounded = false;
-                    enemy.jumpCooldown = 15;
+                    enemy.jumpCooldown = 5;
                     enemy.renderW = enemy.width - 12;
                     enemy.renderH = enemy.height + 12;
                 } else if (!enemy.isGrounded && enemy.jumpsLeft > 0 && enemy.vy > 5 && player.y < enemy.y - 20) {
                     // Double jump
-                    enemy.vy = ((currentLevelIndex >= 5 && currentLevelIndex < 10)) ? JUMP_FORCE * 1.8 : JUMP_FORCE * 0.9;
+                    enemy.vy = JUMP_FORCE * 0.9;
                     enemy.jumpsLeft--;
-                    enemy.jumpCooldown = 20;
+                    enemy.jumpCooldown = 5;
                     enemy.renderW = enemy.width - 9.6;
                     enemy.renderH = enemy.height + 9.6;
                 } else if (enemy.isGrounded && enemy.touchWallDir !== 0) {
                     // Jump over a block
-                    enemy.vy = ((currentLevelIndex >= 5 && currentLevelIndex < 10)) ? JUMP_FORCE * 2.0 : JUMP_FORCE;
+                    enemy.vy = JUMP_FORCE;
                     enemy.isGrounded = false;
-                    enemy.jumpCooldown = 15;
+                    enemy.jumpsLeft = 1;
+                    enemy.jumpCooldown = 5;
                     enemy.renderW = enemy.width - 12;
                     enemy.renderH = enemy.height + 12;
                 }
@@ -917,7 +993,7 @@ function updateEnemies() {
             if (currentLevelIndex >= 5 && currentLevelIndex < 10 && !enemy.isBoss && enemy.vy < prevVy && enemy.isGrounded === false) {
                 // The Leaf Enemy just jumped!
                 enemy.jumpCount = (enemy.jumpCount || 0) + 1;
-                if (enemy.jumpCount >= 5) {
+                if (enemy.jumpCount >= 3) {
                     enemy.jumpCount = 0;
                     if (activeEnemies.length < 12) { // Cap clones to prevent infinite lag
                         activeEnemies.push({
