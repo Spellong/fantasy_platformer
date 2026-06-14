@@ -18,7 +18,7 @@ const FRICTION = 0.82;
 const MAX_SPEED = 14; 
 const ACCEL = 2.0;
 const JUMP_FORCE = -15;
-const CAMERA_LERP = 0.15;
+const CAMERA_LERP = 0.08; // Smoother camera panning
 
 // Input handling
 const keys = {};
@@ -57,6 +57,138 @@ let player = {
     wallCoyoteTimer: 0,
     lastWallDir: 0
 };
+
+// Sound System
+const SoundManager = {
+    ctx: null,
+    masterGain: null,
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this.masterGain = this.ctx.createGain();
+            this.masterGain.gain.value = 0.5; // Prevent clipping
+            this.masterGain.connect(this.ctx.destination);
+            
+            // Magical Delay/Reverb setup
+            this.delay = this.ctx.createDelay();
+            this.delay.delayTime.value = 0.2; // 200ms delay
+            
+            this.feedback = this.ctx.createGain();
+            this.feedback.gain.value = 0.4; // Echo decay
+            
+            this.filter = this.ctx.createBiquadFilter();
+            this.filter.type = 'lowpass';
+            this.filter.frequency.value = 1500; // Dampen the echoes to sound distant
+            
+            this.delay.connect(this.feedback);
+            this.feedback.connect(this.filter);
+            this.filter.connect(this.delay);
+            
+            this.delay.connect(this.masterGain);
+        } else if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    },
+    playChime(baseFreq, duration, vol) {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.type = 'sine';
+        
+        // A smooth sweep from baseFreq up to an octave higher
+        osc.frequency.setValueAtTime(baseFreq, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, this.ctx.currentTime + duration * 0.5);
+        
+        // Smooth attack and decay (no sharp "ding")
+        gain.gain.setValueAtTime(0, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(vol, this.ctx.currentTime + duration * 0.2);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+        
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        gain.connect(this.delay); // Send to magical reverb
+        
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+    },
+    playWhoosh(duration, vol, freqStart = 2000, freqEnd = 200) {
+        if (!this.ctx) return;
+        const bufferSize = this.ctx.sampleRate * duration;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.Q.value = 1.5;
+        filter.frequency.setValueAtTime(freqStart, this.ctx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(freqEnd, this.ctx.currentTime + duration);
+        
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(vol, this.ctx.currentTime + duration * 0.2);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+        
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+        gain.connect(this.delay);
+        
+        noise.start();
+    },
+    playOscillator(type, freqStart, freqEnd, duration, volStart, volEnd) {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freqStart, this.ctx.currentTime);
+        if (freqEnd) {
+            osc.frequency.exponentialRampToValueAtTime(freqEnd, this.ctx.currentTime + duration);
+        }
+        gain.gain.setValueAtTime(volStart, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(volEnd || 0.01, this.ctx.currentTime + duration);
+        
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        gain.connect(this.delay);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+    },
+    playJump() { this.playChime(300, 0.8, 0.6); },
+    playDoubleJump() { this.playChime(450, 0.8, 0.6); },
+    playEnemyJump() { this.playChime(600, 0.5, 0.3); },
+    playClone() { 
+        this.playChime(800, 0.4, 0.4); 
+        setTimeout(() => this.playChime(1200, 0.6, 0.4), 50);
+    },
+    playTeleportCharge() { this.playOscillator('sine', 200, 1500, 0.7, 0.01, 0.3); },
+    playTeleport() { this.playChime(1500, 1.0, 0.8); },
+    playDash() { this.playWhoosh(0.6, 0.5, 3000, 300); },
+    playShoot() { this.playWhoosh(0.4, 0.4, 1500, 100); this.playChime(200, 0.3, 0.3); },
+    playLightning() { 
+        this.playWhoosh(1.0, 0.6, 5000, 200); 
+        this.playOscillator('sine', 100, 40, 1.0, 0.5, 0.01); 
+    },
+    playDeath() { 
+        this.playOscillator('sawtooth', 300, 50, 1.5, 0.4, 0.01); 
+        this.playWhoosh(1.5, 0.5, 1000, 50); 
+    },
+    playGoal() {
+        if (!this.ctx) return;
+        this.playChime(440, 2.0, 0.4);
+        setTimeout(() => this.playChime(554.37, 2.0, 0.4), 200);
+        setTimeout(() => this.playChime(659.25, 3.0, 0.5), 400);
+        setTimeout(() => this.playChime(880, 4.0, 0.6), 600);
+    }
+};
+
+window.addEventListener('keydown', () => SoundManager.init());
+window.addEventListener('mousedown', () => SoundManager.init());
+
 
 // Camera state
 let camera = { x: 0, y: 0 };
@@ -159,11 +291,18 @@ function updateParticles() {
         if ((currentLevelIndex >= 5 && currentLevelIndex < 10) && p.isAmbient) {
             // Leafy flutter
             p.x += p.vx + Math.sin(gameTime * 0.05 + p.seed) * 1.5;
+            p.y += p.vy;
+            p.life -= 0.005;
         } else {
+            // Apply friction to magical explosions so they burst and then linger smoothly
+            if (!p.isAmbient) {
+                p.vx *= 0.92;
+                p.vy *= 0.92;
+            }
             p.x += p.vx;
+            p.y += p.vy;
+            p.life -= p.isAmbient ? 0.005 : 0.01; // Slower fade out
         }
-        p.y += p.vy;
-        p.life -= p.isAmbient ? 0.005 : 0.02;
         if (p.life <= 0) particles.splice(i, 1);
     }
 }
@@ -439,10 +578,20 @@ const levels = [
         title: "The Frost Construct.",
         quote: "It's cold. It's fast. It wants you dead.",
         platforms: [
-            {x: -200, y: 600, w: 2000, h: 200}, 
-            {x: 400, y: 450, w: 200, h: 20},
-            {x: 1000, y: 450, w: 200, h: 20},
-            {x: 700, y: 300, w: 200, h: 20}
+            // Left safe zone
+            {x: 0, y: 600, w: 300, h: 200},
+            // Fractured ice crevasses (80px gaps, player falls but the 100px-wide boss ignores them!)
+            {x: 380, y: 600, w: 150, h: 200},
+            {x: 610, y: 600, w: 150, h: 200},
+            {x: 840, y: 600, w: 150, h: 200},
+            {x: 1070, y: 600, w: 150, h: 200},
+            // Right safe zone
+            {x: 1300, y: 600, w: 300, h: 200},
+            
+            // Upper small platforms for dodging
+            {x: 300, y: 450, w: 100, h: 20},
+            {x: 1200, y: 450, w: 100, h: 20},
+            {x: 750, y: 350, w: 100, h: 20}
         ],
         hazards: [],
         enemies: [
@@ -588,7 +737,7 @@ function loadLevel(index) {
     }
     
     // Set UI Title
-    levelTitle.innerHTML = `Level ${index + 1}<br><span style="font-size: 0.5em; font-style: italic; color: #ccc;">${level.title}</span><br><span style="font-size: 0.4em; font-weight: normal; color: #aaa;">"${level.quote}"</span>`;
+    levelTitle.innerHTML = `Level ${index + 1}<br><span style="font-size: 0.5em; font-style: italic; color: #ccc;">${level.title}</span>`;
 
     player.x = level.spawn.x;
     player.y = level.spawn.y;
@@ -642,7 +791,7 @@ function loadLevel(index) {
     setTimeout(() => {
         uiLayer.classList.add('hidden');
         state = 'playing';
-    }, 3500); // Increased from 2000ms to give time to read the quote
+    }, 2000);
 }
 
 function toggleMenu() {
@@ -724,6 +873,7 @@ function updateEnemies() {
                 
                 // Teleport Charge-Up Phase (last 0.75 seconds)
                 if (Math.floor(enemy.tpCooldown) === 44) {
+                    SoundManager.playTeleportCharge();
                     // Lock in the destination
                     if (level && level.platforms && level.platforms.length > 0) {
                         let plat = level.platforms[Math.floor(Math.random() * level.platforms.length)];
@@ -750,6 +900,7 @@ function updateEnemies() {
                     spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, colors.enemy, 15, 1.5);
                     
                     // Teleport to pre-chosen target
+                    SoundManager.playTeleport();
                     enemy.x = enemy.tpTargetX;
                     enemy.y = enemy.tpTargetY;
                     enemy.vx = 0;
@@ -855,14 +1006,15 @@ function updateEnemies() {
             // Ice Enemies Dash Mechanic
             if (!enemy.isBoss && currentLevelIndex < 15) {
                 if (enemy.dashCooldown === undefined) {
-                    enemy.dashCooldown = 60 + Math.random() * 240; // 1-5 seconds
+                    enemy.dashCooldown = 30 + Math.random() * 90; // 0.5 to 2 seconds
                 }
                 
                 if (enemy.dashCooldown > 0) {
                     enemy.dashCooldown--;
                 } else {
-                    enemy.dashCooldown = 60 + Math.random() * 240;
+                    enemy.dashCooldown = 30 + Math.random() * 90;
                     enemy.dashTimer = 15; // Dash lasts for 15 frames
+                    SoundManager.playDash();
                     enemy.vx = (player.x > enemy.x ? enemy.speed * 3.5 : -enemy.speed * 3.5);
                     enemy.vy = -JUMP_FORCE * 0.4; // Slight hop
                     enemy.isGrounded = false;
@@ -942,6 +1094,7 @@ function updateEnemies() {
                     let shouldJump = (isForest && atLedge) ? true : (Math.random() < 0.1);
                     
                     if (shouldJump) { 
+                        SoundManager.playEnemyJump();
                         enemy.vy = JUMP_FORCE;
                         if (atLedge) {
                             // Give them forward momentum to clear the gap!
@@ -993,8 +1146,9 @@ function updateEnemies() {
             if (currentLevelIndex >= 5 && currentLevelIndex < 10 && !enemy.isBoss && enemy.vy < prevVy && enemy.isGrounded === false) {
                 // The Leaf Enemy just jumped!
                 enemy.jumpCount = (enemy.jumpCount || 0) + 1;
-                if (enemy.jumpCount >= 3) {
-                    enemy.jumpCount = 0;
+                if (enemy.jumpCount % 3 === 0) {
+                    // Clone itself
+                    SoundManager.playClone();
                     if (activeEnemies.length < 12) { // Cap clones to prevent infinite lag
                         activeEnemies.push({
                             x: enemy.x, y: enemy.y,
@@ -1105,8 +1259,8 @@ function updatePhysics() {
     let currentSpeedMult = window.playerSpeedMult || 1.0;
     let currentJumpMult = window.playerJumpMult || 1.0;
     
-    if (keys['ArrowLeft'] || keys['KeyA']) player.vx -= ACCEL * currentSpeedMult;
-    if (keys['ArrowRight'] || keys['KeyD']) player.vx += ACCEL * currentSpeedMult;
+    if (keys['ArrowLeft'] || keys['KeyA']) { player.vx -= ACCEL * currentSpeedMult; player.facingRight = false; }
+    if (keys['ArrowRight'] || keys['KeyD']) { player.vx += ACCEL * currentSpeedMult; player.facingRight = true; }
     
     player.vx *= FRICTION;
     
@@ -1118,6 +1272,7 @@ function updatePhysics() {
     if (player.jumpBufferTimer > 0) {
         if (player.wallCoyoteTimer > 0 && !player.isGrounded) {
             // Wall Jump
+            SoundManager.playJump();
             player.vy = JUMP_FORCE * currentJumpMult;
             player.vx = -player.lastWallDir * currentMaxSpeed * 1.5;
             player.jumpsLeft = 1;
@@ -1128,6 +1283,7 @@ function updatePhysics() {
             spawnParticles(player.x + (player.lastWallDir === 1 ? player.width : 0), player.y + player.height / 2, colors.player, 15, 1);
         } else if (player.coyoteTimer > 0) {
             // Ground Jump
+            SoundManager.playJump();
             player.vy = JUMP_FORCE * currentJumpMult;
             player.jumpsLeft = 1; 
             player.isGrounded = false;
@@ -1138,6 +1294,7 @@ function updatePhysics() {
             spawnParticles(player.x + player.width / 2, player.y + player.height, colors.player, 10, 0.5);
         } else if (jumpJustPressed && player.jumpsLeft > 0) {
             // Double Jump
+            SoundManager.playDoubleJump();
             player.vy = JUMP_FORCE * 0.9 * currentJumpMult;
             player.jumpsLeft--;
             player.jumpBufferTimer = 0;
@@ -1181,9 +1338,10 @@ function updatePhysics() {
     updateEnemies();
     
     // Boss Mechanics
-    if (level && level.enemies.some(e => e.isBoss) && state === 'playing') {
+    if (level && level.enemies.some(e => e.isBoss) && state === 'playing' && playerHasMoved) {
         if (currentLevelIndex === 4) { // Storm Boss Lightning
             if (gameTime % 120 === 0) { // Every 2 seconds
+                SoundManager.playLightning();
                 lightningStrikes.push({
                     x: player.x + (Math.random() * 300 - 150),
                     timer: 60 // 1 second indicator
@@ -1203,6 +1361,7 @@ function updatePhysics() {
         } else if (currentLevelIndex >= 13 && currentLevelIndex < 15) {
             // Boss summons icicles
             if (Math.random() < 0.05) {
+                SoundManager.playShoot();
                 fallingIcicles.push({
                     x: Math.random() * 2000 - 200,
                     y: camera.y - 100,
@@ -1223,6 +1382,7 @@ function updatePhysics() {
                 let dist = Math.sqrt(dx*dx + dy*dy);
                 let speed = 10 + Math.random() * 5;
                 
+                SoundManager.playShoot();
                 fireballs.push({
                     x: startX,
                     y: startY,
@@ -1235,8 +1395,8 @@ function updatePhysics() {
     }
     
     // Level hazards (non-boss)
-    if (state === 'playing') {
-        if (currentLevelIndex === 13 || currentLevelIndex === 14) {
+    if (state === 'playing' && playerHasMoved) {
+        if (currentLevelIndex === 14) { // Only boss level has extra icicles
             if (Math.random() < 0.03) {
                 fallingIcicles.push({
                     x: player.x + (Math.random() * 800 - 200),
@@ -1389,14 +1549,15 @@ function updatePhysics() {
         }
     }
 
-    // Squash and stretch easing
-    player.renderW += (player.width - player.renderW) * 0.3;
-    player.renderH += (player.height - player.renderH) * 0.3;
+    // Squash and stretch easing (super smooth bounce)
+    player.renderW += (player.width - player.renderW) * 0.15;
+    player.renderH += (player.height - player.renderH) * 0.15;
 }
 
 function die() {
     if (state === 'transition') return;
     state = 'transition';
+    SoundManager.playDeath();
     spawnParticles(player.x + player.width/2, player.y + player.height/2, colors.enemy, 30, 2);
     fadeLayer.classList.remove('transparent'); 
     setTimeout(() => {
@@ -1407,6 +1568,7 @@ function die() {
 function winLevel() {
     if (state === 'transition') return;
     state = 'transition';
+    SoundManager.playGoal();
     spawnParticles(player.x + player.width/2, player.y + player.height/2, colors.goal, 50, 2);
     fadeLayer.classList.remove('transparent');
     currentLevelIndex++;
@@ -1535,9 +1697,9 @@ function drawBlazeEnemy(ctx, x, y, width, height) {
     // Base of the flame
     ctx.arc(x + width/2, y + height - 10, width/2, Math.PI, 0, true);
     
-    // Flickering tips
-    let flicker1 = Math.sin(gameTime * 0.2) * 5;
-    let flicker2 = Math.cos(gameTime * 0.3) * 5;
+    // Flickering tips removed (static candle)
+    let flicker1 = 0;
+    let flicker2 = 0;
     
     ctx.lineTo(x + width, y + height - 10);
     ctx.quadraticCurveTo(x + width*0.8, y + height/2, x + width/2 + flicker1, y);
@@ -1557,9 +1719,10 @@ function drawBossBlaze(ctx, x, y, width, height) {
     ctx.beginPath();
     ctx.arc(x + width/2, y + height - 15, width/2 + 10, Math.PI, 0, true);
     
-    let flicker1 = Math.sin(gameTime * 0.15) * 10;
-    let flicker2 = Math.cos(gameTime * 0.25) * 10;
-    let flicker3 = Math.sin(gameTime * 0.1) * 8;
+    // Flickering tips removed (static candle)
+    let flicker1 = 0;
+    let flicker2 = 0;
+    let flicker3 = 0;
     
     ctx.lineTo(x + width + 10, y + height - 15);
     ctx.quadraticCurveTo(x + width*0.9, y + height/3, x + width*0.75 + flicker1, y - 10);
