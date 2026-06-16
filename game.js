@@ -58,136 +58,7 @@ let player = {
     lastWallDir: 0
 };
 
-// Sound System
-const SoundManager = {
-    ctx: null,
-    masterGain: null,
-    init() {
-        if (!this.ctx) {
-            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            this.masterGain = this.ctx.createGain();
-            this.masterGain.gain.value = 0.5; // Prevent clipping
-            this.masterGain.connect(this.ctx.destination);
-            
-            // Magical Delay/Reverb setup
-            this.delay = this.ctx.createDelay();
-            this.delay.delayTime.value = 0.2; // 200ms delay
-            
-            this.feedback = this.ctx.createGain();
-            this.feedback.gain.value = 0.4; // Echo decay
-            
-            this.filter = this.ctx.createBiquadFilter();
-            this.filter.type = 'lowpass';
-            this.filter.frequency.value = 1500; // Dampen the echoes to sound distant
-            
-            this.delay.connect(this.feedback);
-            this.feedback.connect(this.filter);
-            this.filter.connect(this.delay);
-            
-            this.delay.connect(this.masterGain);
-        } else if (this.ctx.state === 'suspended') {
-            this.ctx.resume();
-        }
-    },
-    playChime(baseFreq, duration, vol) {
-        if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        
-        osc.type = 'sine';
-        
-        // A smooth sweep from baseFreq up to an octave higher
-        osc.frequency.setValueAtTime(baseFreq, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, this.ctx.currentTime + duration * 0.5);
-        
-        // Smooth attack and decay (no sharp "ding")
-        gain.gain.setValueAtTime(0, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(vol, this.ctx.currentTime + duration * 0.2);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-        
-        osc.connect(gain);
-        gain.connect(this.masterGain);
-        gain.connect(this.delay); // Send to magical reverb
-        
-        osc.start();
-        osc.stop(this.ctx.currentTime + duration);
-    },
-    playWhoosh(duration, vol, freqStart = 2000, freqEnd = 200) {
-        if (!this.ctx) return;
-        const bufferSize = this.ctx.sampleRate * duration;
-        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = Math.random() * 2 - 1;
-        }
-        const noise = this.ctx.createBufferSource();
-        noise.buffer = buffer;
-        const filter = this.ctx.createBiquadFilter();
-        filter.type = 'bandpass';
-        filter.Q.value = 1.5;
-        filter.frequency.setValueAtTime(freqStart, this.ctx.currentTime);
-        filter.frequency.exponentialRampToValueAtTime(freqEnd, this.ctx.currentTime + duration);
-        
-        const gain = this.ctx.createGain();
-        gain.gain.setValueAtTime(0, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(vol, this.ctx.currentTime + duration * 0.2);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
-        
-        noise.connect(filter);
-        filter.connect(gain);
-        gain.connect(this.masterGain);
-        gain.connect(this.delay);
-        
-        noise.start();
-    },
-    playOscillator(type, freqStart, freqEnd, duration, volStart, volEnd) {
-        if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freqStart, this.ctx.currentTime);
-        if (freqEnd) {
-            osc.frequency.exponentialRampToValueAtTime(freqEnd, this.ctx.currentTime + duration);
-        }
-        gain.gain.setValueAtTime(volStart, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(volEnd || 0.01, this.ctx.currentTime + duration);
-        
-        osc.connect(gain);
-        gain.connect(this.masterGain);
-        gain.connect(this.delay);
-        osc.start();
-        osc.stop(this.ctx.currentTime + duration);
-    },
-    playJump() { this.playChime(300, 0.8, 0.6); },
-    playDoubleJump() { this.playChime(450, 0.8, 0.6); },
-    playEnemyJump() { this.playChime(600, 0.5, 0.3); },
-    playClone() { 
-        this.playChime(800, 0.4, 0.4); 
-        setTimeout(() => this.playChime(1200, 0.6, 0.4), 50);
-    },
-    playTeleportCharge() { this.playOscillator('sine', 200, 1500, 0.7, 0.01, 0.3); },
-    playTeleport() { this.playChime(1500, 1.0, 0.8); },
-    playDash() { this.playWhoosh(0.6, 0.5, 3000, 300); },
-    playShoot() { this.playWhoosh(0.4, 0.4, 1500, 100); this.playChime(200, 0.3, 0.3); },
-    playLightning() { 
-        this.playWhoosh(1.0, 0.6, 5000, 200); 
-        this.playOscillator('sine', 100, 40, 1.0, 0.5, 0.01); 
-    },
-    playDeath() { 
-        this.playOscillator('sawtooth', 300, 50, 1.5, 0.4, 0.01); 
-        this.playWhoosh(1.5, 0.5, 1000, 50); 
-    },
-    playGoal() {
-        if (!this.ctx) return;
-        this.playChime(440, 2.0, 0.4);
-        setTimeout(() => this.playChime(554.37, 2.0, 0.4), 200);
-        setTimeout(() => this.playChime(659.25, 3.0, 0.5), 400);
-        setTimeout(() => this.playChime(880, 4.0, 0.6), 600);
-    }
-};
-
-window.addEventListener('keydown', () => SoundManager.init());
-window.addEventListener('mousedown', () => SoundManager.init());
+// Sound System removed per user request
 
 
 // Camera state
@@ -238,6 +109,17 @@ const themeFire = {
     goal: '#ffdd00', // Blazing sun portal
     bg: '#0a0200', // Deep dark ash background
     particle: '#ff5500', // Embers
+    player: '#ffffff'
+};
+
+const themeVoid = {
+    platform: '#180a22', // Deep void purple
+    platformBorder: '#6a0dad', // Neon purple glow
+    hazard: '#ff00ff', // Magenta spikes
+    enemy: '#bd00ff', // Intense black hole purple glow
+    goal: '#ffffff', // White hole portal
+    bg: '#05000a', // Almost pure black
+    particle: '#bd00ff', // Void dust
     player: '#ffffff'
 };
 
@@ -698,6 +580,108 @@ const levels = [
         ],
         goal: {x: 1450, y: 550, w: 50, h: 50},
         spawn: {x: 100, y: 500}
+    },
+    { // Level 21: Void Intro
+        title: "Into the Abyss.",
+        quote: "Don't get too close.",
+        platforms: [
+            {x: 0, y: 600, w: 200, h: 20},
+            {x: 400, y: 500, w: 100, h: 20},
+            {x: 800, y: 400, w: 100, h: 20},
+            {x: 1200, y: 300, w: 200, h: 20}
+        ],
+        hazards: [
+            {x: -1000, y: 800, w: 4000, h: 50} // Bottomless pit
+        ],
+        enemies: [
+            { x: 400, y: 200, width: 40, height: 40, vx: 0, vy: 0, speed: 2, aggro: 4000 }
+        ],
+        goal: {x: 1300, y: 200, w: 50, h: 50},
+        spawn: {x: 50, y: 500}
+    },
+    { // Level 22: Void Vertical
+        title: "Event Horizon.",
+        quote: "It pulls you down.",
+        platforms: [
+            {x: 100, y: 700, w: 100, h: 20},
+            {x: 300, y: 550, w: 100, h: 20},
+            {x: 100, y: 400, w: 100, h: 20},
+            {x: 300, y: 250, w: 100, h: 20},
+            {x: 100, y: 100, w: 100, h: 20}
+        ],
+        hazards: [
+            {x: -1000, y: 800, w: 4000, h: 50}
+        ],
+        enemies: [
+            { x: 200, y: 800, width: 60, height: 60, vx: 0, vy: 0, speed: 1.5, aggro: 4000 } // Huge pull from bottom
+        ],
+        goal: {x: 125, y: 0, w: 50, h: 50},
+        spawn: {x: 125, y: 600}
+    },
+    { // Level 23: Slingshot
+        title: "Singularity.",
+        quote: "Use their gravity against them.",
+        platforms: [
+            {x: 0, y: 500, w: 100, h: 20},
+            {x: 1400, y: 500, w: 200, h: 20}
+        ],
+        hazards: [
+            {x: -1000, y: 800, w: 4000, h: 50}
+        ],
+        enemies: [
+            { x: 400, y: 300, width: 40, height: 40, vx: 0, vy: 0, speed: 2, aggro: 4000 },
+            { x: 800, y: 700, width: 40, height: 40, vx: 0, vy: 0, speed: 2, aggro: 4000 },
+            { x: 1200, y: 300, width: 40, height: 40, vx: 0, vy: 0, speed: 2, aggro: 4000 }
+        ],
+        goal: {x: 1500, y: 400, w: 50, h: 50},
+        spawn: {x: 25, y: 400}
+    },
+    { // Level 24: Gauntlet
+        title: "The Crushing Dark.",
+        quote: "Don't stop moving.",
+        platforms: [
+            {x: 0, y: 600, w: 200, h: 20},
+            {x: 300, y: 600, w: 50, h: 20},
+            {x: 500, y: 500, w: 50, h: 20},
+            {x: 700, y: 400, w: 50, h: 20},
+            {x: 900, y: 500, w: 50, h: 20},
+            {x: 1100, y: 600, w: 50, h: 20},
+            {x: 1300, y: 600, w: 200, h: 20}
+        ],
+        hazards: [
+            {x: -1000, y: 800, w: 4000, h: 50}
+        ],
+        enemies: [
+            { x: 400, y: 700, width: 50, height: 50, vx: 0, vy: 0, speed: 2.5, aggro: 4000 },
+            { x: 800, y: 200, width: 50, height: 50, vx: 0, vy: 0, speed: 2.5, aggro: 4000 },
+            { x: 1200, y: 700, width: 50, height: 50, vx: 0, vy: 0, speed: 2.5, aggro: 4000 }
+        ],
+        goal: {x: 1400, y: 500, w: 50, h: 50},
+        spawn: {x: 50, y: 500}
+    },
+    { // Level 25: Boss
+        title: "The Void Core.",
+        quote: "Escape the singularity.",
+        platforms: [
+            {x: 100, y: 800, w: 100, h: 20},
+            {x: 300, y: 700, w: 50, h: 20},
+            {x: 100, y: 600, w: 50, h: 20},
+            {x: 300, y: 500, w: 50, h: 20},
+            {x: 100, y: 400, w: 50, h: 20},
+            {x: 300, y: 300, w: 50, h: 20},
+            {x: 100, y: 200, w: 50, h: 20},
+            {x: 300, y: 100, w: 50, h: 20},
+            {x: 200, y: 0, w: 100, h: 20} // Top platform for goal
+        ],
+        hazards: [
+            {x: -1000, y: 900, w: 4000, h: 50}
+        ],
+        enemies: [
+            // Massive central black hole boss
+            { x: 500, y: 350, width: 250, height: 250, vx: 0, vy: 0, speed: 0, aggro: 4000, isBoss: true }
+        ],
+        goal: {x: 225, y: -80, w: 50, h: 50},
+        spawn: {x: 125, y: 700}
     }
 ];
 
@@ -729,11 +713,16 @@ function loadLevel(index) {
         levelTitle.style.color = '#bde0fe';
         levelTitle.style.textShadow = '0 0 25px rgba(189, 224, 254, 0.8), 0 0 10px #00b4d8';
         levelTitle.style.fontFamily = "'Raleway', sans-serif";
-    } else {
+    } else if (index < 20) {
         colors = { ...themeFire };
         levelTitle.style.color = '#ffaa00';
         levelTitle.style.textShadow = '0 0 25px rgba(255, 170, 0, 0.8), 0 0 10px #ff5500';
         levelTitle.style.fontFamily = "'Cinzel', serif";
+    } else {
+        colors = { ...themeVoid };
+        levelTitle.style.color = '#bd00ff';
+        levelTitle.style.textShadow = '0 0 25px rgba(189, 0, 255, 0.8), 0 0 10px #6a0dad';
+        levelTitle.style.fontFamily = "'Oswald', sans-serif";
     }
     
     // Set UI Title
@@ -873,7 +862,6 @@ function updateEnemies() {
                 
                 // Teleport Charge-Up Phase (last 0.75 seconds)
                 if (Math.floor(enemy.tpCooldown) === 44) {
-                    SoundManager.playTeleportCharge();
                     // Lock in the destination
                     if (level && level.platforms && level.platforms.length > 0) {
                         let plat = level.platforms[Math.floor(Math.random() * level.platforms.length)];
@@ -900,7 +888,6 @@ function updateEnemies() {
                     spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, colors.enemy, 15, 1.5);
                     
                     // Teleport to pre-chosen target
-                    SoundManager.playTeleport();
                     enemy.x = enemy.tpTargetX;
                     enemy.y = enemy.tpTargetY;
                     enemy.vx = 0;
@@ -915,7 +902,27 @@ function updateEnemies() {
             }
         }
         
-        if (currentLevelIndex >= 15) {
+        if (currentLevelIndex >= 20) {
+            // VOID BLACK HOLES
+            if (enemy.isBoss) {
+                enemy.speed = 0; // Boss doesn't walk
+                moveLeft = false;
+                moveRight = false;
+                
+                if (enemy.startX === undefined) {
+                    enemy.startX = enemy.x;
+                    enemy.startY = enemy.y;
+                    enemy.hoverTimer = Math.random() * 100;
+                }
+                
+                enemy.isGrounded = false;
+                enemy.hoverTimer += 0.05;
+                enemy.y = enemy.startY + Math.sin(enemy.hoverTimer) * 20;
+            } else {
+                moveLeft = (player.x < enemy.x - 10);
+                moveRight = (player.x > enemy.x + 10);
+            }
+        } else if (currentLevelIndex >= 15) {
             // FIRE GUARDIANS
             
             // Phase State Logic
@@ -1014,7 +1021,6 @@ function updateEnemies() {
                 } else {
                     enemy.dashCooldown = 30 + Math.random() * 90;
                     enemy.dashTimer = 15; // Dash lasts for 15 frames
-                    SoundManager.playDash();
                     enemy.vx = (player.x > enemy.x ? enemy.speed * 3.5 : -enemy.speed * 3.5);
                     enemy.vy = -JUMP_FORCE * 0.4; // Slight hop
                     enemy.isGrounded = false;
@@ -1094,7 +1100,6 @@ function updateEnemies() {
                     let shouldJump = (isForest && atLedge) ? true : (Math.random() < 0.1);
                     
                     if (shouldJump) { 
-                        SoundManager.playEnemyJump();
                         enemy.vy = JUMP_FORCE;
                         if (atLedge) {
                             // Give them forward momentum to clear the gap!
@@ -1148,7 +1153,6 @@ function updateEnemies() {
                 enemy.jumpCount = (enemy.jumpCount || 0) + 1;
                 if (enemy.jumpCount % 3 === 0) {
                     // Clone itself
-                    SoundManager.playClone();
                     if (activeEnemies.length < 12) { // Cap clones to prevent infinite lag
                         activeEnemies.push({
                             x: enemy.x, y: enemy.y,
@@ -1218,7 +1222,7 @@ function updateEnemies() {
         enemy.renderH += (enemy.height - enemy.renderH) * 0.2;
         
         // Kill player on touch
-        if (enemy.phaseState !== 'invisible' && checkRectOverlap(player, enemy)) {
+        if (checkRectOverlap(player, enemy)) {
             die();
             return;
         }
@@ -1272,7 +1276,6 @@ function updatePhysics() {
     if (player.jumpBufferTimer > 0) {
         if (player.wallCoyoteTimer > 0 && !player.isGrounded) {
             // Wall Jump
-            SoundManager.playJump();
             player.vy = JUMP_FORCE * currentJumpMult;
             player.vx = -player.lastWallDir * currentMaxSpeed * 1.5;
             player.jumpsLeft = 1;
@@ -1283,7 +1286,6 @@ function updatePhysics() {
             spawnParticles(player.x + (player.lastWallDir === 1 ? player.width : 0), player.y + player.height / 2, colors.player, 15, 1);
         } else if (player.coyoteTimer > 0) {
             // Ground Jump
-            SoundManager.playJump();
             player.vy = JUMP_FORCE * currentJumpMult;
             player.jumpsLeft = 1; 
             player.isGrounded = false;
@@ -1294,7 +1296,6 @@ function updatePhysics() {
             spawnParticles(player.x + player.width / 2, player.y + player.height, colors.player, 10, 0.5);
         } else if (jumpJustPressed && player.jumpsLeft > 0) {
             // Double Jump
-            SoundManager.playDoubleJump();
             player.vy = JUMP_FORCE * 0.9 * currentJumpMult;
             player.jumpsLeft--;
             player.jumpBufferTimer = 0;
@@ -1333,6 +1334,26 @@ function updatePhysics() {
     player.y += player.vy;
     player.isGrounded = false;
     handleEntityCollisions(player, false);
+    
+    // Void Gravity Pull
+    if (currentLevelIndex >= 20 && state === 'playing') {
+        for (let enemy of activeEnemies) {
+            let dx = (enemy.x + enemy.width/2) - (player.x + player.width/2);
+            let dy = (enemy.y + enemy.height/2) - (player.y + player.height/2);
+            let distSq = dx*dx + dy*dy;
+            let dist = Math.sqrt(distSq);
+            if (dist > 10 && dist < 1200) {
+                let pullStrength = enemy.isBoss ? 400 : 150;
+                let pullForce = pullStrength / dist;
+                if (pullForce > (enemy.isBoss ? 3.0 : 1.5)) pullForce = (enemy.isBoss ? 3.0 : 1.5);
+                
+                if (!player.isGrounded || enemy.isBoss) {
+                    player.vx += (dx / dist) * pullForce;
+                    if (!player.isGrounded) player.vy += (dy / dist) * pullForce;
+                }
+            }
+        }
+    }
 
     // Update Enemies
     updateEnemies();
@@ -1341,7 +1362,6 @@ function updatePhysics() {
     if (level && level.enemies.some(e => e.isBoss) && state === 'playing' && playerHasMoved) {
         if (currentLevelIndex === 4) { // Storm Boss Lightning
             if (gameTime % 120 === 0) { // Every 2 seconds
-                SoundManager.playLightning();
                 lightningStrikes.push({
                     x: player.x + (Math.random() * 300 - 150),
                     timer: 60 // 1 second indicator
@@ -1361,7 +1381,6 @@ function updatePhysics() {
         } else if (currentLevelIndex >= 13 && currentLevelIndex < 15) {
             // Boss summons icicles
             if (Math.random() < 0.05) {
-                SoundManager.playShoot();
                 fallingIcicles.push({
                     x: Math.random() * 2000 - 200,
                     y: camera.y - 100,
@@ -1382,7 +1401,6 @@ function updatePhysics() {
                 let dist = Math.sqrt(dx*dx + dy*dy);
                 let speed = 10 + Math.random() * 5;
                 
-                SoundManager.playShoot();
                 fireballs.push({
                     x: startX,
                     y: startY,
@@ -1557,7 +1575,6 @@ function updatePhysics() {
 function die() {
     if (state === 'transition') return;
     state = 'transition';
-    SoundManager.playDeath();
     spawnParticles(player.x + player.width/2, player.y + player.height/2, colors.enemy, 30, 2);
     fadeLayer.classList.remove('transparent'); 
     setTimeout(() => {
@@ -1568,7 +1585,6 @@ function die() {
 function winLevel() {
     if (state === 'transition') return;
     state = 'transition';
-    SoundManager.playGoal();
     spawnParticles(player.x + player.width/2, player.y + player.height/2, colors.goal, 50, 2);
     fadeLayer.classList.remove('transparent');
     currentLevelIndex++;
@@ -1742,6 +1758,34 @@ function drawBossBlaze(ctx, x, y, width, height) {
     ctx.shadowBlur = 0;
 }
 
+function drawVoidEnemy(ctx, x, y, width, height) {
+    let cx = x + width/2;
+    let cy = y + height/2;
+    
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = colors.enemy;
+    ctx.fillStyle = colors.enemy;
+    
+    ctx.beginPath();
+    ctx.arc(cx, cy, width/3, 0, Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+}
+
+function drawBossVoid(ctx, x, y, width, height) {
+    let cx = x + width/2;
+    let cy = y + height/2;
+    
+    ctx.shadowBlur = 40;
+    ctx.shadowColor = colors.enemy;
+    ctx.fillStyle = colors.enemy;
+    
+    ctx.beginPath();
+    ctx.arc(cx, cy, width/3, 0, Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+}
+
 function draw() {
     // Magical Gradient Background
     let bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -1774,7 +1818,13 @@ function draw() {
         let drawX = cx - enemy.renderW / 2;
         let drawY = cy - enemy.renderH;
         
-        if (currentLevelIndex >= 15) {
+        if (currentLevelIndex >= 20) {
+            if (enemy.isBoss) {
+                drawBossVoid(ctx, drawX, drawY, enemy.renderW, enemy.renderH);
+            } else {
+                drawVoidEnemy(ctx, drawX, drawY, enemy.renderW, enemy.renderH);
+            }
+        } else if (currentLevelIndex >= 15) {
             if (enemy.isBoss) {
                 drawBossBlaze(ctx, drawX, drawY, enemy.renderW, enemy.renderH);
             } else {
