@@ -220,74 +220,132 @@ let activeEnemies = [];
 
 const levels = [
     { // Level 1: Basic mechanics
-        title: "Jump. That's literally it.",
-        quote: "Hold the right arrow key. I believe in you.",
+        title: "The Long Road.",
+        quote: "Keep moving right. It's a long way.",
         platforms: [
             {x: 0, y: 500, w: 1000, h: 20},
-            {x: 300, y: 350, w: 200, h: 20},
-            {x: 800, y: 200, w: 200, h: 20}
+            {x: 1200, y: 500, w: 600, h: 20},
+            {x: 2000, y: 400, w: 200, h: 20},
+            {x: 2400, y: 300, w: 200, h: 20},
+            {x: 2800, y: 500, w: 800, h: 20},
+            {x: 3800, y: 400, w: 300, h: 20}
         ],
-        hazards: [],
+        checkpoints: [
+            {x: 1500, y: 450, w: 40, h: 50},
+            {x: 3000, y: 450, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: -100, y: 800, w: 5000, h: 50} // Pit
+        ],
         enemies: [
-            { x: 500, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
+            { x: 1400, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
+            { x: 3200, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
+            { x: 3800, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
         ],
-        goal: {x: 850, y: 150, w: 50, h: 50}, 
+        goal: {x: 4000, y: 350, w: 50, h: 50}, 
         spawn: {x: 100, y: 400}
     },
     { // Level 2: Gravity is a harsh mistress
         title: "Gravity is a harsh mistress.",
-        quote: "Press the up arrow to jump. Groundbreaking, I know.",
+        quote: "A long climb up.",
         platforms: [
-            {x: 0, y: 500, w: 300, h: 20},
-            {x: 400, y: 400, w: 300, h: 20},
-            {x: 800, y: 300, w: 300, h: 20},
-            {x: 400, y: 200, w: 300, h: 20},
-            {x: 0, y: 100, w: 300, h: 20}
+            // Floor 1
+            {x: 0, y: 600, w: 1000, h: 20},
+            {x: 1200, y: 600, w: 1000, h: 20},
+            // Staircase up
+            {x: 2300, y: 500, w: 200, h: 20},
+            {x: 2600, y: 400, w: 200, h: 20},
+            {x: 2900, y: 300, w: 200, h: 20},
+            // Floor 2 (going backwards)
+            {x: 2000, y: 200, w: 800, h: 20},
+            {x: 1000, y: 200, w: 800, h: 20},
+            // Final ascend
+            {x: 700, y: 100, w: 200, h: 20},
+            {x: 400, y: 0, w: 200, h: 20},
+            {x: 0, y: -100, w: 300, h: 20}
         ],
-        hazards: [],
+        checkpoints: [
+            {x: 1600, y: 550, w: 40, h: 50}, // Floor 1 mid
+            {x: 2400, y: 150, w: 40, h: 50}  // Floor 2 start
+        ],
+        hazards: [
+            {x: -100, y: 800, w: 4000, h: 50}
+        ],
         enemies: [
-            { x: 500, y: 350, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
-            { x: 900, y: 250, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
+            { x: 800, y: 500, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
+            { x: 1500, y: 500, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
+            { x: 2500, y: 100, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
+            { x: 1100, y: 100, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
         ],
-        goal: {x: 50, y: 50, w: 50, h: 50}, 
-        spawn: {x: 100, y: 400}
+        goal: {x: 50, y: -150, w: 50, h: 50}, 
+        spawn: {x: 100, y: 500}
     },
     { // Level 3: Don't look down
-        title: "Don't look down. Or do, I'm not your dad.",
-        quote: "Sometimes you have to jump twice. It's called a double jump.",
+        title: "Don't look down.",
+        quote: "Leap of faith.",
         platforms: [
-            {x: 0, y: 400, w: 200, h: 20},
-            {x: 400, y: 500, w: 150, h: 20},
-            {x: 800, y: 400, w: 150, h: 20},
-            {x: 1200, y: 500, w: 150, h: 20},
-            {x: 1600, y: 400, w: 200, h: 20}
+            {x: 0, y: 400, w: 400, h: 20},
+            {x: 700, y: 500, w: 150, h: 20},
+            {x: 1100, y: 400, w: 150, h: 20},
+            {x: 1600, y: 500, w: 200, h: 20}, // CP 1
+            {x: 2100, y: 600, w: 150, h: 20},
+            {x: 2500, y: 400, w: 150, h: 20},
+            {x: 3000, y: 300, w: 200, h: 20}, // CP 2
+            {x: 3500, y: 200, w: 100, h: 20},
+            {x: 3900, y: 400, w: 100, h: 20},
+            {x: 4300, y: 500, w: 300, h: 20}
         ],
-        hazards: [],
+        checkpoints: [
+            {x: 1650, y: 450, w: 40, h: 50},
+            {x: 3050, y: 250, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: -100, y: 1000, w: 6000, h: 50}
+        ],
         enemies: [
-            { x: 450, y: 300, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
-            { x: 1250, y: 300, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
+            { x: 1400, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 },
+            { x: 3500, y: 200, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
         ],
-        goal: {x: 50, y: 350, w: 50, h: 50}, 
-        spawn: {x: 1700, y: 300}
+        goal: {x: 4500, y: 450, w: 50, h: 50}, 
+        spawn: {x: 100, y: 300}
     },
     { // Level 4: Parkour
         title: "The Wall Jump Cavern.",
         quote: "Hug the walls. They won't hurt you... much.",
         platforms: [
-            {x: 0, y: 500, w: 350, h: 20}, // Start platform
-            // Thin walls to wall jump between
-            {x: 350, y: -300, w: 20, h: 900},
-            {x: 650, y: -300, w: 20, h: 900},
-            // Bottom pit floor
-            {x: 370, y: 600, w: 280, h: 20},
-            // High landing platform
-            {x: 670, y: -300, w: 200, h: 20}
+            {x: 0, y: 500, w: 400, h: 20}, // Start platform
+            // Pit 1
+            {x: 400, y: -300, w: 20, h: 900},
+            {x: 700, y: -300, w: 20, h: 900},
+            {x: 420, y: 600, w: 280, h: 20},
+            // CP 1 platform
+            {x: 720, y: -300, w: 300, h: 20},
+            // Corridor
+            {x: 1020, y: -300, w: 800, h: 20},
+            // Pit 2
+            {x: 1820, y: -1000, w: 20, h: 700},
+            {x: 2120, y: -1000, w: 20, h: 700},
+            {x: 1840, y: -300, w: 280, h: 20},
+            // CP 2 platform
+            {x: 2140, y: -1000, w: 400, h: 20},
+            // Pit 3 (downwards)
+            {x: 2540, y: -1000, w: 20, h: 1200},
+            {x: 2840, y: -1000, w: 20, h: 1200},
+            // Goal area
+            {x: 2860, y: 200, w: 500, h: 20}
         ],
-        hazards: [],
+        checkpoints: [
+            {x: 800, y: -350, w: 40, h: 50},
+            {x: 2200, y: -1050, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: -100, y: 1500, w: 4000, h: 50}
+        ],
         enemies: [
-            { x: 500, y: 550, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
+            { x: 600, y: 550, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 },
+            { x: 1980, y: -400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
         ],
-        goal: {x: 800, y: -350, w: 50, h: 50},
+        goal: {x: 3200, y: 150, w: 50, h: 50},
         spawn: {x: 100, y: 400}
     },
     { // Level 5: Boss Fight
@@ -308,68 +366,125 @@ const levels = [
     },
     { // Level 6: Introduction to Smart AI (Forest Green)
         title: "These ones actually went to college.",
-        quote: "They learned how to turn around! The horror!",
+        quote: "They patrol their platforms. And they multiply.",
         platforms: [
-            {x: 0, y: 500, w: 300, h: 20},
-            {x: 400, y: 500, w: 400, h: 20}, // Enemy patrols here and doesn't fall off!
-            {x: 900, y: 500, w: 300, h: 20}
+            {x: 0, y: 500, w: 600, h: 20},
+            {x: 800, y: 500, w: 1000, h: 20},
+            {x: 2000, y: 400, w: 800, h: 20},
+            {x: 3000, y: 500, w: 1000, h: 20}
         ],
-        hazards: [],
+        checkpoints: [
+            {x: 1000, y: 450, w: 40, h: 50},
+            {x: 2200, y: 350, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: -100, y: 800, w: 5000, h: 50}
+        ],
         enemies: [
-            { x: 550, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1000 }
+            { x: 1200, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1000 },
+            { x: 3500, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1000 }
         ],
-        goal: {x: 50, y: 450, w: 50, h: 50},
-        spawn: {x: 1100, y: 400}
+        goal: {x: 3800, y: 450, w: 50, h: 50},
+        spawn: {x: 100, y: 400}
     },
     { // Level 7: Multiple smart enemies
         title: "Precision platforming required.",
         quote: "I hope you brought your precision boots.",
         platforms: [
-            {x: 0, y: 600, w: 100, h: 20}, // End
-            {x: 400, y: 500, w: 140, h: 20}, // Widened platform
-            {x: 900, y: 400, w: 140, h: 20}, // Widened platform
-            {x: 1400, y: 500, w: 140, h: 20}, // Widened platform
-            {x: 1800, y: 600, w: 200, h: 20} // Start
+            {x: 0, y: 600, w: 400, h: 20},
+            {x: 600, y: 500, w: 200, h: 20},
+            {x: 1000, y: 400, w: 200, h: 20},
+            {x: 1400, y: 300, w: 200, h: 20},
+            {x: 1800, y: 400, w: 200, h: 20},
+            {x: 2200, y: 500, w: 200, h: 20},
+            {x: 2600, y: 600, w: 400, h: 20},
+            {x: 3200, y: 500, w: 200, h: 20},
+            {x: 3600, y: 400, w: 400, h: 20}
         ],
-        hazards: [],
+        checkpoints: [
+            {x: 1850, y: 350, w: 40, h: 50},
+            {x: 2700, y: 550, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: -100, y: 900, w: 5000, h: 50}
+        ],
         enemies: [
-            { x: 1420, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
+            { x: 1450, y: 250, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 },
+            { x: 3700, y: 350, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
         ],
-        goal: {x: 25, y: 550, w: 50, h: 50},
-        spawn: {x: 1900, y: 500}
+        goal: {x: 3900, y: 350, w: 50, h: 50},
+        spawn: {x: 100, y: 500}
     },
     { // Level 8: Vertical Tree Climbing
         title: "Tree climbing 101. Wall jumps and double jumps.",
         quote: "You're basically a squirrel now. Act like one.",
         platforms: [
-            {x: 0, y: 600, w: 200, h: 20}, // Start
-            {x: 400, y: 100, w: 20, h: 600}, // Main Trunk (standard 20px width)
-            {x: 200, y: 400, w: 120, h: 20}, // Branch left
-            {x: 500, y: 250, w: 120, h: 20}, // Branch right
-            {x: 200, y: 100, w: 120, h: 20}, // Branch left high
-            {x: 460, y: -100, w: 200, h: 20} // Top canopy
+            {x: 0, y: 600, w: 600, h: 20}, // Start
+
+            // Tree 1
+            {x: 600, y: -200, w: 20, h: 800},
+            {x: 620, y: 400, w: 200, h: 20},
+            {x: 400, y: 200, w: 200, h: 20},
+            {x: 620, y: 0, w: 200, h: 20},
+            {x: 400, y: -200, w: 200, h: 20},
+            
+            // Tree 2
+            {x: 1100, y: -600, w: 20, h: 1000},
+            {x: 900, y: 200, w: 200, h: 20},
+            {x: 1120, y: 0, w: 200, h: 20},
+            {x: 900, y: -200, w: 200, h: 20},
+            {x: 1120, y: -400, w: 200, h: 20},
+            {x: 900, y: -600, w: 200, h: 20},
+            
+            // Tree 3
+            {x: 1600, y: -1000, w: 20, h: 1000},
+            {x: 1400, y: -200, w: 200, h: 20},
+            {x: 1620, y: -400, w: 200, h: 20},
+            {x: 1400, y: -600, w: 200, h: 20},
+            {x: 1620, y: -800, w: 200, h: 20},
+            {x: 1400, y: -1000, w: 200, h: 20},
+            
+            // Canopy
+            {x: 1620, y: -1000, w: 600, h: 20}
         ],
-        hazards: [],
+        checkpoints: [
+            {x: 950, y: 150, w: 40, h: 50},
+            {x: 1450, y: -250, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: -100, y: 900, w: 3000, h: 50}
+        ],
         enemies: [
-            { x: 520, y: 200, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
+            { x: 950, y: -250, width: 40, height: 24, vx: 0, vy: 0, speed: 10, aggro: 1500 },
+            { x: 1900, y: -1050, width: 40, height: 24, vx: 0, vy: 0, speed: 10, aggro: 1500 }
         ],
-        goal: {x: 550, y: -150, w: 50, h: 50},
-        spawn: {x: 50, y: 500}
+        goal: {x: 2100, y: -1050, w: 50, h: 50},
+        spawn: {x: 100, y: 500}
     },
     { // Level 9: The Bridge
         title: "No running. Nowhere to hide.",
         quote: "Paaatttiiiieeeennnnccceeeee... or just run screaming, your call.",
         platforms: [
-            {x: 0, y: 500, w: 150, h: 20}, // Start
-            {x: 200, y: 500, w: 850, h: 20}, // Long flat bridge
-            {x: 1150, y: 500, w: 150, h: 20} // End
+            {x: 0, y: 500, w: 400, h: 20}, // Start
+            {x: 600, y: 500, w: 1000, h: 20},
+            {x: 1800, y: 500, w: 800, h: 20},
+            {x: 2800, y: 500, w: 1200, h: 20},
+            {x: 4200, y: 500, w: 600, h: 20}
         ],
-        hazards: [],
+        checkpoints: [
+            {x: 1000, y: 450, w: 40, h: 50},
+            {x: 3000, y: 450, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: -100, y: 900, w: 6000, h: 50}
+        ],
         enemies: [
-            { x: 700, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1000 }
+            { x: 1000, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1000 },
+            { x: 2200, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1000 },
+            { x: 3400, y: 450, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1000 }
         ],
-        goal: {x: 1200, y: 450, w: 50, h: 50},
-        spawn: {x: 50, y: 400}
+        goal: {x: 4600, y: 450, w: 50, h: 50},
+        spawn: {x: 100, y: 400}
     },
     { // Level 10: Forest Boss
         title: "The big angry salad.",
@@ -586,15 +701,16 @@ const levels = [
         quote: "Don't get too close.",
         platforms: [
             {x: 0, y: 600, w: 200, h: 20},
-            {x: 400, y: 500, w: 100, h: 20},
-            {x: 800, y: 400, w: 100, h: 20},
+            {x: 400, y: 500, w: 200, h: 20},
+            {x: 800, y: 400, w: 200, h: 20},
             {x: 1200, y: 300, w: 200, h: 20}
         ],
         hazards: [
             {x: -1000, y: 800, w: 4000, h: 50} // Bottomless pit
         ],
         enemies: [
-            { x: 400, y: 200, width: 40, height: 40, vx: 0, vy: 0, speed: 2, aggro: 4000 }
+            { x: 450, y: 470, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 },
+            { x: 850, y: 370, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 }
         ],
         goal: {x: 1300, y: 200, w: 50, h: 50},
         spawn: {x: 50, y: 500}
@@ -603,17 +719,19 @@ const levels = [
         title: "Event Horizon.",
         quote: "It pulls you down.",
         platforms: [
-            {x: 100, y: 700, w: 100, h: 20},
-            {x: 300, y: 550, w: 100, h: 20},
-            {x: 100, y: 400, w: 100, h: 20},
-            {x: 300, y: 250, w: 100, h: 20},
-            {x: 100, y: 100, w: 100, h: 20}
+            {x: 100, y: 700, w: 150, h: 20},
+            {x: 350, y: 550, w: 150, h: 20},
+            {x: 100, y: 400, w: 150, h: 20},
+            {x: 350, y: 250, w: 150, h: 20},
+            {x: 100, y: 100, w: 150, h: 20}
         ],
         hazards: [
             {x: -1000, y: 800, w: 4000, h: 50}
         ],
         enemies: [
-            { x: 200, y: 800, width: 60, height: 60, vx: 0, vy: 0, speed: 1.5, aggro: 4000 } // Huge pull from bottom
+            { x: 400, y: 520, width: 30, height: 30, vx: 0, vy: 0, speed: 1.5, aggro: 4000 },
+            { x: 150, y: 370, width: 30, height: 30, vx: 0, vy: 0, speed: 1.5, aggro: 4000 },
+            { x: 400, y: 220, width: 30, height: 30, vx: 0, vy: 0, speed: 1.5, aggro: 4000 }
         ],
         goal: {x: 125, y: 0, w: 50, h: 50},
         spawn: {x: 125, y: 600}
@@ -622,39 +740,42 @@ const levels = [
         title: "Singularity.",
         quote: "Use their gravity against them.",
         platforms: [
-            {x: 0, y: 500, w: 100, h: 20},
-            {x: 1400, y: 500, w: 200, h: 20}
+            {x: 0, y: 500, w: 200, h: 20},
+            {x: 350, y: 400, w: 150, h: 20},
+            {x: 650, y: 300, w: 150, h: 20},
+            {x: 950, y: 400, w: 150, h: 20},
+            {x: 1250, y: 500, w: 200, h: 20}
         ],
         hazards: [
             {x: -1000, y: 800, w: 4000, h: 50}
         ],
         enemies: [
-            { x: 400, y: 300, width: 40, height: 40, vx: 0, vy: 0, speed: 2, aggro: 4000 },
-            { x: 800, y: 700, width: 40, height: 40, vx: 0, vy: 0, speed: 2, aggro: 4000 },
-            { x: 1200, y: 300, width: 40, height: 40, vx: 0, vy: 0, speed: 2, aggro: 4000 }
+            { x: 400, y: 370, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 },
+            { x: 700, y: 270, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 },
+            { x: 1000, y: 370, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 }
         ],
-        goal: {x: 1500, y: 400, w: 50, h: 50},
-        spawn: {x: 25, y: 400}
+        goal: {x: 1300, y: 400, w: 50, h: 50},
+        spawn: {x: 50, y: 400}
     },
     { // Level 24: Gauntlet
         title: "The Crushing Dark.",
         quote: "Don't stop moving.",
         platforms: [
             {x: 0, y: 600, w: 200, h: 20},
-            {x: 300, y: 600, w: 50, h: 20},
-            {x: 500, y: 500, w: 50, h: 20},
-            {x: 700, y: 400, w: 50, h: 20},
-            {x: 900, y: 500, w: 50, h: 20},
-            {x: 1100, y: 600, w: 50, h: 20},
+            {x: 300, y: 600, w: 150, h: 20},
+            {x: 550, y: 500, w: 150, h: 20},
+            {x: 800, y: 400, w: 150, h: 20},
+            {x: 1050, y: 500, w: 150, h: 20},
             {x: 1300, y: 600, w: 200, h: 20}
         ],
         hazards: [
             {x: -1000, y: 800, w: 4000, h: 50}
         ],
         enemies: [
-            { x: 400, y: 700, width: 50, height: 50, vx: 0, vy: 0, speed: 2.5, aggro: 4000 },
-            { x: 800, y: 200, width: 50, height: 50, vx: 0, vy: 0, speed: 2.5, aggro: 4000 },
-            { x: 1200, y: 700, width: 50, height: 50, vx: 0, vy: 0, speed: 2.5, aggro: 4000 }
+            { x: 350, y: 570, width: 30, height: 30, vx: 0, vy: 0, speed: 2.5, aggro: 4000 },
+            { x: 600, y: 470, width: 30, height: 30, vx: 0, vy: 0, speed: 2.5, aggro: 4000 },
+            { x: 850, y: 370, width: 30, height: 30, vx: 0, vy: 0, speed: 2.5, aggro: 4000 },
+            { x: 1100, y: 470, width: 30, height: 30, vx: 0, vy: 0, speed: 2.5, aggro: 4000 }
         ],
         goal: {x: 1400, y: 500, w: 50, h: 50},
         spawn: {x: 50, y: 500}
@@ -663,25 +784,20 @@ const levels = [
         title: "The Void Core.",
         quote: "Escape the singularity.",
         platforms: [
-            {x: 100, y: 800, w: 100, h: 20},
-            {x: 300, y: 700, w: 50, h: 20},
-            {x: 100, y: 600, w: 50, h: 20},
-            {x: 300, y: 500, w: 50, h: 20},
-            {x: 100, y: 400, w: 50, h: 20},
-            {x: 300, y: 300, w: 50, h: 20},
-            {x: 100, y: 200, w: 50, h: 20},
-            {x: 300, y: 100, w: 50, h: 20},
-            {x: 200, y: 0, w: 100, h: 20} // Top platform for goal
+            {x: 0, y: 700, w: 2000, h: 20}, // Massive floor extended
+            {x: 300, y: 400, w: 300, h: 20}, // Raised high so 250px boss can run underneath (700-400 = 300 clearance)
+            {x: 1000, y: 400, w: 300, h: 20},
+            {x: 650, y: 200, w: 300, h: 20} // Goal platform
         ],
         hazards: [
             {x: -1000, y: 900, w: 4000, h: 50}
         ],
         enemies: [
-            // Massive central black hole boss
-            { x: 500, y: 350, width: 250, height: 250, vx: 0, vy: 0, speed: 0, aggro: 4000, isBoss: true }
+            // Massive Jumping Void Boss
+            { x: 1200, y: 580, width: 120, height: 120, vx: 0, vy: 0, speed: 2, aggro: 4000, isBoss: true }
         ],
-        goal: {x: 225, y: -80, w: 50, h: 50},
-        spawn: {x: 125, y: 700}
+        goal: {x: 775, y: 150, w: 50, h: 50},
+        spawn: {x: 100, y: 600}
     }
 ];
 
@@ -904,24 +1020,9 @@ function updateEnemies() {
         
         if (currentLevelIndex >= 20) {
             // VOID BLACK HOLES
-            if (enemy.isBoss) {
-                enemy.speed = 0; // Boss doesn't walk
-                moveLeft = false;
-                moveRight = false;
-                
-                if (enemy.startX === undefined) {
-                    enemy.startX = enemy.x;
-                    enemy.startY = enemy.y;
-                    enemy.hoverTimer = Math.random() * 100;
-                }
-                
-                enemy.isGrounded = false;
-                enemy.hoverTimer += 0.05;
-                enemy.y = enemy.startY + Math.sin(enemy.hoverTimer) * 20;
-            } else {
-                moveLeft = (player.x < enemy.x - 10);
-                moveRight = (player.x > enemy.x + 10);
-            }
+            enemy.speed = MAX_SPEED;
+            moveLeft = (player.x < enemy.x - 10);
+            moveRight = (player.x > enemy.x + 10);
         } else if (currentLevelIndex >= 15) {
             // FIRE GUARDIANS
             
@@ -1047,8 +1148,15 @@ function updateEnemies() {
                 enemy.vx *= 0.8; // Skidd to a halt
                 enemy.x += (Math.random() - 0.5) * 4; // Violent vibration
             } else {
-                moveLeft = (player.x < enemy.x - 10);
-                moveRight = (player.x > enemy.x + 10);
+                // Add randomness to movement so they don't line up like robots
+                if (enemy.chaseOffset === undefined) {
+                    enemy.chaseOffset = (Math.random() - 0.5) * 60; // Offset so they don't clump
+                }
+                if (Math.random() < 0.02) enemy.chaseOffset = (Math.random() - 0.5) * 60; // Occasionally shuffle
+                
+                let targetX = player.x + enemy.chaseOffset;
+                moveLeft = (targetX < enemy.x - 10);
+                moveRight = (targetX > enemy.x + 10);
             }
         }
             
@@ -1169,7 +1277,7 @@ function updateEnemies() {
             }
 
         if (enemy.isBoss) {
-            if (currentLevelIndex >= 15) {
+            if (currentLevelIndex >= 15 && currentLevelIndex < 20) {
                 // Fire Boss floats heavily and aggressively charges
                 enemy.isGrounded = false;
                 let dirX = player.x - enemy.x;
@@ -1181,6 +1289,12 @@ function updateEnemies() {
                 }
                 enemy.vx *= 0.95;
                 enemy.vy *= 0.95;
+            } else if (currentLevelIndex >= 20) {
+                enemy.jumpTimer = (enemy.jumpTimer || 0) + 1;
+                if (enemy.isGrounded && enemy.jumpTimer > 60) { 
+                    enemy.vy = JUMP_FORCE * 1.5;
+                    enemy.jumpTimer = 0;
+                }
             } else {
                 enemy.jumpTimer++;
                 if (enemy.isGrounded && enemy.jumpTimer > 100) { 
@@ -1190,7 +1304,7 @@ function updateEnemies() {
             }
         }
 
-        if (currentLevelIndex < 15 || !enemy.isBoss) {
+        if (currentLevelIndex < 15 || currentLevelIndex >= 20 || !enemy.isBoss) {
             enemy.vy += GRAVITY;
         }
 
@@ -1336,16 +1450,16 @@ function updatePhysics() {
     handleEntityCollisions(player, false);
     
     // Void Gravity Pull
-    if (currentLevelIndex >= 20 && state === 'playing') {
+    if (currentLevelIndex >= 20 && state === 'playing' && playerHasMoved) {
         for (let enemy of activeEnemies) {
             let dx = (enemy.x + enemy.width/2) - (player.x + player.width/2);
             let dy = (enemy.y + enemy.height/2) - (player.y + player.height/2);
             let distSq = dx*dx + dy*dy;
             let dist = Math.sqrt(distSq);
             if (dist > 10 && dist < 1200) {
-                let pullStrength = enemy.isBoss ? 400 : 150;
+                let pullStrength = enemy.isBoss ? 200 : 70;
                 let pullForce = pullStrength / dist;
-                if (pullForce > (enemy.isBoss ? 3.0 : 1.5)) pullForce = (enemy.isBoss ? 3.0 : 1.5);
+                if (pullForce > (enemy.isBoss ? 1.5 : 0.8)) pullForce = (enemy.isBoss ? 1.5 : 0.8);
                 
                 if (!player.isGrounded || enemy.isBoss) {
                     player.vx += (dx / dist) * pullForce;
@@ -1389,7 +1503,7 @@ function updatePhysics() {
                     vy: 10 + Math.random() * 5
                 });
             }
-        } else if (currentLevelIndex >= 19) {
+        } else if (currentLevelIndex === 19) {
             // Fire Boss summons fireballs (Level 20)
             if (Math.random() < 0.06) {
                 // Aim slightly ahead of player based on their velocity
@@ -1553,6 +1667,20 @@ function updatePhysics() {
     if (player.y > camera.y + canvas.height + 200) {
         die();
         return;
+    }
+
+    // Checkpoints
+    if (level.checkpoints) {
+        for (let cp of level.checkpoints) {
+            // Precise trigger zone: player must pass X, be above or near flag height, and not below it
+            let passX = player.x >= cp.x && player.x <= cp.x + 150;
+            let passY = player.y >= cp.y - 600 && player.y <= cp.y + cp.h + 20;
+            if (!cp.active && passX && passY) {
+                cp.active = true;
+                level.spawn = { x: cp.x, y: cp.y }; // Permanently updates spawn for this level instance
+                spawnParticles(cp.x + cp.w/2, cp.y + cp.h/2, colors.goal, 20, 2);
+            }
+        }
     }
 
     // Goal check
@@ -1781,7 +1909,7 @@ function drawBossVoid(ctx, x, y, width, height) {
     ctx.fillStyle = colors.enemy;
     
     ctx.beginPath();
-    ctx.arc(cx, cy, width/3, 0, Math.PI*2);
+    ctx.arc(cx, cy, width/2.2, 0, Math.PI*2); // Draw slightly smaller than full bounding box so it feels fair
     ctx.fill();
     ctx.shadowBlur = 0;
 }
@@ -1801,14 +1929,18 @@ function draw() {
 
     drawParticles();
 
-    // Draw Platforms
+    // Draw Platforms (Two-pass for perfectly merged clean borders)
+    
+    // Pass 1: Draw outer borders
+    ctx.fillStyle = colors.platformBorder;
     for (const plat of level.platforms) {
-        ctx.fillStyle = colors.platform;
+        ctx.fillRect(plat.x - 2, plat.y - 2, plat.w + 4, plat.h + 4);
+    }
+    
+    // Pass 2: Draw solid fills (this covers up any internal overlapping borders)
+    ctx.fillStyle = colors.platform;
+    for (const plat of level.platforms) {
         ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
-        
-        ctx.strokeStyle = colors.platformBorder;
-        ctx.lineWidth = 2;
-        ctx.strokeRect(plat.x, plat.y, plat.w, plat.h);
     }
 
     // Draw Enemies
@@ -1935,6 +2067,27 @@ function draw() {
             ctx.lineWidth = 3;
             ctx.shadowBlur = 10;
             ctx.stroke();
+            
+            ctx.shadowBlur = 0;
+        }
+    }
+
+    // Draw Checkpoints
+    if (level.checkpoints) {
+        for (let cp of level.checkpoints) {
+            ctx.fillStyle = cp.active ? colors.goal : '#555';
+            ctx.shadowColor = cp.active ? colors.goal : 'transparent';
+            ctx.shadowBlur = cp.active ? 20 : 0;
+            
+            // Draw flag pole
+            ctx.fillRect(cp.x, cp.y, 4, cp.h);
+            
+            // Draw flag waving
+            ctx.beginPath();
+            ctx.moveTo(cp.x + 4, cp.y + 5);
+            ctx.lineTo(cp.x + 4 + cp.w, cp.y + 15 + Math.sin(gameTime*0.1)*5);
+            ctx.lineTo(cp.x + 4, cp.y + 25);
+            ctx.fill();
             
             ctx.shadowBlur = 0;
         }
