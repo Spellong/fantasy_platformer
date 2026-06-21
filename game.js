@@ -124,6 +124,9 @@ const themeVoid = {
 };
 
 
+// Background globals
+let ambientLightningFlash = 0;
+
 // Particles
 let particles = [];
 function spawnParticles(x, y, color, count, speedMult = 1) {
@@ -139,7 +142,8 @@ function spawnParticles(x, y, color, count, speedMult = 1) {
     }
 }
 function spawnAmbientParticle() {
-    if (currentLevelIndex < 10 || currentLevelIndex >= 15) {
+    // Only spawn ambient embers for the Fire levels (>= 15) to keep parallax clean in Storm/Forest
+    if (currentLevelIndex >= 15) {
         // Subtle magical background atmosphere
         for (let i = 0; i < 2; i++) {
             if (Math.random() < 0.25) {
@@ -349,20 +353,44 @@ const levels = [
         spawn: {x: 100, y: 400}
     },
     { // Level 5: Boss Fight
-        title: "It's a boss. Try not to die immediately.",
-        quote: "Just don't stand in the giant glowing lightning indicators. Simple.",
+        title: "The Midnight Storm.",
+        quote: "Run left. Fast.",
         platforms: [
-            {x: -500, y: 600, w: 3000, h: 200}, // Huge arena floor
-            {x: 400, y: 450, w: 200, h: 20},
-            {x: 1000, y: 450, w: 200, h: 20},
-            {x: 700, y: 300, w: 200, h: 20},
+            // Spawn area (Far right)
+            {x: 4800, y: 500, w: 400, h: 20},
+            // Sequence going left
+            {x: 4400, y: 400, w: 200, h: 20},
+            {x: 4000, y: 300, w: 200, h: 20},
+            {x: 3500, y: 400, w: 300, h: 20},
+            {x: 3000, y: 500, w: 300, h: 20},
+            {x: 2400, y: 400, w: 400, h: 20},
+            {x: 1800, y: 300, w: 400, h: 20},
+            {x: 1200, y: 400, w: 400, h: 20},
+            // Boss arena floor (Far left)
+            {x: -1000, y: 600, w: 2000, h: 200}, // Boss arena floor from -1000 to 1000
+            // Boss arena elevated platforms
+            {x: -600, y: 450, w: 200, h: 20},
+            {x: 0, y: 450, w: 200, h: 20},
+            {x: -300, y: 300, w: 200, h: 20},
+            {x: 400, y: 300, w: 200, h: 20}
         ],
-        hazards: [],
+        checkpoints: [
+            {x: 3650, y: 350, w: 40, h: 50},
+            {x: 2000, y: 250, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: 1000, y: 900, w: 5000, h: 50} // Pit only in the scrolling section
+        ],
         enemies: [
-            { x: 1000, y: 400, width: 100, height: 100, vx: 0, vy: 0, speed: 14, aggro: 3000, isBoss: true, jumpTimer: 0 }
+            // Boss
+            { x: -500, y: 400, width: 120, height: 120, vx: 0, vy: 0, speed: 14, aggro: 3000, isBoss: true, jumpTimer: 0 },
+            // 3 Minions scattered across the boss arena
+            { x: -400, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 3000 },
+            { x: 100, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 3000 },
+            { x: -200, y: 200, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 3000 }
         ],
-        goal: {x: 1800, y: 550, w: 50, h: 50}, // Far right
-        spawn: {x: 100, y: 500} // Far left
+        goal: {x: -900, y: 550, w: 50, h: 50}, // Far left
+        spawn: {x: 5000, y: 450} // Far right
     },
     { // Level 6: Introduction to Smart AI (Forest Green)
         title: "These ones actually went to college.",
@@ -969,7 +997,7 @@ function updateEnemies() {
         let moveRight = false;
         
         // Storm Spirits Teleportation Logic
-        if (currentLevelIndex < 5 && !enemy.isBoss) {
+        if (currentLevelIndex < 5) { // Boss is now allowed to teleport too!
             if (enemy.tpCooldown === undefined) {
                 enemy.tpCooldown = Math.floor(60 + Math.random() * 240); // 1 to 5 seconds
             }
@@ -980,7 +1008,13 @@ function updateEnemies() {
                 if (Math.floor(enemy.tpCooldown) === 44) {
                     // Lock in the destination
                     if (level && level.platforms && level.platforms.length > 0) {
-                        let plat = level.platforms[Math.floor(Math.random() * level.platforms.length)];
+                        let validPlats = level.platforms;
+                        if (currentLevelIndex === 4) { // Level 5
+                            // Keep Boss and Minions in the arena so they don't teleport into the scrolling section
+                            validPlats = level.platforms.filter(p => p.x < 1000); 
+                        }
+                        
+                        let plat = validPlats[Math.floor(Math.random() * validPlats.length)];
                         enemy.tpTargetX = plat.x + Math.random() * Math.max(0, plat.w - enemy.width);
                         enemy.tpTargetY = plat.y - enemy.height - 5;
                     }
@@ -1145,7 +1179,8 @@ function updateEnemies() {
                 // Teleport Charging Phase! Stop moving and vibrate
                 moveLeft = false;
                 moveRight = false;
-                enemy.vx *= 0.8; // Skidd to a halt
+                enemy.vx = 0; // Completely freeze
+                enemy.vy = 0; // Freeze vertically too
                 enemy.x += (Math.random() - 0.5) * 4; // Violent vibration
             } else {
                 // Add randomness to movement so they don't line up like robots
@@ -1304,7 +1339,8 @@ function updateEnemies() {
             }
         }
 
-        if (currentLevelIndex < 15 || currentLevelIndex >= 20 || !enemy.isBoss) {
+        let isTeleportCharging = (currentLevelIndex < 5 && enemy.tpCooldown !== undefined && enemy.tpCooldown < 45);
+        if ((currentLevelIndex < 15 || currentLevelIndex >= 20 || !enemy.isBoss) && !isTeleportCharging) {
             enemy.vy += GRAVITY;
         }
 
@@ -1540,21 +1576,9 @@ function updatePhysics() {
             }
         }
         
-        // Atmospheric Heavy Snow
-        if (currentLevelIndex >= 10 && currentLevelIndex < 15) {
-            // Intense blizzard - cap max flakes to prevent lag
-            if (snowflakes.length < 500) {
-                for (let s = 0; s < 4; s++) {
-                    snowflakes.push({
-                        x: player.x + (Math.random() * 2400 - 1200), // Huge spread
-                        y: camera.y - 100 - Math.random() * 100,
-                        vx: (Math.random() - 0.2) * 6, // Strong magical wind
-                        vy: 4 + Math.random() * 6, // Fast falling
-                        size: 3 + Math.random() * 5,
-                        seed: Math.random() * 100
-                    });
-                }
-            }
+        // Atmospheric Heavy Snow (DISABLED as per user request to keep the Aurora clear)
+        if (false) {
+            // Intentionally left disabled
         }
     }
     
@@ -1914,6 +1938,223 @@ function drawBossVoid(ctx, x, y, width, height) {
     ctx.shadowBlur = 0;
 }
 
+function drawMountainLayer(ctx, parallax, baseHeight, amp1, amp2, amp3, color, seedOffset) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    
+    let step = 30; // Fast rendering step
+    let levelOffset = currentLevelIndex * 99999;
+    let offsetX = camera.x * parallax + seedOffset + levelOffset;
+    
+    for (let x = 0; x <= canvas.width + step; x += step) {
+        let worldX = x + offsetX;
+        
+        let y = baseHeight;
+        // Layer 1: Large jagged peaks
+        y -= Math.abs(Math.sin(worldX * 0.001)) * amp1;
+        // Layer 2: Medium jaggedness
+        y -= Math.abs(Math.sin(worldX * 0.0031 + 10)) * amp2;
+        // Layer 3: Small rocky noise
+        y -= Math.sin(worldX * 0.0073 + 20) * amp3;
+        
+        ctx.lineTo(x, y);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.fill();
+}
+
+function drawCloudLayer(ctx, parallax, baseHeight, color, seedOffset, scale) {
+    ctx.fillStyle = color;
+    let period = 2000;
+    
+    // Offset by currentLevelIndex so each level has a totally unique sky
+    let levelOffset = currentLevelIndex * 99999;
+    let offsetX = camera.x * parallax + seedOffset + levelOffset;
+    let startX = Math.floor(offsetX / period) * period;
+    
+    function drawFluffyCloud(cx, cy, s) {
+        ctx.beginPath();
+        // 5 overlapping circles to make a classic fluffy cloud shape
+        ctx.arc(cx, cy, 30 * s, 0, Math.PI * 2); // Center top
+        ctx.arc(cx - 25 * s, cy + 10 * s, 20 * s, 0, Math.PI * 2); // Mid left
+        ctx.arc(cx + 25 * s, cy + 5 * s, 25 * s, 0, Math.PI * 2); // Mid right
+        ctx.arc(cx + 45 * s, cy + 15 * s, 15 * s, 0, Math.PI * 2); // Far right
+        ctx.arc(cx - 40 * s, cy + 15 * s, 15 * s, 0, Math.PI * 2); // Far left
+        // Fill the bottom gaps so it rests nicely
+        ctx.rect(cx - 40 * s, cy + 10 * s, 85 * s, 20 * s);
+        ctx.fill();
+    }
+    
+    for (let i = -1; i <= Math.ceil(canvas.width / period) + 1; i++) {
+        let chunkX = startX + i * period - offsetX;
+        
+        // Cloud cluster 1
+        drawFluffyCloud(chunkX + 300, baseHeight, scale);
+        drawFluffyCloud(chunkX + 450, baseHeight + 20 * scale, scale * 0.8);
+
+        // Cloud cluster 2
+        drawFluffyCloud(chunkX + 1200, baseHeight + 150 * scale, scale * 1.5);
+        drawFluffyCloud(chunkX + 1000, baseHeight + 180 * scale, scale * 1.2);
+        
+        // Cloud cluster 3
+        drawFluffyCloud(chunkX + 1800, baseHeight - 80 * scale, scale * 0.7);
+    }
+}
+
+function drawStormBackground() {
+
+    // The sky gradient is already drawn. If lightning is flashing, brighten the sky!
+    if (ambientLightningFlash > 0) {
+        ctx.fillStyle = `rgba(111, 255, 233, ${ambientLightningFlash * 0.4})`; // Cyan flash
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    
+    // Vertical parallax so the mountains shift up/down when the player jumps!
+    let vParallax = -camera.y;
+
+    // Subtle atmospheric clouds
+    drawCloudLayer(ctx, 0.01, 100 + vParallax * 0.01, 'rgba(19, 29, 54, 0.3)', 0, 0.6);
+    drawCloudLayer(ctx, 0.02, 250 + vParallax * 0.02, 'rgba(15, 23, 43, 0.5)', 500, 1.0);
+    drawCloudLayer(ctx, 0.035, 400 + vParallax * 0.035, 'rgba(10, 17, 33, 0.7)', 1200, 1.4);
+
+    // Far mountains (Massive, towering, smooth)
+    drawMountainLayer(ctx, 0.05, canvas.height + vParallax * 0.05, 450, 80, 20, '#131d36', 0);
+    // Mid mountains (Sharp, jagged peaks)
+    drawMountainLayer(ctx, 0.15, canvas.height + 50 + vParallax * 0.15, 300, 150, 40, '#0a1121', 5000);
+}
+
+function drawRollingHillLayer(ctx, parallax, baseHeight, amp1, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    let step = 30;
+    let levelOffset = currentLevelIndex * 99999;
+    let offsetX = camera.x * parallax + levelOffset;
+    
+    for (let x = 0; x <= canvas.width + step; x += step) {
+        let worldX = x + offsetX;
+        let y = baseHeight;
+        let sin1 = Math.sin(worldX * 0.001);
+        let sin2 = Math.sin(worldX * 0.0031);
+        y -= ((sin1 + 1) / 2) * amp1;
+        y -= ((sin2 + 1) / 2) * (amp1 * 0.3); // secondary variation
+        ctx.lineTo(x, y);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.fill();
+}
+
+function drawForestBackground() {
+    let vParallax = -camera.y;
+    
+    // Deep atmospheric mist wash
+    ctx.fillStyle = 'rgba(60, 90, 70, 0.1)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Layer 1: Far misty hills (Massive)
+    drawRollingHillLayer(ctx, 0.02, canvas.height - 100 + vParallax * 0.02, 600, '#0c1a10');
+    
+    // Mist between Layer 1 and 2
+    let mistGradient1 = ctx.createLinearGradient(0, canvas.height - 200, 0, canvas.height);
+    mistGradient1.addColorStop(0, 'rgba(165, 200, 175, 0)');
+    mistGradient1.addColorStop(1, 'rgba(165, 200, 175, 0.2)');
+    ctx.fillStyle = mistGradient1;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Layer 2: Mid rolling hills (Towering)
+    drawRollingHillLayer(ctx, 0.1, canvas.height - 20 + vParallax * 0.1, 750, '#102214');
+    
+    // Mist between Layer 2 and 3
+    let mistGradient2 = ctx.createLinearGradient(0, canvas.height - 150, 0, canvas.height);
+    mistGradient2.addColorStop(0, 'rgba(165, 200, 175, 0)');
+    mistGradient2.addColorStop(1, 'rgba(165, 200, 175, 0.3)');
+    ctx.fillStyle = mistGradient2;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Layer 3: Near rolling hills (Absolute Units)
+    drawRollingHillLayer(ctx, 0.25, canvas.height + 50 + vParallax * 0.25, 900, '#152b1a');
+    
+    // Heavy foreground mist
+    let mistGradient3 = ctx.createLinearGradient(0, canvas.height - 100, 0, canvas.height + 100);
+    mistGradient3.addColorStop(0, 'rgba(165, 200, 175, 0)');
+    mistGradient3.addColorStop(1, 'rgba(165, 200, 175, 0.4)');
+    ctx.fillStyle = mistGradient3;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawAuroraLayer(ctx, vParallax) {
+    let t = Date.now() * 0.0005; 
+    
+    for (let i = 0; i < 3; i++) {
+        let yOffset = canvas.height * 0.35 + i * 50 + vParallax * 0.05;
+        let speed = 0.5 + i * 0.2;
+        let phase = i * Math.PI * 0.7;
+        
+        ctx.beginPath();
+        // Top edge of the ribbon
+        for (let x = 0; x <= canvas.width + 50; x += 50) {
+            let worldX = x + camera.x * 0.005;
+            let y = yOffset - 250; // Stretch high up
+            y += Math.sin(worldX * 0.005 + t * speed + phase) * 40;
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        
+        // Bottom edge of the ribbon (looping back)
+        for (let x = canvas.width + 50; x >= 0; x -= 50) {
+            let worldX = x + camera.x * 0.005;
+            let y = yOffset;
+            y += Math.sin(worldX * 0.005 + t * speed + phase) * 60;
+            y += Math.sin(worldX * 0.012 - t * speed * 1.2) * 30;
+            ctx.lineTo(x, y);
+        }
+        
+        let grad = ctx.createLinearGradient(0, yOffset - 250, 0, yOffset + 60);
+        if (i === 0) {
+            grad.addColorStop(0, 'rgba(0, 255, 200, 0)');
+            grad.addColorStop(0.5, 'rgba(0, 255, 200, 0.15)');
+            grad.addColorStop(1, 'rgba(0, 255, 200, 0)');
+        } else if (i === 1) {
+            grad.addColorStop(0, 'rgba(150, 50, 255, 0)');
+            grad.addColorStop(0.5, 'rgba(150, 50, 255, 0.15)');
+            grad.addColorStop(1, 'rgba(150, 50, 255, 0)');
+        } else {
+            grad.addColorStop(0, 'rgba(0, 150, 255, 0)');
+            grad.addColorStop(0.5, 'rgba(0, 150, 255, 0.15)');
+            grad.addColorStop(1, 'rgba(0, 150, 255, 0)');
+        }
+        ctx.fillStyle = grad;
+        ctx.fill();
+    }
+}
+
+function drawIceBackground() {
+    let vParallax = -camera.y;
+    
+    // Dynamic, waving Aurora Borealis
+    drawAuroraLayer(ctx, vParallax);
+    
+    // Far ice peaks (Deep ocean blue)
+    drawMountainLayer(ctx, 0.02, canvas.height + 50 + vParallax * 0.02, 600, 150, 50, '#05101a', 0);
+    
+    // Mid glacial mountains (Frost blue)
+    drawMountainLayer(ctx, 0.1, canvas.height + 150 + vParallax * 0.1, 750, 200, 80, '#0a1c2e', 5000);
+    
+    // Near icy cliffs (Bright deep blue)
+    drawMountainLayer(ctx, 0.25, canvas.height + 250 + vParallax * 0.25, 900, 300, 100, '#112c47', 10000);
+}
+
+function drawParallaxBackground() {
+    if (currentLevelIndex < 5) {
+        drawStormBackground();
+    } else if (currentLevelIndex < 10) {
+        drawForestBackground();
+    } else if (currentLevelIndex < 15) {
+        drawIceBackground();
+    }
+}
+
 function draw() {
     // Magical Gradient Background
     let bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -1921,6 +2162,8 @@ function draw() {
     bgGradient.addColorStop(1, '#050a12'); // Dark abyssal bottom for depth
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    drawParallaxBackground();
 
     if (!level) return;
 
@@ -2129,6 +2372,13 @@ function draw() {
 
 function gameLoop() {
     gameTime++;
+    
+    // Ambient Lightning logic for Midnight Storm
+    if (ambientLightningFlash > 0) ambientLightningFlash -= 0.03;
+    if (currentLevelIndex < 5 && Math.random() < 0.003) {
+        ambientLightningFlash = 1.0;
+    }
+    
     spawnAmbientParticle();
     updateParticles();
     updatePhysics();
