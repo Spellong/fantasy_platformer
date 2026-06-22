@@ -123,6 +123,17 @@ const themeVoid = {
     player: '#ffffff'
 };
 
+const themeCelestial = {
+    platform: '#ffffff', // White marble
+    platformBorder: '#ffd700', // Gold trim
+    hazard: '#00ccff', // Bright blue deadly light
+    enemy: '#ffe600', // Glowing yellow/gold Seraphs
+    goal: '#ffffff', // Pure white light portal
+    bg: '#62bcf5', // Sky blue
+    particle: '#ffffff', // Feathers/Light
+    player: '#ffffff'
+};
+
 
 // Background globals
 let ambientLightningFlash = 0;
@@ -516,26 +527,46 @@ const levels = [
     },
     { // Level 10: Forest Boss
         title: "The big angry salad.",
-        quote: "It's literally raining leaves of death. Look up.",
+        quote: "Run left. Fast.",
         platforms: [
-            {x: 0, y: 600, w: 400, h: 200}, // Start floor
-            {x: 500, y: 500, w: 100, h: 20}, // Steps up
-            {x: 700, y: 400, w: 100, h: 20},
-            {x: 500, y: 300, w: 100, h: 20},
-            {x: 300, y: 200, w: 100, h: 20},
-            {x: 500, y: 100, w: 100, h: 20},
-            {x: 700, y: 0, w: 100, h: 20},
-            {x: 900, y: -100, w: 100, h: 20},
-            {x: 1100, y: -200, w: 400, h: 20}, // Boss arena canopy
-            // Massive wall on the right to prevent falling out
-            {x: 1500, y: -200, w: 20, h: 1000}
+            // Spawn area (Far right)
+            {x: 4800, y: 500, w: 400, h: 20},
+            
+            // Sequence going left (Tricky jumps for Forest)
+            {x: 4400, y: 450, w: 200, h: 20},
+            {x: 3900, y: 350, w: 300, h: 20},
+            {x: 3400, y: 450, w: 200, h: 20},
+            {x: 2800, y: 550, w: 400, h: 20},
+            {x: 2200, y: 400, w: 300, h: 20},
+            {x: 1600, y: 300, w: 300, h: 20},
+            {x: 1000, y: 400, w: 400, h: 20},
+            
+            // Boss arena floor (Far left)
+            {x: -1000, y: 600, w: 1800, h: 200},
+            
+            // Boss arena elevated platforms
+            {x: -600, y: 450, w: 200, h: 20},
+            {x: 0, y: 450, w: 200, h: 20},
+            {x: -300, y: 300, w: 200, h: 20},
+            {x: 400, y: 300, w: 200, h: 20}
         ],
-        hazards: [],
+        checkpoints: [
+            {x: 3500, y: 400, w: 40, h: 50},
+            {x: 1700, y: 250, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: 800, y: 900, w: 5000, h: 50} // Pit only in the scrolling section
+        ],
         enemies: [
-            { x: 1200, y: -300, width: 100, height: 100, vx: 0, vy: 0, speed: 14, aggro: 3000, isBoss: true, jumpTimer: 0 }
+            // Boss
+            { x: -500, y: 400, width: 100, height: 100, vx: 0, vy: 0, speed: 14, aggro: 3000, isBoss: true, jumpTimer: 0 },
+            // 3 Minions scattered across the boss arena
+            { x: -400, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 8, aggro: 3000 },
+            { x: 100, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 8, aggro: 3000 },
+            { x: -200, y: 200, width: 40, height: 24, vx: 0, vy: 0, speed: 8, aggro: 3000 }
         ],
-        goal: {x: 1400, y: -250, w: 50, h: 50},
-        spawn: {x: 100, y: 500}
+        goal: {x: -900, y: 550, w: 50, h: 50},
+        spawn: {x: 5000, y: 450}
     },
     { // Level 11: Glacial Peaks Intro
         title: "Welcome to the Glacial Peaks.",
@@ -601,231 +632,522 @@ const levels = [
     },
     { // Level 15: Ice Boss
         title: "The Frost Construct.",
-        quote: "It's cold. It's fast. It wants you dead.",
+        quote: "It's cold. It's fast. Run.",
         platforms: [
-            // Left safe zone
-            {x: 0, y: 600, w: 300, h: 200},
-            // Fractured ice crevasses (80px gaps, player falls but the 100px-wide boss ignores them!)
-            {x: 380, y: 600, w: 150, h: 200},
-            {x: 610, y: 600, w: 150, h: 200},
-            {x: 840, y: 600, w: 150, h: 200},
-            {x: 1070, y: 600, w: 150, h: 200},
-            // Right safe zone
-            {x: 1300, y: 600, w: 300, h: 200},
+            // Spawn area (Far right)
+            {x: 4800, y: 500, w: 400, h: 20},
             
-            // Upper small platforms for dodging
-            {x: 300, y: 450, w: 100, h: 20},
-            {x: 1200, y: 450, w: 100, h: 20},
-            {x: 750, y: 350, w: 100, h: 20}
+            // Sequence going left (Ice gaps)
+            {x: 4300, y: 450, w: 200, h: 20},
+            {x: 3700, y: 350, w: 400, h: 20},
+            {x: 3100, y: 500, w: 300, h: 20},
+            {x: 2500, y: 400, w: 200, h: 20},
+            {x: 1900, y: 450, w: 300, h: 20},
+            {x: 1300, y: 300, w: 400, h: 20},
+            
+            // Boss arena floor (Far left) - Incorporating the fractured crevasses
+            {x: -1000, y: 600, w: 800, h: 200}, // Left safe zone
+            {x: -150, y: 600, w: 150, h: 200}, // Crevasse 1
+            {x: 50, y: 600, w: 150, h: 200}, // Crevasse 2
+            {x: 250, y: 600, w: 150, h: 200}, // Crevasse 3
+            {x: 450, y: 600, w: 150, h: 200}, // Crevasse 4
+            {x: 650, y: 600, w: 500, h: 200}, // Right safe zone
+            
+            // Boss arena elevated platforms
+            {x: -500, y: 450, w: 150, h: 20},
+            {x: 100, y: 400, w: 150, h: 20},
+            {x: 500, y: 450, w: 150, h: 20}
         ],
-        hazards: [],
+        checkpoints: [
+            {x: 3800, y: 300, w: 40, h: 50},
+            {x: 2000, y: 400, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: 1150, y: 900, w: 5000, h: 50} // Pit only in the scrolling section (1150 to keep crevasses deadly)
+        ],
         enemies: [
-            { x: 1400, y: 400, width: 100, height: 100, vx: 0, vy: 0, speed: 14, aggro: 3000, isBoss: true, jumpTimer: 0 }
+            // Boss
+            { x: -500, y: 400, width: 100, height: 100, vx: 0, vy: 0, speed: 14, aggro: 3000, isBoss: true, jumpTimer: 0 },
+            // 3 Minions (Ice dashers)
+            { x: -200, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 3000, jumpCooldown: 0 },
+            { x: 300, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 3000, jumpCooldown: 0 },
+            { x: 700, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 3000, jumpCooldown: 0 }
         ],
-        goal: {x: 1600, y: 550, w: 50, h: 50},
-        spawn: {x: 100, y: 500}
+        goal: {x: -900, y: 550, w: 50, h: 50},
+        spawn: {x: 5000, y: 450}
     },
     { // Level 16: Into the Volcano
         title: "Into the Volcano.",
-        quote: "It's getting hot in here.",
+        quote: "Don't look down.",
         platforms: [
             {x: 0, y: 500, w: 400, h: 200},
-            {x: 600, y: 400, w: 200, h: 200},
-            {x: 1000, y: 300, w: 400, h: 200}
+            {x: 800, y: 500, w: 200, h: 20},
+            {x: 1300, y: 400, w: 200, h: 20},
+            {x: 1800, y: 500, w: 300, h: 20},
+            {x: 2400, y: 350, w: 200, h: 20},
+            {x: 3000, y: 450, w: 400, h: 20},
+            {x: 3800, y: 500, w: 400, h: 200}
+        ],
+        checkpoints: [
+            {x: 1800, y: 400, w: 40, h: 50},
+            {x: 3000, y: 350, w: 40, h: 50}
         ],
         hazards: [
-            {x: 400, y: 650, w: 200, h: 50}, // Lava pit
-            {x: 800, y: 550, w: 200, h: 50}
+            {x: 0, y: 700, w: 5000, h: 50} // Massive lava sea below
         ],
         enemies: [
-            { x: 1100, y: 250, width: 35, height: 35, vx: 0, vy: 0, speed: 22, aggro: 2000 }
+            { x: 1000, y: 250, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 2000 },
+            { x: 2000, y: 300, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 2000 },
+            { x: 3200, y: 250, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 2000 }
         ],
-        goal: {x: 1300, y: 250, w: 50, h: 50},
+        goal: {x: 4000, y: 450, w: 50, h: 50},
         spawn: {x: 50, y: 400}
     },
     { // Level 17: The Scorched Path
         title: "The Scorched Path.",
         quote: "Don't stop moving.",
         platforms: [
-            {x: 0, y: 500, w: 200, h: 200},
-            {x: 400, y: 500, w: 100, h: 20},
-            {x: 700, y: 400, w: 100, h: 20},
-            {x: 1000, y: 300, w: 100, h: 20},
-            {x: 1300, y: 200, w: 300, h: 20}
+            {x: 0, y: 500, w: 300, h: 200},
+            {x: 600, y: 500, w: 100, h: 20},
+            {x: 900, y: 400, w: 100, h: 20},
+            {x: 1200, y: 300, w: 100, h: 20},
+            {x: 1600, y: 450, w: 300, h: 20},
+            {x: 2200, y: 350, w: 200, h: 20},
+            {x: 2700, y: 500, w: 200, h: 20},
+            {x: 3200, y: 400, w: 300, h: 20},
+            {x: 3800, y: 500, w: 400, h: 20}
+        ],
+        checkpoints: [
+            {x: 1650, y: 350, w: 40, h: 50},
+            {x: 3250, y: 300, w: 40, h: 50}
         ],
         hazards: [
-            {x: 0, y: 700, w: 1600, h: 100} // Massive lava floor
+            {x: 0, y: 700, w: 5000, h: 100} // Massive lava floor
         ],
         enemies: [
-            { x: 1400, y: 100, width: 35, height: 35, vx: 0, vy: 0, speed: 22, aggro: 2000 },
-            { x: 700, y: 200, width: 35, height: 35, vx: 0, vy: 0, speed: 22, aggro: 2000 } // Floating guardian
+            { x: 1200, y: 100, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 2000 },
+            { x: 2300, y: 200, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 2000 },
+            { x: 3300, y: 200, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 2000 }
         ],
-        goal: {x: 1500, y: 150, w: 50, h: 50},
+        goal: {x: 4000, y: 450, w: 50, h: 50},
         spawn: {x: 50, y: 400}
     },
     { // Level 18: Lava Lakes
         title: "Lava Lakes.",
         quote: "Watch your step.",
         platforms: [
-            {x: 0, y: 300, w: 150, h: 400},
-            {x: 350, y: 450, w: 150, h: 20},
-            {x: 700, y: 550, w: 150, h: 20},
-            {x: 1050, y: 450, w: 150, h: 20},
-            {x: 1400, y: 300, w: 200, h: 400}
+            {x: 0, y: 500, w: 300, h: 400},
+            {x: 500, y: 550, w: 150, h: 20},
+            {x: 900, y: 450, w: 150, h: 20},
+            {x: 1300, y: 550, w: 150, h: 20},
+            {x: 1800, y: 400, w: 300, h: 400},
+            {x: 2300, y: 500, w: 150, h: 20},
+            {x: 2700, y: 400, w: 150, h: 20},
+            {x: 3100, y: 500, w: 150, h: 20},
+            {x: 3600, y: 350, w: 400, h: 400}
+        ],
+        checkpoints: [
+            {x: 1850, y: 300, w: 40, h: 50}
         ],
         hazards: [
-            {x: 150, y: 650, w: 1250, h: 100} // Lake
+            {x: 0, y: 650, w: 5000, h: 100} // Lake
         ],
         enemies: [
-            { x: 350, y: 300, width: 35, height: 35, vx: 0, vy: 0, speed: 23, aggro: 2000 },
-            { x: 700, y: 300, width: 35, height: 35, vx: 0, vy: 0, speed: 23, aggro: 2000 },
-            { x: 1050, y: 300, width: 35, height: 35, vx: 0, vy: 0, speed: 23, aggro: 2000 }
+            { x: 900, y: 300, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 2000 },
+            { x: 2300, y: 300, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 2000 },
+            { x: 3100, y: 300, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 2000 }
         ],
-        goal: {x: 1500, y: 250, w: 50, h: 50},
-        spawn: {x: 50, y: 200}
+        goal: {x: 3800, y: 300, w: 50, h: 50},
+        spawn: {x: 50, y: 400}
     },
-    { // Level 19: Guardian's Roost
-        title: "Guardian's Roost.",
-        quote: "They are protecting something.",
+    { // Level 19: The Crucible
+        title: "The Crucible.",
+        quote: "Run.",
         platforms: [
-            {x: 0, y: 700, w: 400, h: 20},
-            {x: 200, y: 500, w: 100, h: 20},
-            {x: -100, y: 350, w: 150, h: 20},
-            {x: 300, y: 200, w: 100, h: 20},
-            {x: 600, y: 150, w: 200, h: 20},
-            {x: 1000, y: 250, w: 300, h: 20}
+            {x: 0, y: 500, w: 300, h: 20},
+            {x: 600, y: 400, w: 200, h: 20},
+            {x: 1100, y: 500, w: 200, h: 20},
+            {x: 1600, y: 350, w: 150, h: 20},
+            {x: 2000, y: 500, w: 200, h: 20},
+            {x: 2500, y: 450, w: 200, h: 20},
+            {x: 3000, y: 300, w: 200, h: 20},
+            {x: 3600, y: 450, w: 400, h: 20}
         ],
-        hazards: [],
+        checkpoints: [
+            {x: 1150, y: 400, w: 40, h: 50},
+            {x: 2550, y: 350, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: 0, y: 700, w: 5000, h: 100}
+        ],
         enemies: [
-            { x: 200, y: 350, width: 35, height: 35, vx: 0, vy: 0, speed: 24, aggro: 3000 },
-            { x: 500, y: 100, width: 35, height: 35, vx: 0, vy: 0, speed: 24, aggro: 3000 },
-            { x: 1100, y: 100, width: 35, height: 35, vx: 0, vy: 0, speed: 24, aggro: 3000 }
+            { x: 650, y: 200, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 3000 },
+            { x: 1650, y: 150, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 3000 },
+            { x: 3050, y: 150, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 3000 }
         ],
-        goal: {x: 1200, y: 200, w: 50, h: 50},
-        spawn: {x: 50, y: 600}
+        goal: {x: 3800, y: 400, w: 50, h: 50},
+        spawn: {x: 50, y: 400}
     },
     { // Level 20: Fire Boss
         title: "The Inferno Core.",
         quote: "The heart of the fire.",
         platforms: [
-            {x: 0, y: 600, w: 400, h: 200},
-            {x: 600, y: 600, w: 400, h: 20},
-            {x: 1200, y: 600, w: 400, h: 200},
-            {x: 200, y: 400, w: 200, h: 20},
-            {x: 1200, y: 400, w: 200, h: 20}
+            // Spawn area (Far right)
+            {x: 4800, y: 500, w: 400, h: 20},
+            
+            // Sequence going left (Tricky jumps over lava)
+            {x: 4300, y: 450, w: 200, h: 20},
+            {x: 3700, y: 350, w: 400, h: 20},
+            {x: 3100, y: 500, w: 300, h: 20},
+            {x: 2500, y: 400, w: 200, h: 20},
+            {x: 1900, y: 450, w: 300, h: 20},
+            {x: 1300, y: 300, w: 400, h: 20},
+            
+            // Boss arena floor (Far left)
+            {x: -1000, y: 600, w: 1800, h: 200},
+            
+            // Boss arena elevated platforms
+            {x: -600, y: 450, w: 200, h: 20},
+            {x: 0, y: 450, w: 200, h: 20},
+            {x: -300, y: 300, w: 200, h: 20},
+            {x: 400, y: 300, w: 200, h: 20}
+        ],
+        checkpoints: [
+            {x: 3800, y: 250, w: 40, h: 50},
+            {x: 2000, y: 350, w: 40, h: 50}
         ],
         hazards: [
-            {x: 400, y: 750, w: 200, h: 50}, // Lava between platforms
-            {x: 1000, y: 750, w: 200, h: 50}
+            {x: 800, y: 900, w: 5000, h: 50} // Pit only in the scrolling section
         ],
         enemies: [
-            { x: 800, y: 300, width: 120, height: 120, vx: 0, vy: 0, speed: 26, aggro: 4000, isBoss: true }
+            // Boss
+            { x: -500, y: 400, width: 120, height: 120, vx: 0, vy: 0, speed: 14, aggro: 4000, isBoss: true },
+            // 3 Minions scattered across the boss arena
+            { x: -400, y: 400, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 3000 },
+            { x: 100, y: 400, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 3000 },
+            { x: -200, y: 200, width: 35, height: 35, vx: 0, vy: 0, speed: 14, aggro: 3000 }
         ],
-        goal: {x: 1450, y: 550, w: 50, h: 50},
-        spawn: {x: 100, y: 500}
+        goal: {x: -900, y: 550, w: 50, h: 50},
+        spawn: {x: 5000, y: 450}
     },
     { // Level 21: Void Intro
         title: "Into the Abyss.",
-        quote: "Don't get too close.",
+        quote: "The darkness calls.",
         platforms: [
-            {x: 0, y: 600, w: 200, h: 20},
-            {x: 400, y: 500, w: 200, h: 20},
-            {x: 800, y: 400, w: 200, h: 20},
-            {x: 1200, y: 300, w: 200, h: 20}
+            {x: 0, y: 700, w: 1000, h: 200},
+            {x: 1000, y: 700, w: 1000, h: 200},
+            {x: 2000, y: 700, w: 1000, h: 200},
+            {x: 3000, y: 700, w: 1500, h: 200},
+            // Platforms
+            {x: 500, y: 550, w: 200, h: 20},
+            {x: 1200, y: 500, w: 200, h: 20},
+            {x: 1800, y: 400, w: 200, h: 20},
+            {x: 2500, y: 550, w: 200, h: 20},
+            {x: 3200, y: 450, w: 300, h: 20}
         ],
-        hazards: [
-            {x: -1000, y: 800, w: 4000, h: 50} // Bottomless pit
+        checkpoints: [
+            {x: 2000, y: 650, w: 40, h: 50}
         ],
+        hazards: [],
         enemies: [
-            { x: 450, y: 470, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 },
-            { x: 850, y: 370, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 }
+            { x: 800, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 },
+            { x: 1900, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 },
+            { x: 2800, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 }
         ],
-        goal: {x: 1300, y: 200, w: 50, h: 50},
-        spawn: {x: 50, y: 500}
+        goal: {x: 4200, y: 600, w: 50, h: 50},
+        spawn: {x: 50, y: 600}
     },
-    { // Level 22: Void Vertical
+    { // Level 22: Event Horizon
         title: "Event Horizon.",
-        quote: "It pulls you down.",
+        quote: "Don't get pulled under.",
         platforms: [
-            {x: 100, y: 700, w: 150, h: 20},
-            {x: 350, y: 550, w: 150, h: 20},
-            {x: 100, y: 400, w: 150, h: 20},
-            {x: 350, y: 250, w: 150, h: 20},
-            {x: 100, y: 100, w: 150, h: 20}
+            {x: 0, y: 700, w: 500, h: 200},
+            {x: 700, y: 700, w: 800, h: 200},
+            {x: 1700, y: 700, w: 600, h: 200},
+            {x: 2500, y: 700, w: 1000, h: 200},
+            {x: 3700, y: 700, w: 800, h: 200},
+            // Platforms
+            {x: 400, y: 550, w: 400, h: 20},
+            {x: 1200, y: 450, w: 300, h: 20},
+            {x: 2000, y: 500, w: 300, h: 20},
+            {x: 3000, y: 400, w: 400, h: 20}
+        ],
+        checkpoints: [
+            {x: 1750, y: 650, w: 40, h: 50},
+            {x: 2800, y: 650, w: 40, h: 50}
         ],
         hazards: [
-            {x: -1000, y: 800, w: 4000, h: 50}
+            {x: 0, y: 900, w: 5000, h: 100} // Bottomless pits between the solid ground
         ],
         enemies: [
-            { x: 400, y: 520, width: 30, height: 30, vx: 0, vy: 0, speed: 1.5, aggro: 4000 },
-            { x: 150, y: 370, width: 30, height: 30, vx: 0, vy: 0, speed: 1.5, aggro: 4000 },
-            { x: 400, y: 220, width: 30, height: 30, vx: 0, vy: 0, speed: 1.5, aggro: 4000 }
+            { x: 1000, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 1.5, aggro: 4000 },
+            { x: 2100, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 1.5, aggro: 4000 },
+            { x: 3200, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 1.5, aggro: 4000 }
         ],
-        goal: {x: 125, y: 0, w: 50, h: 50},
-        spawn: {x: 125, y: 600}
+        goal: {x: 4300, y: 600, w: 50, h: 50},
+        spawn: {x: 50, y: 600}
     },
-    { // Level 23: Slingshot
-        title: "Singularity.",
-        quote: "Use their gravity against them.",
+    { // Level 23: Gravity Wells
+        title: "Gravity Wells.",
+        quote: "Keep your balance.",
         platforms: [
-            {x: 0, y: 500, w: 200, h: 20},
-            {x: 350, y: 400, w: 150, h: 20},
-            {x: 650, y: 300, w: 150, h: 20},
-            {x: 950, y: 400, w: 150, h: 20},
-            {x: 1250, y: 500, w: 200, h: 20}
+            {x: 0, y: 700, w: 5000, h: 200}, // Solid floor!
+            {x: 500, y: 550, w: 200, h: 20},
+            {x: 1000, y: 450, w: 200, h: 20},
+            {x: 1500, y: 350, w: 200, h: 20},
+            {x: 2000, y: 500, w: 200, h: 20},
+            {x: 2500, y: 400, w: 200, h: 20},
+            {x: 3000, y: 550, w: 200, h: 20},
+            {x: 3500, y: 350, w: 200, h: 20}
         ],
-        hazards: [
-            {x: -1000, y: 800, w: 4000, h: 50}
+        checkpoints: [
+            {x: 1800, y: 650, w: 40, h: 50},
+            {x: 3200, y: 650, w: 40, h: 50}
         ],
+        hazards: [],
         enemies: [
-            { x: 400, y: 370, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 },
-            { x: 700, y: 270, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 },
-            { x: 1000, y: 370, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 }
+            { x: 700, y: 600, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 },
+            { x: 1600, y: 600, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 },
+            { x: 2700, y: 600, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 },
+            { x: 3700, y: 600, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 4000 }
         ],
-        goal: {x: 1300, y: 400, w: 50, h: 50},
-        spawn: {x: 50, y: 400}
+        goal: {x: 4500, y: 600, w: 50, h: 50},
+        spawn: {x: 50, y: 600}
     },
-    { // Level 24: Gauntlet
+    { // Level 24: The Crushing Dark
         title: "The Crushing Dark.",
         quote: "Don't stop moving.",
         platforms: [
-            {x: 0, y: 600, w: 200, h: 20},
-            {x: 300, y: 600, w: 150, h: 20},
-            {x: 550, y: 500, w: 150, h: 20},
-            {x: 800, y: 400, w: 150, h: 20},
-            {x: 1050, y: 500, w: 150, h: 20},
-            {x: 1300, y: 600, w: 200, h: 20}
+            {x: 0, y: 700, w: 600, h: 200},
+            {x: 800, y: 700, w: 600, h: 200},
+            {x: 1600, y: 700, w: 600, h: 200},
+            {x: 2400, y: 700, w: 600, h: 200},
+            {x: 3200, y: 700, w: 600, h: 200},
+            {x: 4000, y: 700, w: 600, h: 200},
+            // High path
+            {x: 500, y: 500, w: 400, h: 20},
+            {x: 1300, y: 450, w: 400, h: 20},
+            {x: 2100, y: 400, w: 400, h: 20},
+            {x: 2900, y: 450, w: 400, h: 20},
+            {x: 3700, y: 500, w: 400, h: 20}
+        ],
+        checkpoints: [
+            {x: 1800, y: 650, w: 40, h: 50},
+            {x: 3400, y: 650, w: 40, h: 50}
         ],
         hazards: [
-            {x: -1000, y: 800, w: 4000, h: 50}
+            {x: 0, y: 900, w: 5000, h: 50}
         ],
         enemies: [
-            { x: 350, y: 570, width: 30, height: 30, vx: 0, vy: 0, speed: 2.5, aggro: 4000 },
-            { x: 600, y: 470, width: 30, height: 30, vx: 0, vy: 0, speed: 2.5, aggro: 4000 },
-            { x: 850, y: 370, width: 30, height: 30, vx: 0, vy: 0, speed: 2.5, aggro: 4000 },
-            { x: 1100, y: 470, width: 30, height: 30, vx: 0, vy: 0, speed: 2.5, aggro: 4000 }
+            { x: 1000, y: 600, width: 30, height: 30, vx: 0, vy: 0, speed: 2.5, aggro: 4000 },
+            { x: 1800, y: 600, width: 30, height: 30, vx: 0, vy: 0, speed: 2.5, aggro: 4000 },
+            { x: 2600, y: 600, width: 30, height: 30, vx: 0, vy: 0, speed: 2.5, aggro: 4000 },
+            { x: 3400, y: 600, width: 30, height: 30, vx: 0, vy: 0, speed: 2.5, aggro: 4000 }
         ],
-        goal: {x: 1400, y: 500, w: 50, h: 50},
-        spawn: {x: 50, y: 500}
+        goal: {x: 4400, y: 600, w: 50, h: 50},
+        spawn: {x: 50, y: 600}
     },
-    { // Level 25: Boss
+    { // Level 25: Void Boss
         title: "The Void Core.",
         quote: "Escape the singularity.",
         platforms: [
-            {x: 0, y: 700, w: 2000, h: 20}, // Massive floor extended
-            {x: 300, y: 400, w: 300, h: 20}, // Raised high so 250px boss can run underneath (700-400 = 300 clearance)
-            {x: 1000, y: 400, w: 300, h: 20},
-            {x: 650, y: 200, w: 300, h: 20} // Goal platform
+            // Spawn area (Far right)
+            {x: 4800, y: 700, w: 400, h: 200},
+            
+            // Sequence going left (Solid ground with minor gaps)
+            {x: 4200, y: 700, w: 500, h: 200},
+            {x: 3600, y: 700, w: 500, h: 200},
+            {x: 3000, y: 700, w: 500, h: 200},
+            {x: 2400, y: 700, w: 500, h: 200},
+            {x: 1800, y: 700, w: 500, h: 200},
+            {x: 1200, y: 700, w: 500, h: 200},
+            
+            // Elevated paths
+            {x: 4000, y: 550, w: 200, h: 20},
+            {x: 3200, y: 500, w: 300, h: 20},
+            {x: 2200, y: 450, w: 200, h: 20},
+            {x: 1400, y: 500, w: 300, h: 20},
+            
+            // Boss arena floor (Far left)
+            {x: -1000, y: 700, w: 2000, h: 200},
+            
+            // Boss arena elevated platforms
+            {x: -600, y: 500, w: 300, h: 20},
+            {x: -100, y: 400, w: 300, h: 20},
+            {x: 400, y: 500, w: 300, h: 20}
+        ],
+        checkpoints: [
+            {x: 3800, y: 650, w: 40, h: 50},
+            {x: 2000, y: 650, w: 40, h: 50}
         ],
         hazards: [
-            {x: -1000, y: 900, w: 4000, h: 50}
+            {x: 800, y: 900, w: 5000, h: 50} // Pit only in the scrolling section
         ],
         enemies: [
-            // Massive Jumping Void Boss
-            { x: 1200, y: 580, width: 120, height: 120, vx: 0, vy: 0, speed: 2, aggro: 4000, isBoss: true }
+            // Boss
+            { x: -500, y: 500, width: 120, height: 120, vx: 0, vy: 0, speed: 2, aggro: 4000, isBoss: true },
+            // 3 Minions scattered across the boss arena
+            { x: -400, y: 600, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 3000 },
+            { x: 100, y: 600, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 3000 },
+            { x: -200, y: 300, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 3000 }
         ],
-        goal: {x: 775, y: 150, w: 50, h: 50},
-        spawn: {x: 100, y: 600}
+        goal: {x: -900, y: 600, w: 50, h: 50},
+    },
+    { // Level 26: Celestial Intro
+        title: "The Golden Gates.",
+        quote: "They watch from above.",
+        platforms: [
+            {x: 0, y: 700, w: 1000, h: 200},
+            {x: 1200, y: 650, w: 500, h: 200},
+            {x: 1900, y: 600, w: 600, h: 200},
+            {x: 2700, y: 650, w: 800, h: 200},
+            {x: 3700, y: 700, w: 1000, h: 200},
+            // High pillars to stand on to trigger dives
+            {x: 800, y: 550, w: 100, h: 20},
+            {x: 1500, y: 450, w: 100, h: 20},
+            {x: 2400, y: 500, w: 100, h: 20},
+            {x: 3200, y: 400, w: 100, h: 20}
+        ],
+        checkpoints: [
+            {x: 2200, y: 550, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: 0, y: 900, w: 5000, h: 100}
+        ],
+        enemies: [
+            { x: 1400, y: 200, width: 30, height: 30, vx: 0, vy: 0, speed: 4, aggro: 4000 },
+            { x: 2500, y: 150, width: 30, height: 30, vx: 0, vy: 0, speed: 4, aggro: 4000 },
+            { x: 3400, y: 250, width: 30, height: 30, vx: 0, vy: 0, speed: 4, aggro: 4000 }
+        ],
+        goal: {x: 4500, y: 600, w: 50, h: 50},
+        spawn: {x: 50, y: 600}
+    },
+    { // Level 27: Floating Pillars
+        title: "Ascension.",
+        quote: "Don't look down.",
+        platforms: [
+            {x: 0, y: 700, w: 400, h: 200},
+            {x: 600, y: 600, w: 200, h: 20},
+            {x: 1000, y: 500, w: 200, h: 20},
+            {x: 1400, y: 400, w: 200, h: 20},
+            {x: 1800, y: 500, w: 200, h: 20},
+            {x: 2200, y: 600, w: 200, h: 20},
+            {x: 2600, y: 500, w: 200, h: 20},
+            {x: 3000, y: 400, w: 200, h: 20},
+            {x: 3400, y: 300, w: 200, h: 20},
+            {x: 3800, y: 400, w: 200, h: 20},
+            {x: 4200, y: 700, w: 600, h: 200}
+        ],
+        checkpoints: [
+            {x: 2250, y: 550, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: -1000, y: 900, w: 6000, h: 100}
+        ],
+        enemies: [
+            { x: 1200, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 4.5, aggro: 4000 },
+            { x: 2000, y: 150, width: 30, height: 30, vx: 0, vy: 0, speed: 4.5, aggro: 4000 },
+            { x: 2800, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 4.5, aggro: 4000 },
+            { x: 3600, y: 50, width: 30, height: 30, vx: 0, vy: 0, speed: 4.5, aggro: 4000 }
+        ],
+        goal: {x: 4600, y: 600, w: 50, h: 50},
+        spawn: {x: 50, y: 600}
+    },
+    { // Level 28: Seraphim Roost
+        title: "Heaven's Fury.",
+        quote: "Dodge and weave.",
+        platforms: [
+            {x: 0, y: 700, w: 1000, h: 200},
+            {x: 1000, y: 700, w: 1000, h: 200},
+            {x: 2000, y: 700, w: 1000, h: 200},
+            {x: 3000, y: 700, w: 1000, h: 200},
+            {x: 4000, y: 700, w: 1000, h: 200},
+            // Low floating barriers
+            {x: 600, y: 500, w: 100, h: 100},
+            {x: 1400, y: 400, w: 100, h: 100},
+            {x: 2200, y: 550, w: 100, h: 100},
+            {x: 3000, y: 450, w: 100, h: 100},
+            {x: 3800, y: 500, w: 100, h: 100}
+        ],
+        checkpoints: [
+            {x: 2500, y: 650, w: 40, h: 50}
+        ],
+        hazards: [],
+        enemies: [
+            { x: 1000, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 5, aggro: 4000 },
+            { x: 1800, y: 150, width: 30, height: 30, vx: 0, vy: 0, speed: 5, aggro: 4000 },
+            { x: 2600, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 5, aggro: 4000 },
+            { x: 3400, y: 150, width: 30, height: 30, vx: 0, vy: 0, speed: 5, aggro: 4000 },
+            { x: 4200, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 5, aggro: 4000 }
+        ],
+        goal: {x: 4800, y: 600, w: 50, h: 50},
+        spawn: {x: 50, y: 600}
+    },
+    { // Level 29: Leap of Faith
+        title: "Leap of Faith.",
+        quote: "Bounce off them.",
+        platforms: [
+            {x: 0, y: 700, w: 500, h: 200},
+            // Massive gaps, you MUST bounce on diving seraphs to cross
+            {x: 1500, y: 700, w: 500, h: 200},
+            {x: 3000, y: 700, w: 500, h: 200},
+            {x: 4500, y: 700, w: 500, h: 200}
+        ],
+        checkpoints: [
+            {x: 1700, y: 650, w: 40, h: 50},
+            {x: 3200, y: 650, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: -1000, y: 900, w: 7000, h: 100}
+        ],
+        enemies: [
+            { x: 1000, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 4, aggro: 4000 },
+            { x: 2500, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 4, aggro: 4000 },
+            { x: 4000, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 4, aggro: 4000 }
+        ],
+        goal: {x: 4800, y: 600, w: 50, h: 50},
+        spawn: {x: 50, y: 600}
+    },
+    { // Level 30: Celestial Boss
+        title: "The Seraph Prime.",
+        quote: "The final judgment.",
+        platforms: [
+            // Spawn area (Far right)
+            {x: 4800, y: 700, w: 400, h: 200},
+            
+            // Sequence going left
+            {x: 4200, y: 700, w: 500, h: 200},
+            {x: 3600, y: 600, w: 200, h: 20},
+            {x: 3000, y: 700, w: 500, h: 200},
+            {x: 2400, y: 500, w: 200, h: 20},
+            {x: 1800, y: 700, w: 500, h: 200},
+            {x: 1200, y: 400, w: 200, h: 20},
+            
+            // Boss arena floor (Far left)
+            {x: -1000, y: 700, w: 2000, h: 200},
+            
+            // Boss arena elevated platforms
+            {x: -600, y: 500, w: 300, h: 20},
+            {x: -100, y: 400, w: 300, h: 20},
+            {x: 400, y: 500, w: 300, h: 20}
+        ],
+        checkpoints: [
+            {x: 3800, y: 650, w: 40, h: 50},
+            {x: 2000, y: 650, w: 40, h: 50}
+        ],
+        hazards: [
+            {x: 800, y: 900, w: 5000, h: 50} 
+        ],
+        enemies: [
+            // Seraph Boss (Massive swooping boss)
+            { x: -500, y: 100, width: 150, height: 150, vx: 0, vy: 0, speed: 6, aggro: 4000, isBoss: true },
+            // 3 Minions scattered high in the boss arena
+            { x: -400, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 4, aggro: 3000 },
+            { x: 100, y: 150, width: 30, height: 30, vx: 0, vy: 0, speed: 4, aggro: 3000 },
+            { x: -200, y: 50, width: 30, height: 30, vx: 0, vy: 0, speed: 4, aggro: 3000 }
+        ],
+        goal: {x: -900, y: 600, w: 50, h: 50},
+        spawn: {x: 5000, y: 600}
     }
 ];
 
@@ -862,11 +1184,16 @@ function loadLevel(index) {
         levelTitle.style.color = '#ffaa00';
         levelTitle.style.textShadow = '0 0 25px rgba(255, 170, 0, 0.8), 0 0 10px #ff5500';
         levelTitle.style.fontFamily = "'Cinzel', serif";
-    } else {
+    } else if (index < 25) {
         colors = { ...themeVoid };
         levelTitle.style.color = '#bd00ff';
         levelTitle.style.textShadow = '0 0 25px rgba(189, 0, 255, 0.8), 0 0 10px #6a0dad';
         levelTitle.style.fontFamily = "'Oswald', sans-serif";
+    } else {
+        colors = { ...themeCelestial };
+        levelTitle.style.color = '#ffd700';
+        levelTitle.style.textShadow = '0 0 25px rgba(255, 215, 0, 0.8), 0 0 10px #ffffff';
+        levelTitle.style.fontFamily = "'Cinzel', serif";
     }
     
     // Set UI Title
@@ -980,6 +1307,9 @@ function updateEnemies() {
     if (!playerHasMoved) return;
 
     for (let enemy of activeEnemies) {
+        // Force ALL enemies to match the player's exact top speed
+        enemy.speed = MAX_SPEED * window.playerSpeedMult;
+        
         // AI Logic: Always active regardless of distance
         let atLedge = false;
         let prevVy = enemy.vy;
@@ -997,7 +1327,7 @@ function updateEnemies() {
         let moveRight = false;
         
         // Storm Spirits Teleportation Logic
-        if (currentLevelIndex < 5) { // Boss is now allowed to teleport too!
+        if (currentLevelIndex < 5 && !enemy.isBoss) { // Minions can teleport, but Boss cannot
             if (enemy.tpCooldown === undefined) {
                 enemy.tpCooldown = Math.floor(60 + Math.random() * 240); // 1 to 5 seconds
             }
@@ -1052,7 +1382,81 @@ function updateEnemies() {
             }
         }
         
-        if (currentLevelIndex >= 20) {
+        if (currentLevelIndex >= 25) {
+            // CELESTIAL SERAPHS (Flight & Dive Bombing)
+            enemy.isGrounded = false; // Always flying
+            
+            if (enemy.startX === undefined) {
+                enemy.startX = enemy.x;
+                enemy.startY = enemy.y; // Starts high in the sky
+                enemy.hoverTimer = Math.random() * 100;
+                enemy.flightState = 'hover'; // hover, dive
+            }
+            
+            enemy.hoverTimer += 0.05;
+            
+            let distToPlayer = Math.abs(player.x - enemy.x);
+            
+            if (enemy.flightState === 'hover') {
+                // Hover in place, bobbing up and down
+                let targetY = enemy.startY + Math.sin(enemy.hoverTimer) * 40;
+                enemy.y += (targetY - enemy.y) * 0.05;
+                
+                // Drift towards player X if they are far, but stay high
+                if (distToPlayer > 300) {
+                    enemy.vx = (player.x > enemy.x ? enemy.speed * 0.5 : -enemy.speed * 0.5);
+                } else {
+                    enemy.vx *= 0.9; // Slow down horizontally
+                }
+                enemy.vy = 0;
+                
+                // If player is close and below, dive!
+                if (distToPlayer < 300 && player.y > enemy.y + 100 && !enemy.isBoss) {
+                    enemy.flightState = 'dive';
+                    
+                    let dx = player.x - enemy.x;
+                    let dy = player.y - enemy.y + 50; // Aim slightly below player
+                    let mag = Math.sqrt(dx*dx + dy*dy);
+                    
+                    let diveSpeed = enemy.speed * 2.5; // Fast dive!
+                    enemy.vx = (dx / mag) * diveSpeed;
+                    enemy.vy = (dy / mag) * diveSpeed;
+                }
+            } else if (enemy.flightState === 'dive') {
+                // Keep moving, but start pulling up if we've passed the player or are below them
+                if (enemy.y > player.y - 20 || enemy.vy < 0) {
+                    enemy.vy -= 1.0; // Strong pull up
+                }
+                
+                // Limit upward speed so they don't shoot into space
+                if (enemy.vy < -15) enemy.vy = -15;
+                
+                // If we've pulled up high enough, return to hover state
+                if (enemy.y < enemy.startY - 50) {
+                    enemy.flightState = 'hover';
+                    enemy.startX = enemy.x; // Set new hover anchor
+                    enemy.vy = 0;
+                }
+            }
+            
+            if (enemy.isBoss) {
+                // Boss is massive and constantly sweeps back and forth in huge dives
+                if (enemy.flightState !== 'dive') {
+                    if (distToPlayer < 800 && enemy.y < player.y) {
+                        enemy.flightState = 'dive';
+                        let diveTargetX = player.x + (player.x > enemy.x ? 400 : -400); // Swoop past player
+                        let dx = diveTargetX - enemy.x;
+                        let dy = player.y - enemy.y + 100;
+                        let mag = Math.sqrt(dx*dx + dy*dy);
+                        let diveSpeed = enemy.speed * 2.0;
+                        enemy.vx = (dx / mag) * diveSpeed;
+                        enemy.vy = (dy / mag) * diveSpeed;
+                    }
+                }
+            }
+            
+            moveLeft = false; moveRight = false; // Bypass normal physics
+        } else if (currentLevelIndex >= 20) {
             // VOID BLACK HOLES
             enemy.speed = MAX_SPEED;
             moveLeft = (player.x < enemy.x - 10);
@@ -1119,30 +1523,9 @@ function updateEnemies() {
                 
                 moveLeft = false; moveRight = false; // Bypass normal physics
             } else {
-                // Guardian AI Priorities (1. Stop the player, 2. Kill the player)
-                enemy.speed = MAX_SPEED; // Exact same physics/speed as player
-                
-                if (enemy.startX === undefined) {
-                    enemy.startX = enemy.x;
-                }
-                
-                let distToPlayerX = Math.abs(player.x - enemy.x);
-                let distToPlayerY = Math.abs(player.y - enemy.y);
-                
-                if (distToPlayerX < 250 && distToPlayerY < 300) {
-                    // Priority 2: KILL - Player got too close, abandon post and charge!
-                    moveLeft = (player.x < enemy.x - 10);
-                    moveRight = (player.x > enemy.x + 10);
-                } else if (distToPlayerX < 800) {
-                    // Priority 1: STOP - Keep a blocking position between the player and the goal (the right side)
-                    let blockTargetX = player.x + 200;
-                    moveLeft = (blockTargetX < enemy.x - 10);
-                    moveRight = (blockTargetX > enemy.x + 10);
-                } else {
-                    // Idle: Guard post
-                    moveLeft = (enemy.startX < enemy.x - 10);
-                    moveRight = (enemy.startX > enemy.x + 10);
-                }
+                // Relentless Chase AI
+                moveLeft = (player.x < enemy.x - 10);
+                moveRight = (player.x > enemy.x + 10);
             }
         } else if (currentLevelIndex >= 10) {
             // Ice Enemies Dash Mechanic
@@ -1340,7 +1723,9 @@ function updateEnemies() {
         }
 
         let isTeleportCharging = (currentLevelIndex < 5 && enemy.tpCooldown !== undefined && enemy.tpCooldown < 45);
-        if ((currentLevelIndex < 15 || currentLevelIndex >= 20 || !enemy.isBoss) && !isTeleportCharging) {
+        let isHoveringBoss = (currentLevelIndex >= 15 && currentLevelIndex < 20 && enemy.isBoss);
+        let isCelestial = (currentLevelIndex >= 25);
+        if (!isHoveringBoss && !isCelestial && !isTeleportCharging) {
             enemy.vy += GRAVITY;
         }
 
@@ -1360,6 +1745,7 @@ function updateEnemies() {
         // X Physics
         enemy.x += enemy.vx;
         enemy.touchWallDir = 0;
+        
         handleEntityCollisions(enemy, true);
 
         // Y Physics
@@ -1964,6 +2350,53 @@ function drawMountainLayer(ctx, parallax, baseHeight, amp1, amp2, amp3, color, s
     ctx.fill();
 }
 
+function drawSpikeLayer(ctx, parallax, baseHeight, amp, freq, color, seedOffset, inverted = false) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    
+    if (inverted) {
+        ctx.moveTo(0, 0);
+    } else {
+        ctx.moveTo(0, canvas.height);
+    }
+    
+    let step = 15; 
+    let levelOffset = currentLevelIndex * 99999;
+    let offsetX = camera.x * parallax + seedOffset + levelOffset;
+    
+    for (let x = 0; x <= canvas.width + step; x += step) {
+        let worldX = x + offsetX;
+        let y = baseHeight;
+        
+        let phase1 = ((worldX * freq) % 2 + 2) % 2;
+        let tri1 = Math.abs(phase1 - 1);
+        let spikeOffset = amp - (tri1 * amp);
+        
+        let phase2 = ((worldX * freq * 2.3 + 10) % 2 + 2) % 2;
+        let tri2 = Math.abs(phase2 - 1);
+        let amp2 = amp * 0.4;
+        spikeOffset += amp2 - (tri2 * amp2);
+        
+        spikeOffset += Math.sin(worldX * freq * 8.3 + 20) * (amp * 0.1);
+        
+        if (inverted) {
+            y += spikeOffset;
+        } else {
+            y -= spikeOffset;
+        }
+        
+        ctx.lineTo(x, y);
+    }
+    
+    if (inverted) {
+        ctx.lineTo(canvas.width, 0);
+    } else {
+        ctx.lineTo(canvas.width, canvas.height);
+    }
+    ctx.closePath();
+    ctx.fill();
+}
+
 function drawCloudLayer(ctx, parallax, baseHeight, color, seedOffset, scale) {
     ctx.fillStyle = color;
     let period = 2000;
@@ -2145,6 +2578,140 @@ function drawIceBackground() {
     drawMountainLayer(ctx, 0.25, canvas.height + 250 + vParallax * 0.25, 900, 300, 100, '#112c47', 10000);
 }
 
+function drawFireBackground() {
+    let vParallax = -camera.y;
+
+    // Magma cavern gradient (dark ceiling, hot floor)
+    let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0.2, '#0a0202');
+    gradient.addColorStop(0.7, 'rgba(255, 60, 0, 0.1)');
+    gradient.addColorStop(1, 'rgba(255, 30, 0, 0.2)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Far layer (Darkest red)
+    drawSpikeLayer(ctx, 0.05, canvas.height + 50 + vParallax * 0.05, 300, 0.002, '#210808', 0, false);
+    drawSpikeLayer(ctx, 0.05, -50 + vParallax * 0.05, 200, 0.002, '#210808', 2000, true);
+    
+    // Mid layer (Dark crimson)
+    drawSpikeLayer(ctx, 0.15, canvas.height + 150 + vParallax * 0.15, 450, 0.0035, '#3a0c0c', 5000, false);
+    drawSpikeLayer(ctx, 0.15, -150 + vParallax * 0.15, 300, 0.0035, '#3a0c0c', 7000, true);
+    
+    // Near layer (Deep red)
+    drawSpikeLayer(ctx, 0.3, canvas.height + 250 + vParallax * 0.3, 500, 0.0045, '#5c1414', 10000, false);
+    drawSpikeLayer(ctx, 0.3, -250 + vParallax * 0.3, 400, 0.0045, '#5c1414', 12000, true);
+}
+
+function drawPlanet(ctx, parallax, x, y, radius, color, shadowColor, seedOffset) {
+    let offsetX = camera.x * parallax + seedOffset + (currentLevelIndex * 99999);
+    // wrap around math for infinite space
+    let worldX = (x - offsetX) % (canvas.width + radius * 4);
+    if (worldX < -radius * 2) worldX += (canvas.width + radius * 4);
+    
+    // Draw base planet
+    ctx.beginPath();
+    ctx.arc(worldX, y - camera.y * parallax, radius, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    
+    // Draw eclipse/shadow
+    ctx.beginPath();
+    ctx.arc(worldX + radius * 0.2, y - camera.y * parallax, radius * 0.95, 0, Math.PI * 2);
+    ctx.fillStyle = shadowColor;
+    ctx.fill();
+}
+
+function drawVoidBackground() {
+    let vParallax = -camera.y;
+
+    // Deep space gradient
+    let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#020005');
+    gradient.addColorStop(1, '#0c051a');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Far Layer: Twinkling Stars
+    ctx.fillStyle = '#ffffff';
+    let levelOffset = currentLevelIndex * 99999;
+    for (let i = 0; i < 150; i++) {
+        let x = (Math.sin(i * 91.3) * 10000 - camera.x * 0.01 + levelOffset) % canvas.width;
+        if (x < 0) x += canvas.width;
+        let y = (Math.cos(i * 13.7) * 5000 - camera.y * 0.01) % canvas.height;
+        if (y < 0) y += canvas.height;
+        
+        let twinkle = Math.sin(gameTime * 0.05 + i);
+        if (twinkle > 0) {
+            ctx.globalAlpha = twinkle * 0.5;
+            ctx.beginPath();
+            ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    ctx.globalAlpha = 1.0;
+
+    // Mid Layer: Eclipsed Planets
+    drawPlanet(ctx, 0.05, 500, 300, 150, '#1c0d36', '#020005', 0);
+    drawPlanet(ctx, 0.08, 1500, 600, 80, '#2e1554', '#020005', 5000);
+    drawPlanet(ctx, 0.1, 2800, 200, 250, '#120726', '#020005', 10000);
+
+    // Near Layer: Cosmic Energy Bands (Clouds)
+    drawCloudLayer(ctx, 0.15, 200 + vParallax * 0.15, 'rgba(40, 15, 80, 0.2)', 0, 1.0);
+    drawCloudLayer(ctx, 0.25, 500 + vParallax * 0.25, 'rgba(60, 20, 100, 0.3)', 5000, 1.5);
+    drawCloudLayer(ctx, 0.4, 800 + vParallax * 0.4, 'rgba(80, 25, 120, 0.4)', 10000, 2.0);
+}
+
+function drawGodRays(ctx, parallax) {
+    let levelOffset = currentLevelIndex * 99999;
+    let offsetX = camera.x * parallax + levelOffset;
+    
+    ctx.save();
+    // Use screen blend mode for bright light rays
+    ctx.globalCompositeOperation = 'screen';
+    
+    for (let i = 0; i < 5; i++) {
+        let x = (i * 800 - offsetX * 0.5) % (canvas.width * 2) - canvas.width * 0.5;
+        let width = 200 + Math.sin(gameTime * 0.02 + i) * 100;
+        
+        let gradient = ctx.createLinearGradient(x, -200, x - 400, canvas.height);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+        gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.moveTo(x, -200);
+        ctx.lineTo(x + width, -200);
+        ctx.lineTo(x - 400 + width, canvas.height);
+        ctx.lineTo(x - 400, canvas.height);
+        ctx.fill();
+    }
+    ctx.restore();
+}
+
+function drawCelestialBackground() {
+    let vParallax = -camera.y;
+
+    // Sky blue gradient
+    let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#3a8ccf');
+    gradient.addColorStop(1, '#8bd3ff');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Far Layer: Massive cumulus clouds
+    drawCloudLayer(ctx, 0.05, 100 + vParallax * 0.05, 'rgba(255, 255, 255, 0.8)', 0, 1.0);
+    drawCloudLayer(ctx, 0.08, 300 + vParallax * 0.08, 'rgba(240, 248, 255, 0.9)', 5000, 1.5);
+    
+    // Mid Layer: Floating golden rings and ruined pillars
+    drawPlanet(ctx, 0.15, 600, 200 + vParallax * 0.15, 100, '#ffd700', '#ccaa00', 0); // Golden Sun/Ring
+    drawPlanet(ctx, 0.15, 2000, 400 + vParallax * 0.15, 60, '#ffffff', '#e0e0e0', 10000); // White moon
+    
+    // Near Layer: Golden clouds and God Rays
+    drawCloudLayer(ctx, 0.25, 500 + vParallax * 0.25, 'rgba(255, 240, 200, 0.9)', 10000, 2.0);
+    
+    drawGodRays(ctx, 0.3);
+}
+
 function drawParallaxBackground() {
     if (currentLevelIndex < 5) {
         drawStormBackground();
@@ -2152,6 +2719,12 @@ function drawParallaxBackground() {
         drawForestBackground();
     } else if (currentLevelIndex < 15) {
         drawIceBackground();
+    } else if (currentLevelIndex < 20) {
+        drawFireBackground();
+    } else if (currentLevelIndex < 25) {
+        drawVoidBackground();
+    } else {
+        drawCelestialBackground();
     }
 }
 
