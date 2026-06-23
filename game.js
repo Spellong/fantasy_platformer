@@ -123,9 +123,20 @@ const themeVoid = {
     player: '#ffffff'
 };
 
+const themeBlood = {
+    platform: '#1a0505',
+    platformBorder: '#800000',
+    hazard: '#ff0000',
+    enemy: '#d90000',
+    goal: '#ffffff',
+    bg: '#050000',
+    particle: '#ff3333',
+    player: '#ffffff'
+};
+
 const themeCelestial = {
-    platform: '#ffffff', // White marble
-    platformBorder: '#ffd700', // Gold trim
+    platform: '#0a001a', // Deep dark magical stone
+    platformBorder: '#a020f0', // Purple/Pink glowing trim
     hazard: '#00ccff', // Bright blue deadly light
     enemy: '#ffe600', // Glowing yellow/gold Seraphs
     goal: '#ffffff', // Pure white light portal
@@ -1148,6 +1159,101 @@ const levels = [
         ],
         goal: {x: -900, y: 600, w: 50, h: 50},
         spawn: {x: 5000, y: 600}
+    },
+    { // Level 31: Blood Ritual
+        title: "The Crimson Keep.",
+        quote: "Watch the skies.",
+        platforms: [
+            {x: 0, y: 600, w: 600, h: 200},
+            {x: 800, y: 600, w: 2000, h: 200},
+            {x: 800, y: 100, w: 2000, h: 100}, // Ceiling!
+            {x: 3000, y: 600, w: 800, h: 200}
+        ],
+        hazards: [ {x: 600, y: 900, w: 200, h: 100}, {x: 2800, y: 900, w: 200, h: 100} ],
+        enemies: [
+            { x: 1200, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 3 },
+            { x: 1800, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 3 },
+            { x: 2400, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 3 }
+        ],
+        goal: {x: 3600, y: 500, w: 50, h: 50},
+        spawn: {x: 100, y: 500}
+    },
+    { // Level 32: The Boiling Veins
+        title: "The Boiling Veins.",
+        quote: "Patience is key.",
+        platforms: [
+            {x: 0, y: 600, w: 400, h: 200},
+            {x: 600, y: 600, w: 100, h: 200},
+            {x: 900, y: 500, w: 100, h: 200},
+            {x: 1200, y: 400, w: 100, h: 200},
+            {x: 1500, y: 300, w: 100, h: 200},
+            {x: 1800, y: 400, w: 100, h: 200},
+            {x: 2100, y: 500, w: 100, h: 200},
+            {x: 2400, y: 600, w: 400, h: 200}
+        ],
+        hazards: [ {x: 0, y: 900, w: 3000, h: 100} ],
+        enemies: [
+            { x: 900, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 0 },
+            { x: 1500, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 0 },
+            { x: 2100, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 0 }
+        ],
+        goal: {x: 2600, y: 500, w: 50, h: 50},
+        spawn: {x: 100, y: 500}
+    },
+    { // Level 33: Vertical Ascent
+        title: "Heart of Darkness.",
+        quote: "Don't get crushed.",
+        platforms: [
+            {x: 0, y: 800, w: 400, h: 200},
+            {x: 400, y: 600, w: 400, h: 200},
+            {x: 0, y: 400, w: 400, h: 200},
+            {x: 400, y: 200, w: 400, h: 200},
+            {x: 0, y: 0, w: 400, h: 200},
+            {x: 400, y: -200, w: 400, h: 200}
+        ],
+        hazards: [ {x: -200, y: 1000, w: 1200, h: 100} ],
+        enemies: [
+            { x: 500, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 4 },
+            { x: 100, y: 300, width: 30, height: 30, vx: 0, vy: 0, speed: 4 },
+            { x: 500, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 4 },
+            { x: 100, y: -100, width: 30, height: 30, vx: 0, vy: 0, speed: 4 }
+        ],
+        goal: {x: 500, y: -300, w: 50, h: 50},
+        spawn: {x: 100, y: 700}
+    },
+    { // Level 34: The Sanguine Steps
+        title: "The Sanguine Steps.",
+        quote: "Run.",
+        platforms: [
+            {x: 0, y: 600, w: 3000, h: 200}
+        ],
+        hazards: [ ],
+        enemies: [
+            { x: 500, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 5 },
+            { x: 1000, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 5 },
+            { x: 1500, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 5 },
+            { x: 2000, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 5 },
+            { x: 2500, y: 500, width: 30, height: 30, vx: 0, vy: 0, speed: 5 }
+        ],
+        goal: {x: 2800, y: 500, w: 50, h: 50},
+        spawn: {x: 100, y: 500}
+    },
+    { // Level 35: The Blood Lord
+        title: "The Hemomancer.",
+        quote: "The final offering.",
+        platforms: [
+            {x: 0, y: 600, w: 1200, h: 200},
+            {x: 200, y: 400, w: 200, h: 20},
+            {x: 800, y: 400, w: 200, h: 20}
+        ],
+        hazards: [ {x: -500, y: 900, w: 2200, h: 100} ],
+        enemies: [
+            { x: 500, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 2, isBoss: true }, // Big hand logic
+            { x: 200, y: 300, width: 30, height: 30, vx: 0, vy: 0, speed: 3 },
+            { x: 800, y: 300, width: 30, height: 30, vx: 0, vy: 0, speed: 3 }
+        ],
+        goal: {x: 1100, y: 500, w: 50, h: 50},
+        spawn: {x: 100, y: 500}
     }
 ];
 
@@ -1382,80 +1488,83 @@ function updateEnemies() {
             }
         }
         
-        if (currentLevelIndex >= 25) {
-            // CELESTIAL SERAPHS (Flight & Dive Bombing)
-            enemy.isGrounded = false; // Always flying
-            
-            if (enemy.startX === undefined) {
-                enemy.startX = enemy.x;
-                enemy.startY = enemy.y; // Starts high in the sky
-                enemy.hoverTimer = Math.random() * 100;
-                enemy.flightState = 'hover'; // hover, dive
+        if (currentLevelIndex >= 30) {
+            // BLOOD KEEP: Morphing Hands
+            if (enemy.bloodState === undefined) {
+                enemy.bloodState = 'droplet'; // droplet, rising, smashing, condensing
+                enemy.bloodTimer = 60 + Math.random() * 240; // 1 to 5 seconds
+                enemy.morphProgress = 0; 
+                enemy.baseY = enemy.y; // To know where to smash down to
+                enemy.isGrounded = true; 
             }
             
-            enemy.hoverTimer += 0.05;
-            
-            let distToPlayer = Math.abs(player.x - enemy.x);
-            
-            if (enemy.flightState === 'hover') {
-                // Hover in place, bobbing up and down
-                let targetY = enemy.startY + Math.sin(enemy.hoverTimer) * 40;
-                enemy.y += (targetY - enemy.y) * 0.05;
-                
-                // Drift towards player X if they are far, but stay high
-                if (distToPlayer > 300) {
-                    enemy.vx = (player.x > enemy.x ? enemy.speed * 0.5 : -enemy.speed * 0.5);
-                } else {
-                    enemy.vx *= 0.9; // Slow down horizontally
+            if (enemy.bloodState === 'droplet') {
+                enemy.bloodTimer--;
+                if (enemy.bloodTimer <= 0) {
+                    enemy.bloodState = 'rising';
+                    enemy.baseY = enemy.y; 
+                    enemy.isGrounded = false;
+                    enemy.vy = -12; // Float up rapidly
+                    spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, colors.enemy, 20, 2);
                 }
-                enemy.vy = 0;
+                // They just patrol while droplet
+                moveLeft = (player.x < enemy.x - 10);
+                moveRight = (player.x > enemy.x + 10);
+            } else if (enemy.bloodState === 'rising') {
+                enemy.vy *= 0.9; // Slow down ascent
+                enemy.morphProgress += 0.05; // 0 to 1
+                if (enemy.morphProgress > 1) enemy.morphProgress = 1;
                 
-                // If player is close and below, dive!
-                if (distToPlayer < 300 && player.y > enemy.y + 100 && !enemy.isBoss) {
-                    enemy.flightState = 'dive';
-                    
-                    let dx = player.x - enemy.x;
-                    let dy = player.y - enemy.y + 50; // Aim slightly below player
-                    let mag = Math.sqrt(dx*dx + dy*dy);
-                    
-                    let diveSpeed = enemy.speed * 2.5; // Fast dive!
-                    enemy.vx = (dx / mag) * diveSpeed;
-                    enemy.vy = (dy / mag) * diveSpeed;
+                if (Math.abs(enemy.vy) < 0.5) {
+                    enemy.bloodState = 'smashing';
+                    enemy.vy = 20; // Violently smash down!
                 }
-            } else if (enemy.flightState === 'dive') {
-                // Keep moving, but start pulling up if we've passed the player or are below them
-                if (enemy.y > player.y - 20 || enemy.vy < 0) {
-                    enemy.vy -= 1.0; // Strong pull up
+                moveLeft = false; moveRight = false;
+            } else if (enemy.bloodState === 'smashing') {
+                // Moving down fast
+                moveLeft = false; moveRight = false;
+                // Wait for collision code below to set isGrounded = true
+                if (enemy.isGrounded || enemy.y >= enemy.baseY) {
+                    enemy.bloodState = 'condensing';
+                    enemy.bloodTimer = 60 + Math.random() * 240;
+                    spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, colors.particle, 30, 3); // Splatter
                 }
-                
-                // Limit upward speed so they don't shoot into space
-                if (enemy.vy < -15) enemy.vy = -15;
-                
-                // If we've pulled up high enough, return to hover state
-                if (enemy.y < enemy.startY - 50) {
-                    enemy.flightState = 'hover';
-                    enemy.startX = enemy.x; // Set new hover anchor
-                    enemy.vy = 0;
+            } else if (enemy.bloodState === 'condensing') {
+                enemy.morphProgress -= 0.05;
+                if (enemy.morphProgress < 0) {
+                    enemy.morphProgress = 0;
+                    enemy.bloodState = 'droplet';
                 }
+                moveLeft = false; moveRight = false;
             }
             
-            if (enemy.isBoss) {
-                // Boss is massive and constantly sweeps back and forth in huge dives
-                if (enemy.flightState !== 'dive') {
-                    if (distToPlayer < 800 && enemy.y < player.y) {
-                        enemy.flightState = 'dive';
-                        let diveTargetX = player.x + (player.x > enemy.x ? 400 : -400); // Swoop past player
-                        let dx = diveTargetX - enemy.x;
-                        let dy = player.y - enemy.y + 100;
-                        let mag = Math.sqrt(dx*dx + dy*dy);
-                        let diveSpeed = enemy.speed * 2.0;
-                        enemy.vx = (dx / mag) * diveSpeed;
-                        enemy.vy = (dy / mag) * diveSpeed;
-                    }
-                }
+            // Bypass gravity if rising or fully floating
+            if (enemy.bloodState === 'rising') {
+                enemy.vy -= GRAVITY; // Cancel gravity
             }
             
-            moveLeft = false; moveRight = false; // Bypass normal physics
+            // Adjust hitboxes and sizes based on morphProgress
+            // Normal droplet is small. Hand is massive.
+            let targetWidth = 100;
+            let targetHeight = 100;
+            if (enemy.isBoss) { targetWidth = 250; targetHeight = 250; }
+            
+            let baseWidth = 30;
+            let baseHeight = 30;
+            
+            let newWidth = baseWidth + (targetWidth - baseWidth) * enemy.morphProgress;
+            let newHeight = baseHeight + (targetHeight - baseHeight) * enemy.morphProgress;
+            
+            // Keep centered
+            enemy.x -= (newWidth - enemy.width) / 2;
+            enemy.width = newWidth;
+            enemy.height = newHeight;
+            
+        } else if (currentLevelIndex >= 25 && currentLevelIndex < 30) {
+            // CELESTIAL WHITE HOLES (Normal Gravity Fixed!)
+            enemy.speed = MAX_SPEED * 0.9;
+            moveLeft = (player.x < enemy.x - 10);
+            moveRight = (player.x > enemy.x + 10);
         } else if (currentLevelIndex >= 20) {
             // VOID BLACK HOLES
             enemy.speed = MAX_SPEED;
@@ -1724,8 +1833,7 @@ function updateEnemies() {
 
         let isTeleportCharging = (currentLevelIndex < 5 && enemy.tpCooldown !== undefined && enemy.tpCooldown < 45);
         let isHoveringBoss = (currentLevelIndex >= 15 && currentLevelIndex < 20 && enemy.isBoss);
-        let isCelestial = (currentLevelIndex >= 25);
-        if (!isHoveringBoss && !isCelestial && !isTeleportCharging) {
+        if (!isHoveringBoss && !isTeleportCharging) {
             enemy.vy += GRAVITY;
         }
 
@@ -2296,6 +2404,44 @@ function drawBossBlaze(ctx, x, y, width, height) {
     ctx.shadowBlur = 0;
 }
 
+function drawBloodEnemy(ctx, x, y, width, height, progress) {
+    let cx = x + width/2;
+    let cy = y + height/2;
+    
+    ctx.fillStyle = colors.enemy;
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = colors.hazard;
+    
+    if (progress === undefined || progress === 0) {
+        ctx.beginPath();
+        ctx.moveTo(cx, y);
+        ctx.bezierCurveTo(x + width, y + height*0.3, x + width, y + height, cx, y + height);
+        ctx.bezierCurveTo(x, y + height, x, y + height*0.3, cx, y);
+        ctx.fill();
+    } else {
+        ctx.beginPath();
+        ctx.arc(cx, cy - height * 0.1 * progress, width*0.3, 0, Math.PI*2);
+        ctx.fill();
+        
+        for (let i = 0; i < 4; i++) {
+            let fx = x + width * 0.2 + (width * 0.2 * i);
+            let fy = cy + (height * 0.5 * progress);
+            
+            ctx.beginPath();
+            ctx.lineCap = 'round';
+            ctx.lineWidth = width * 0.15;
+            ctx.strokeStyle = colors.enemy;
+            ctx.moveTo(cx, cy - height * 0.1 * progress);
+            
+            let cp1x = cx;
+            let cp1y = cy + height * 0.2;
+            ctx.quadraticCurveTo(cp1x, cp1y, fx, fy);
+            ctx.stroke();
+        }
+    }
+    ctx.shadowBlur = 0;
+}
+
 function drawVoidEnemy(ctx, x, y, width, height) {
     let cx = x + width/2;
     let cy = y + height/2;
@@ -2723,10 +2869,73 @@ function drawParallaxBackground() {
         drawFireBackground();
     } else if (currentLevelIndex < 25) {
         drawVoidBackground();
-    } else {
+    } else if (currentLevelIndex < 30) {
         drawCelestialBackground();
+    } else {
+        drawBloodBackground();
     }
 }
+
+function drawBloodBackground() {
+    let vParallax = -camera.y;
+
+    let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#0a0000');
+    gradient.addColorStop(1, '#2a0505');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#110202';
+    let levelOffset = currentLevelIndex * 99999;
+    for (let i = 0; i < 20; i++) {
+        let x = (i * 400 - camera.x * 0.05 + levelOffset) % (canvas.width + 400);
+        if (x < -400) x += canvas.width + 800;
+        
+        ctx.beginPath();
+        ctx.rect(x, 100 + vParallax * 0.05, 100, canvas.height);
+        ctx.arc(x + 50, 100 + vParallax * 0.05, 50, Math.PI, 0);
+        ctx.fill();
+    }
+
+    ctx.strokeStyle = 'rgba(150, 0, 0, 0.4)';
+    ctx.lineWidth = 15;
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 30; i++) {
+        let x = (i * 300 - camera.x * 0.15 + levelOffset) % (canvas.width + 500);
+        if (x < -300) x += canvas.width + 600;
+        
+        ctx.beginPath();
+        ctx.moveTo(x, -200 + vParallax * 0.15);
+        for(let j=0; j<5; j++) {
+            ctx.quadraticCurveTo(
+                x + 100 * Math.sin(j + i), 
+                -100 + j * 200 + vParallax * 0.15, 
+                x - 50 * Math.cos(j + i), 
+                j * 200 + vParallax * 0.15
+            );
+        }
+        ctx.stroke();
+    }
+    
+    for (let i = 0; i < 10; i++) {
+        let x = (i * 800 - camera.x * 0.3 + levelOffset) % (canvas.width + 600);
+        if (x < -400) x += canvas.width + 800;
+        let y = 50 + vParallax * 0.3;
+        
+        ctx.fillStyle = '#050000';
+        ctx.beginPath();
+        ctx.rect(x, y, 200, 600);
+        ctx.arc(x + 100, y, 100, Math.PI, 0);
+        ctx.fill();
+        
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.15)';
+        ctx.beginPath();
+        ctx.rect(x + 10, y + 10, 180, 580);
+        ctx.arc(x + 100, y + 10, 90, Math.PI, 0);
+        ctx.fill();
+    }
+}
+
 
 function draw() {
     // Magical Gradient Background
@@ -2766,7 +2975,9 @@ function draw() {
         let drawX = cx - enemy.renderW / 2;
         let drawY = cy - enemy.renderH;
         
-        if (currentLevelIndex >= 20) {
+        if (currentLevelIndex >= 30) {
+            drawBloodEnemy(ctx, drawX, drawY, enemy.renderW, enemy.renderH, enemy.morphProgress);
+        } else if (currentLevelIndex >= 20) {
             if (enemy.isBoss) {
                 drawBossVoid(ctx, drawX, drawY, enemy.renderW, enemy.renderH);
             } else {
