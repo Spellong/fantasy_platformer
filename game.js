@@ -2668,6 +2668,44 @@ function drawBossVoid(ctx, x, y, enemy) {
     ctx.shadowBlur = 0;
 }
 
+function drawCloudLayer(ctx, parallax, baseHeight, color, seedOffset, scale) {
+    ctx.fillStyle = color;
+    let period = 2000;
+    
+    // Offset by currentLevelIndex so each level has a totally unique sky
+    let levelOffset = currentLevelIndex * 99999;
+    let offsetX = camera.x * parallax + seedOffset + levelOffset;
+    let startX = Math.floor(offsetX / period) * period;
+    
+    function drawFluffyCloud(cx, cy, s) {
+        ctx.beginPath();
+        // 5 overlapping circles to make a classic fluffy cloud shape
+        ctx.arc(cx, cy, 30 * s, 0, Math.PI * 2); // Center top
+        ctx.arc(cx - 25 * s, cy + 10 * s, 20 * s, 0, Math.PI * 2); // Mid left
+        ctx.arc(cx + 25 * s, cy + 5 * s, 25 * s, 0, Math.PI * 2); // Mid right
+        ctx.arc(cx + 45 * s, cy + 15 * s, 15 * s, 0, Math.PI * 2); // Far right
+        ctx.arc(cx - 40 * s, cy + 15 * s, 15 * s, 0, Math.PI * 2); // Far left
+        // Fill the bottom gaps so it rests nicely
+        ctx.rect(cx - 40 * s, cy + 10 * s, 85 * s, 20 * s);
+        ctx.fill();
+    }
+    
+    for (let i = -1; i <= Math.ceil(canvas.width / period) + 1; i++) {
+        let chunkX = startX + i * period - offsetX;
+        
+        // Cloud cluster 1
+        drawFluffyCloud(chunkX + 300, baseHeight, scale);
+        drawFluffyCloud(chunkX + 450, baseHeight + 20 * scale, scale * 0.8);
+
+        // Cloud cluster 2
+        drawFluffyCloud(chunkX + 1200, baseHeight + 150 * scale, scale * 1.5);
+        drawFluffyCloud(chunkX + 1000, baseHeight + 180 * scale, scale * 1.2);
+        
+        // Cloud cluster 3
+        drawFluffyCloud(chunkX + 1800, baseHeight - 80 * scale, scale * 0.7);
+    }
+}
+
 function drawParallaxBackground() {
     if (currentLevelIndex < 5) {
         drawStormBackground();
