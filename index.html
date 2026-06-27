@@ -8,12 +8,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Caveat:wght@700&family=Raleway:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <script>
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            fetch('http://localhost:3002/log_error?msg=' + encodeURIComponent(msg + ' at ' + lineNo + ':' + columnNo));
+            return false;
+        };
+    </script>
     <div id="game-container">
         <canvas id="gameCanvas"></canvas>
         <div id="ui-layer" class="overlay hidden">
             <h1 id="level-title">Level 1</h1>
         </div>
         <div id="fade-layer" class="fade-overlay"></div>
+        <div id="victory-screen" class="hidden">
+            <h1 class="victory-title">YOU HAVE TRANSCENDED</h1>
+            <p class="victory-subtitle">The Celestial Heavens await your rule.</p>
+            <div class="particles"></div>
+        </div>
         <div id="level-menu-container">
             <button id="menu-toggle" onclick="toggleMenu()">Levels</button>
             <div id="level-list" class="hidden">
@@ -47,11 +58,6 @@
                 <button onclick="selectLevel(27)">Lvl 28</button>
                 <button onclick="selectLevel(28)">Lvl 29</button>
                 <button onclick="selectLevel(29)">Lvl 30</button>
-                <button onclick="selectLevel(30)">Lvl 31</button>
-                <button onclick="selectLevel(31)">Lvl 32</button>
-                <button onclick="selectLevel(32)">Lvl 33</button>
-                <button onclick="selectLevel(33)">Lvl 34</button>
-                <button onclick="selectLevel(34)">Lvl 35</button>
             </div>
         </div>
     </div>

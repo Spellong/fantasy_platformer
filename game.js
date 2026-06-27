@@ -123,25 +123,15 @@ const themeVoid = {
     player: '#ffffff'
 };
 
-const themeShifter = {
-    platform: '#11151c',
-    platformBorder: '#00e5ff',
-    hazard: '#00e5ff',
-    enemy: '#00e5ff',
-    goal: '#ffffff',
-    bg: '#02050a',
-    particle: '#00ffcc',
-    player: '#ffffff'
-};
 
 const themeCelestial = {
-    platform: '#0a001a', // Deep dark magical stone
-    platformBorder: '#a020f0', // Purple/Pink glowing trim
+    platform: '#f0f8ff', // Bright Alice Blue / White Marble
+    platformBorder: '#ffffff', // Pure white glowing trim
     hazard: '#00ccff', // Bright blue deadly light
-    enemy: '#ffe600', // Glowing yellow/gold Seraphs
+    enemy: '#ff66d9', // Glowing bright pink
     goal: '#ffffff', // Pure white light portal
-    bg: '#62bcf5', // Sky blue
-    particle: '#ffffff', // Feathers/Light
+    bg: '#1a0b2e', // Fantasy space dark
+    particle: '#ff66d9', // Pink magic dust
     player: '#ffffff'
 };
 
@@ -1003,6 +993,7 @@ const levels = [
             { x: -200, y: 300, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 3000 }
         ],
         goal: {x: -900, y: 600, w: 50, h: 50},
+        spawn: {x: 5000, y: 600}
     },
     { // Level 26: Celestial Intro
         title: "The Golden Gates.",
@@ -1160,106 +1151,72 @@ const levels = [
         goal: {x: -900, y: 600, w: 50, h: 50},
         spawn: {x: 5000, y: 600}
     },
-    { // Level 31: Geometric Shift
-        title: "Glass and Chrome.",
-        quote: "They adapt to your presence.",
-        platforms: [
-            {x: 0, y: 700, w: 1000, h: 200},
-            {x: 1200, y: 700, w: 1000, h: 200},
-            {x: 2400, y: 700, w: 1000, h: 200}
-        ],
-        hazards: [ {x: 0, y: 900, w: 4000, h: 100} ],
-        enemies: [
-            { x: 1500, y: 650, width: 30, height: 30, vx: 0, vy: 0, speed: 0 },
-            { x: 1800, y: 650, width: 30, height: 30, vx: 0, vy: 0, speed: 0 },
-            { x: 2700, y: 650, width: 30, height: 30, vx: 0, vy: 0, speed: 0 }
-        ],
-        goal: {x: 3100, y: 600, w: 50, h: 50},
-        spawn: {x: 100, y: 600}
-    },
-    { // Level 32: The Armory
-        title: "The Armory.",
-        quote: "Bait the swing.",
-        platforms: [
-            {x: 0, y: 700, w: 600, h: 200},
-            {x: 800, y: 600, w: 200, h: 20},
-            {x: 1200, y: 500, w: 200, h: 20},
-            {x: 1600, y: 400, w: 200, h: 20},
-            {x: 2000, y: 300, w: 200, h: 20},
-            {x: 2400, y: 700, w: 600, h: 200}
-        ],
-        checkpoints: [ {x: 2500, y: 650, w: 40, h: 50} ],
-        hazards: [ {x: 0, y: 900, w: 4000, h: 100} ],
-        enemies: [
-            { x: 1000, y: 300, width: 30, height: 30, vx: 0, vy: 0, speed: 0 },
-            { x: 1400, y: 200, width: 30, height: 30, vx: 0, vy: 0, speed: 0 },
-            { x: 1800, y: 100, width: 30, height: 30, vx: 0, vy: 0, speed: 0 }
-        ],
-        goal: {x: 2800, y: 600, w: 50, h: 50},
-        spawn: {x: 100, y: 600}
-    },
-    { // Level 33: Razor Edge
-        title: "Razor Edge.",
-        quote: "Patience.",
-        platforms: [
-            {x: 0, y: 600, w: 400, h: 200},
-            {x: 600, y: 600, w: 100, h: 200},
-            {x: 900, y: 600, w: 100, h: 200},
-            {x: 1200, y: 600, w: 100, h: 200},
-            {x: 1500, y: 600, w: 100, h: 200},
-            {x: 1800, y: 600, w: 400, h: 200}
-        ],
-        hazards: [ {x: 0, y: 900, w: 3000, h: 100} ],
-        enemies: [
-            { x: 750, y: 550, width: 30, height: 30, vx: 0, vy: 0, speed: 0 },
-            { x: 1050, y: 550, width: 30, height: 30, vx: 0, vy: 0, speed: 0 },
-            { x: 1350, y: 550, width: 30, height: 30, vx: 0, vy: 0, speed: 0 }
-        ],
-        goal: {x: 2000, y: 500, w: 50, h: 50},
-        spawn: {x: 100, y: 500}
-    },
-    { // Level 34: Flashing Steel
-        title: "Flashing Steel.",
-        quote: "No hesitation.",
-        platforms: [
-            {x: 0, y: 700, w: 2500, h: 200}
-        ],
-        hazards: [ ],
-        enemies: [
-            { x: 600, y: 650, width: 30, height: 30, vx: 0, vy: 0, speed: 0 },
-            { x: 1000, y: 650, width: 30, height: 30, vx: 0, vy: 0, speed: 0 },
-            { x: 1400, y: 650, width: 30, height: 30, vx: 0, vy: 0, speed: 0 },
-            { x: 1800, y: 650, width: 30, height: 30, vx: 0, vy: 0, speed: 0 }
-        ],
-        goal: {x: 2300, y: 600, w: 50, h: 50},
-        spawn: {x: 100, y: 600}
-    },
-    { // Level 35: The Sentinel
-        title: "The Sentinel.",
-        quote: "The greatsword falls.",
-        platforms: [
-            {x: 0, y: 700, w: 1500, h: 200}
-        ],
-        hazards: [ {x: 0, y: 900, w: 2000, h: 100} ],
-        enemies: [
-            { x: 700, y: 400, width: 60, height: 60, vx: 0, vy: 0, speed: 0, isBoss: true }
-        ],
-        goal: {x: 1300, y: 600, w: 50, h: 50},
-        spawn: {x: 100, y: 600}
-    }
-];
+    ];
 
 let level = null;
 let state = 'transition'; 
 
 function loadLevel(index) {
     if (index >= levels.length) {
-        levelTitle.innerText = "You Win!";
-        uiLayer.classList.remove('hidden');
+        // Trigger Victory Screen
+        document.getElementById('victory-screen').classList.remove('hidden');
+        document.getElementById('ui-layer').classList.add('hidden');
+        document.getElementById('level-menu-container').classList.add('hidden');
         state = 'complete';
+        playEpicMusic();
         return;
     }
     level = levels[index];
+    
+    // Auto-fix Level Definitions
+    if (!level.sanitized) {
+        level.sanitized = true;
+        let safeRadius = 350; // Plenty of room
+        
+        // 1. Drop Checkpoints to platforms
+        if (level.checkpoints) {
+            for (let cp of level.checkpoints) {
+                cp.w = cp.w || 40; cp.h = cp.h || 50;
+                let nearestY = 9999;
+                for (let plat of level.platforms) {
+                    if (cp.x + cp.w > plat.x && cp.x < plat.x + (plat.w || 100) && plat.y >= cp.y - 100) {
+                        if (plat.y < nearestY) nearestY = plat.y;
+                    }
+                }
+                if (nearestY !== 9999) cp.y = nearestY - cp.h;
+            }
+        }
+        
+        // 2. Nudge enemies out of platforms
+        if (level.enemies) {
+            for (let enemy of level.enemies) {
+                enemy.width = enemy.width || 30; enemy.height = enemy.height || 30;
+                for (let plat of level.platforms) {
+                    let w = plat.w || 100; let h = plat.h || 20;
+                    if (enemy.x < plat.x + w && enemy.x + enemy.width > plat.x &&
+                        enemy.y < plat.y + h && enemy.y + enemy.height > plat.y) {
+                        enemy.y = plat.y - enemy.height - 2;
+                    }
+                }
+            }
+        }
+        
+        // 3. Push enemies away from spawn and checkpoints
+        let safePoints = [level.spawn];
+        if (level.checkpoints) safePoints = safePoints.concat(level.checkpoints);
+        if (level.enemies) {
+            for (let enemy of level.enemies) {
+                for (let sp of safePoints) {
+                    let dx = (enemy.x + enemy.width/2) - sp.x;
+                    let dy = (enemy.y + enemy.height/2) - sp.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < safeRadius) {
+                        enemy.x += (dx >= 0 ? 1 : -1) * (safeRadius - dist);
+                    }
+                }
+            }
+        }
+    }
 
     // Switch Themes
     if (index < 5) {
@@ -1480,94 +1437,47 @@ function updateEnemies() {
             }
         }
         
-        let isShifter = currentLevelIndex >= 30;
-        
-        if (isShifter) {
-            enemy.isGrounded = false;
-            
-            // State Machine Initialization
-            if (!enemy.state) {
-                enemy.state = 'idle'; // idle, charge, morph, swing, recover
-                enemy.timer = 0;
-                enemy.swingAngle = 0;
-                enemy.startAngle = 0;
-            }
-            
-            let dx = (player.x + player.width/2) - (enemy.x + enemy.width/2);
-            let dy = (player.y + player.height/2) - (enemy.y + enemy.height/2);
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            let angleToPlayer = Math.atan2(dy, dx);
-            
-            let triggerRange = enemy.isBoss ? 800 : 350;
-            
-            if (enemy.state === 'idle') {
-                if (dist < triggerRange) {
-                    enemy.state = 'charge';
-                    enemy.timer = 0;
-                }
-            } else if (enemy.state === 'charge') {
-                enemy.timer++;
-                // Charge up glow
-                if (enemy.timer > 30) {
-                    enemy.state = 'morph';
-                    enemy.timer = 0;
-                    enemy.startAngle = angleToPlayer - Math.PI/2; // Start swung back
-                    enemy.swingAngle = enemy.startAngle;
-                }
-            } else if (enemy.state === 'morph') {
-                enemy.timer++;
-                if (enemy.timer > 15) {
-                    enemy.state = 'swing';
-                    enemy.timer = 0;
-                }
-            } else if (enemy.state === 'swing') {
-                enemy.timer++;
-                // Swing in a 180 degree arc over 15 frames
-                let progress = enemy.timer / 15;
-                enemy.swingAngle = enemy.startAngle + (progress * Math.PI);
-                
-                // Add lethal hitbox for the sword!
-                let swordLength = enemy.isBoss ? 300 : 120;
-                // We create a line segment and check distance to player center
-                let endX = enemy.x + enemy.width/2 + Math.cos(enemy.swingAngle) * swordLength;
-                let endY = enemy.y + enemy.height/2 + Math.sin(enemy.swingAngle) * swordLength;
-                
-                let px = player.x + player.width/2;
-                let py = player.y + player.height/2;
-                
-                // Line point distance math for hitbox
-                let l2 = swordLength * swordLength;
-                let t = Math.max(0, Math.min(1, ((px - (enemy.x + enemy.width/2)) * (endX - (enemy.x + enemy.width/2)) + (py - (enemy.y + enemy.height/2)) * (endY - (enemy.y + enemy.height/2))) / l2));
-                let projX = (enemy.x + enemy.width/2) + t * (endX - (enemy.x + enemy.width/2));
-                let projY = (enemy.y + enemy.height/2) + t * (endY - (enemy.y + enemy.height/2));
-                let distToLine = Math.sqrt((px - projX)**2 + (py - projY)**2);
-                
-                if (distToLine < (enemy.isBoss ? 40 : 20)) { // Sword thickness hitbox
-                    die();
-                }
-                
-                if (enemy.timer > 15) {
-                    enemy.state = 'recover';
-                    enemy.timer = 0;
-                }
-            } else if (enemy.state === 'recover') {
-                enemy.timer++;
-                if (enemy.timer > 20) {
-                    enemy.state = 'idle';
-                    enemy.timer = 0;
-                }
-            }
-            
-        } else if (currentLevelIndex >= 25 && currentLevelIndex < 30) {
-            // CELESTIAL WHITE HOLES (Normal Gravity Fixed!)
-            enemy.speed = MAX_SPEED * 0.9;
+        if (currentLevelIndex >= 20 && currentLevelIndex < 30) {
+            let isCelestial = currentLevelIndex >= 25;
+            enemy.speed = isCelestial ? MAX_SPEED * 0.9 : MAX_SPEED;
             moveLeft = (player.x < enemy.x - 10);
             moveRight = (player.x > enemy.x + 10);
-        } else if (currentLevelIndex >= 20) {
-            // VOID BLACK HOLES
-            enemy.speed = MAX_SPEED;
-            moveLeft = (player.x < enemy.x - 10);
-            moveRight = (player.x > enemy.x + 10);
+            
+            // Gravity Burst State Machine
+            if (!enemy.burstState) {
+                enemy.burstState = 'cooldown';
+                enemy.burstTimer = 0;
+                enemy.cooldownMax = 60 + Math.random() * 240; // 1 to 5 seconds
+            }
+            let distToPlayer = Math.sqrt(Math.pow(enemy.x - player.x, 2) + Math.pow(enemy.y - player.y, 2));
+            
+            if (enemy.burstState === 'cooldown') {
+                enemy.burstTimer++;
+                if (enemy.burstTimer > enemy.cooldownMax) {
+                    enemy.burstState = 'charge';
+                    enemy.burstTimer = 0;
+                }
+            } else if (enemy.burstState === 'charge') {
+                enemy.burstTimer++;
+                if (enemy.burstTimer > 60) {
+                    enemy.burstState = 'active';
+                    enemy.burstTimer = 0;
+                    
+                    // Implosion/Explosion effect
+                    if (isCelestial) {
+                        spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, '#ffffff', 40, 3);
+                    } else {
+                        spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, colors.particle, 40, 3);
+                    }
+                }
+            } else if (enemy.burstState === 'active') {
+                enemy.burstTimer++;
+                if (enemy.burstTimer > 30) {
+                    enemy.burstState = 'cooldown';
+                    enemy.burstTimer = 0;
+                    enemy.cooldownMax = 60 + Math.random() * 240;
+                }
+            }
         } else if (currentLevelIndex >= 15) {
             // FIRE GUARDIANS
             
@@ -1977,21 +1887,33 @@ function updatePhysics() {
     player.isGrounded = false;
     handleEntityCollisions(player, false);
     
-    // Void Gravity Pull
+    // Gravity Push / Pull Burst
     if (currentLevelIndex >= 20 && state === 'playing' && playerHasMoved) {
+        let isCelestial = currentLevelIndex >= 25; // White holes (push)
+        let isVoid = currentLevelIndex >= 20 && currentLevelIndex < 25; // Black holes (pull)
+
         for (let enemy of activeEnemies) {
+            if (enemy.burstState !== 'active') continue; // ONLY APPLY IF ACTIVE
+            
             let dx = (enemy.x + enemy.width/2) - (player.x + player.width/2);
             let dy = (enemy.y + enemy.height/2) - (player.y + player.height/2);
             let distSq = dx*dx + dy*dy;
             let dist = Math.sqrt(distSq);
             if (dist > 10 && dist < 1200) {
-                let pullStrength = enemy.isBoss ? 200 : 70;
+                // Drastically increase pullStrength because it only lasts 0.5s!
+                let pullStrength = enemy.isBoss ? 1200 : 450;
                 let pullForce = pullStrength / dist;
-                if (pullForce > (enemy.isBoss ? 1.5 : 0.8)) pullForce = (enemy.isBoss ? 1.5 : 0.8);
+                if (pullForce > (enemy.isBoss ? 6.0 : 3.5)) pullForce = (enemy.isBoss ? 6.0 : 3.5);
                 
-                if (!player.isGrounded || enemy.isBoss) {
-                    player.vx += (dx / dist) * pullForce;
-                    if (!player.isGrounded) player.vy += (dy / dist) * pullForce;
+                if (isVoid) {
+                    if (!player.isGrounded || enemy.isBoss) {
+                        player.vx += (dx / dist) * pullForce;
+                        if (!player.isGrounded || enemy.isBoss) player.vy += (dy / dist) * pullForce;
+                    }
+                } else if (isCelestial) {
+                    // PUSH AWAY
+                    player.vx -= (dx / dist) * pullForce;
+                    player.vy -= (dy / dist) * pullForce;
                 }
             }
         }
@@ -2402,227 +2324,7 @@ function drawBossBlaze(ctx, x, y, width, height) {
     ctx.shadowBlur = 0;
 }
 
-function drawShifterEnemy(ctx, drawX, drawY, enemy) {
-    let cx = drawX + enemy.renderW/2;
-    let cy = drawY + enemy.renderH/2;
-    
-    ctx.save();
-    ctx.translate(cx, cy);
-    
-    // Draw the glow
-    ctx.shadowBlur = 20;
-    if (enemy.state === 'charge') {
-        let pulse = Math.sin(enemy.timer * 0.5) * 20;
-        ctx.shadowBlur = 30 + pulse;
-        ctx.shadowColor = '#ffffff';
-    } else if (enemy.state === 'sword' || enemy.state === 'swing') {
-        ctx.shadowBlur = 40;
-        ctx.shadowColor = colors.hazard;
-    } else {
-        ctx.shadowColor = colors.enemy;
-    }
-    
-    let morph = 0;
-    if (enemy.state === 'morph') morph = enemy.timer / 15;
-    if (enemy.state === 'swing') morph = 1;
-    if (enemy.state === 'recover') morph = 1 - (enemy.timer / 20);
-    
-    if (morph > 0) {
-        ctx.rotate(enemy.swingAngle || 0);
-    }
-    
-    ctx.fillStyle = colors.enemy;
-    ctx.beginPath();
-    
-    let baseW = enemy.renderW/2;
-    let baseH = enemy.renderH/2;
-    
-    let dTop = -baseH;
-    let dRight = baseW;
-    let dBottom = baseH;
-    let dLeft = -baseW;
-    
-    let sLength = enemy.isBoss ? 300 : 120;
-    let sTop = -4; 
-    let sRight = sLength;
-    let sBottom = 4;
-    let sLeft = -20;
-    
-    let top = dTop + (sTop - dTop) * morph;
-    let right = dRight + (sRight - dRight) * morph;
-    let bottom = dBottom + (sBottom - dBottom) * morph;
-    let left = dLeft + (sLeft - dLeft) * morph;
-    
-    if (morph > 0) {
-        ctx.moveTo(left, top - 10*morph); 
-        ctx.lineTo(left + 10*morph, top);
-        ctx.lineTo(right, 0); 
-        ctx.lineTo(left + 10*morph, bottom);
-        ctx.lineTo(left, bottom + 10*morph); 
-        ctx.lineTo(left, top - 10*morph);
-    } else {
-        ctx.moveTo(0, top);
-        ctx.lineTo(right, 0);
-        ctx.lineTo(0, bottom);
-        ctx.lineTo(left, 0);
-        ctx.lineTo(0, top);
-    }
-    ctx.fill();
-    
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    if (morph > 0) {
-        ctx.moveTo(left + 15*morph, 0);
-        ctx.lineTo(right - 20*morph, 0);
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    } else {
-        ctx.arc(0, 0, baseW/3, 0, Math.PI*2);
-        ctx.fill();
-    }
-    
-    ctx.restore();
-}
 
-function drawVoidEnemy(ctx, x, y, width, height) {
-    let cx = x + width/2;
-    let cy = y + height/2;
-    
-    ctx.shadowBlur = 20;
-    ctx.shadowColor = colors.enemy;
-    ctx.fillStyle = colors.enemy;
-    
-    ctx.beginPath();
-    ctx.arc(cx, cy, width/3, 0, Math.PI*2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-}
-
-function drawBossVoid(ctx, x, y, width, height) {
-    let cx = x + width/2;
-    let cy = y + height/2;
-    
-    ctx.shadowBlur = 40;
-    ctx.shadowColor = colors.enemy;
-    ctx.fillStyle = colors.enemy;
-    
-    ctx.beginPath();
-    ctx.arc(cx, cy, width/2.2, 0, Math.PI*2); // Draw slightly smaller than full bounding box so it feels fair
-    ctx.fill();
-    ctx.shadowBlur = 0;
-}
-
-function drawMountainLayer(ctx, parallax, baseHeight, amp1, amp2, amp3, color, seedOffset) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(0, canvas.height);
-    
-    let step = 30; // Fast rendering step
-    let levelOffset = currentLevelIndex * 99999;
-    let offsetX = camera.x * parallax + seedOffset + levelOffset;
-    
-    for (let x = 0; x <= canvas.width + step; x += step) {
-        let worldX = x + offsetX;
-        
-        let y = baseHeight;
-        // Layer 1: Large jagged peaks
-        y -= Math.abs(Math.sin(worldX * 0.001)) * amp1;
-        // Layer 2: Medium jaggedness
-        y -= Math.abs(Math.sin(worldX * 0.0031 + 10)) * amp2;
-        // Layer 3: Small rocky noise
-        y -= Math.sin(worldX * 0.0073 + 20) * amp3;
-        
-        ctx.lineTo(x, y);
-    }
-    ctx.lineTo(canvas.width, canvas.height);
-    ctx.fill();
-}
-
-function drawSpikeLayer(ctx, parallax, baseHeight, amp, freq, color, seedOffset, inverted = false) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    
-    if (inverted) {
-        ctx.moveTo(0, 0);
-    } else {
-        ctx.moveTo(0, canvas.height);
-    }
-    
-    let step = 15; 
-    let levelOffset = currentLevelIndex * 99999;
-    let offsetX = camera.x * parallax + seedOffset + levelOffset;
-    
-    for (let x = 0; x <= canvas.width + step; x += step) {
-        let worldX = x + offsetX;
-        let y = baseHeight;
-        
-        let phase1 = ((worldX * freq) % 2 + 2) % 2;
-        let tri1 = Math.abs(phase1 - 1);
-        let spikeOffset = amp - (tri1 * amp);
-        
-        let phase2 = ((worldX * freq * 2.3 + 10) % 2 + 2) % 2;
-        let tri2 = Math.abs(phase2 - 1);
-        let amp2 = amp * 0.4;
-        spikeOffset += amp2 - (tri2 * amp2);
-        
-        spikeOffset += Math.sin(worldX * freq * 8.3 + 20) * (amp * 0.1);
-        
-        if (inverted) {
-            y += spikeOffset;
-        } else {
-            y -= spikeOffset;
-        }
-        
-        ctx.lineTo(x, y);
-    }
-    
-    if (inverted) {
-        ctx.lineTo(canvas.width, 0);
-    } else {
-        ctx.lineTo(canvas.width, canvas.height);
-    }
-    ctx.closePath();
-    ctx.fill();
-}
-
-function drawCloudLayer(ctx, parallax, baseHeight, color, seedOffset, scale) {
-    ctx.fillStyle = color;
-    let period = 2000;
-    
-    // Offset by currentLevelIndex so each level has a totally unique sky
-    let levelOffset = currentLevelIndex * 99999;
-    let offsetX = camera.x * parallax + seedOffset + levelOffset;
-    let startX = Math.floor(offsetX / period) * period;
-    
-    function drawFluffyCloud(cx, cy, s) {
-        ctx.beginPath();
-        // 5 overlapping circles to make a classic fluffy cloud shape
-        ctx.arc(cx, cy, 30 * s, 0, Math.PI * 2); // Center top
-        ctx.arc(cx - 25 * s, cy + 10 * s, 20 * s, 0, Math.PI * 2); // Mid left
-        ctx.arc(cx + 25 * s, cy + 5 * s, 25 * s, 0, Math.PI * 2); // Mid right
-        ctx.arc(cx + 45 * s, cy + 15 * s, 15 * s, 0, Math.PI * 2); // Far right
-        ctx.arc(cx - 40 * s, cy + 15 * s, 15 * s, 0, Math.PI * 2); // Far left
-        // Fill the bottom gaps so it rests nicely
-        ctx.rect(cx - 40 * s, cy + 10 * s, 85 * s, 20 * s);
-        ctx.fill();
-    }
-    
-    for (let i = -1; i <= Math.ceil(canvas.width / period) + 1; i++) {
-        let chunkX = startX + i * period - offsetX;
-        
-        // Cloud cluster 1
-        drawFluffyCloud(chunkX + 300, baseHeight, scale);
-        drawFluffyCloud(chunkX + 450, baseHeight + 20 * scale, scale * 0.8);
-
-        // Cloud cluster 2
-        drawFluffyCloud(chunkX + 1200, baseHeight + 150 * scale, scale * 1.5);
-        drawFluffyCloud(chunkX + 1000, baseHeight + 180 * scale, scale * 1.2);
-        
-        // Cloud cluster 3
-        drawFluffyCloud(chunkX + 1800, baseHeight - 80 * scale, scale * 0.7);
-    }
-}
 
 function drawStormBackground() {
 
@@ -2880,25 +2582,90 @@ function drawGodRays(ctx, parallax) {
 function drawCelestialBackground() {
     let vParallax = -camera.y;
 
-    // Sky blue gradient
+    // Golden ethereal gradient
     let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#3a8ccf');
-    gradient.addColorStop(1, '#8bd3ff');
+    gradient.addColorStop(0, '#1a0f00'); // Deep dark gold space
+    gradient.addColorStop(1, '#805500'); // Vibrant gold horizon
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Far Layer: Massive cumulus clouds
-    drawCloudLayer(ctx, 0.05, 100 + vParallax * 0.05, 'rgba(255, 255, 255, 0.8)', 0, 1.0);
-    drawCloudLayer(ctx, 0.08, 300 + vParallax * 0.08, 'rgba(240, 248, 255, 0.9)', 5000, 1.5);
+    // Far Layer: Nebulas / Ethereal clouds
+    drawCloudLayer(ctx, 0.05, 100 + vParallax * 0.05, 'rgba(255, 200, 50, 0.2)', 0, 1.0);
+    drawCloudLayer(ctx, 0.08, 300 + vParallax * 0.08, 'rgba(255, 220, 100, 0.4)', 5000, 1.5);
     
-    // Mid Layer: Floating golden rings and ruined pillars
-    drawPlanet(ctx, 0.15, 600, 200 + vParallax * 0.15, 100, '#ffd700', '#ccaa00', 0); // Golden Sun/Ring
-    drawPlanet(ctx, 0.15, 2000, 400 + vParallax * 0.15, 60, '#ffffff', '#e0e0e0', 10000); // White moon
+    // Mid Layer: Floating golden rings and celestial bodies
+    drawPlanet(ctx, 0.15, 600, 200 + vParallax * 0.15, 150, '#ffcc00', '#ccaa00', 0); // Huge Golden Sun/Ring
+    drawPlanet(ctx, 0.15, 2000, 400 + vParallax * 0.15, 80, '#ffffff', '#fff7cc', 10000); // Glowing white moon
     
-    // Near Layer: Golden clouds and God Rays
-    drawCloudLayer(ctx, 0.25, 500 + vParallax * 0.25, 'rgba(255, 240, 200, 0.9)', 10000, 2.0);
+    // Near Layer: Thick golden fog
+    drawCloudLayer(ctx, 0.25, 500 + vParallax * 0.25, 'rgba(255, 230, 150, 0.6)', 10000, 2.0);
     
+    // God rays with higher opacity for ethereal feel
+    ctx.save();
+    ctx.globalAlpha = 0.6;
     drawGodRays(ctx, 0.3);
+    ctx.restore();
+}
+
+function drawVoidEnemy(ctx, x, y, enemy) {
+    let width = enemy.renderW;
+    let height = enemy.renderH;
+    let cx = x + width/2;
+    let cy = y + height/2;
+    
+    let blur = 20;
+    ctx.fillStyle = colors.enemy;
+    
+    if (enemy.burstState === 'charge') {
+        blur = 20 + (enemy.burstTimer / 60) * 40; // Ramps up to 60
+        ctx.fillStyle = '#ffffff';
+    } else if (enemy.burstState === 'active') {
+        blur = 60 + Math.random() * 20;
+        ctx.fillStyle = '#ffffff';
+    }
+    
+    ctx.shadowBlur = blur;
+    ctx.shadowColor = (enemy.burstState === 'charge' || enemy.burstState === 'active') ? '#ffffff' : colors.enemy;
+    
+    ctx.beginPath();
+    ctx.arc(cx, cy, width/3, 0, Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+}
+
+function drawBossVoid(ctx, x, y, enemy) {
+    let width = enemy.renderW;
+    let height = enemy.renderH;
+    let cx = x + width/2;
+    let cy = y + height/2;
+    
+    let blur = 40;
+    ctx.fillStyle = colors.enemy;
+    
+    if (enemy.burstState === 'charge') {
+        blur = 40 + (enemy.burstTimer / 60) * 60; // Ramps up to 100
+        ctx.fillStyle = '#ffffff';
+    } else if (enemy.burstState === 'active') {
+        blur = 100 + Math.random() * 30;
+        ctx.fillStyle = '#ffffff';
+    }
+    
+    ctx.shadowBlur = blur;
+    ctx.shadowColor = (enemy.burstState === 'charge' || enemy.burstState === 'active') ? '#ffffff' : colors.enemy;
+    
+    // Abstract polygonal mass
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+        let angle = (Math.PI * 2 / 8) * i + gameTime * 0.02;
+        let r = width * 0.4 + Math.sin(gameTime * 0.1 + i) * (width * 0.1);
+        let px = cx + Math.cos(angle) * r;
+        let py = cy + Math.sin(angle) * r;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0;
 }
 
 function drawParallaxBackground() {
@@ -2912,66 +2679,11 @@ function drawParallaxBackground() {
         drawFireBackground();
     } else if (currentLevelIndex < 25) {
         drawVoidBackground();
-    } else if (currentLevelIndex < 30) {
-        drawCelestialBackground();
     } else {
-        drawShifterBackground();
+        drawCelestialBackground();
     }
 }
 
-function drawShifterBackground() {
-    let vParallax = -camera.y;
-    
-    ctx.fillStyle = '#02050a';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.strokeStyle = 'rgba(0, 229, 255, 0.15)';
-    ctx.lineWidth = 2;
-    let gridSize = 80;
-    let offsetX = (-camera.x * 0.1) % gridSize;
-    let offsetY = (vParallax * 0.1) % gridSize;
-    
-    ctx.beginPath();
-    for(let x = offsetX - gridSize; x < canvas.width; x += gridSize) {
-        ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
-    }
-    for(let y = offsetY - gridSize; y < canvas.height; y += gridSize) {
-        ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
-    }
-    ctx.stroke();
-    
-    let levelOffset = currentLevelIndex * 99999;
-    for (let i = 0; i < 25; i++) {
-        let x = (Math.sin(i * 123) * 5000 - camera.x * 0.2 + levelOffset) % (canvas.width + 400);
-        if (x < -200) x += (canvas.width + 400);
-        let y = ((Math.cos(i * 321) * 2000) % canvas.height) + vParallax * 0.2;
-        
-        let size = 40 + (i % 60);
-        let rot = gameTime * 0.005 + i;
-        
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(rot);
-        
-        ctx.beginPath();
-        ctx.moveTo(0, -size);
-        ctx.lineTo(size/2, 0);
-        ctx.lineTo(0, size);
-        ctx.lineTo(-size/2, 0);
-        ctx.closePath();
-        
-        ctx.strokeStyle = 'rgba(0, 229, 255, 0.4)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        
-        let grad = ctx.createLinearGradient(0, -size, 0, size);
-        grad.addColorStop(0, 'rgba(0, 229, 255, 0.15)');
-        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = grad;
-        ctx.fill();
-        ctx.restore();
-    }
-}
 
 
 function draw() {
@@ -3012,13 +2724,11 @@ function draw() {
         let drawX = cx - enemy.renderW / 2;
         let drawY = cy - enemy.renderH;
         
-        if (currentLevelIndex >= 30) {
-            drawShifterEnemy(ctx, drawX, drawY, enemy);
-        } else if (currentLevelIndex >= 20) {
+        if (currentLevelIndex >= 20) {
             if (enemy.isBoss) {
-                drawBossVoid(ctx, drawX, drawY, enemy.renderW, enemy.renderH);
+                drawBossVoid(ctx, drawX, drawY, enemy);
             } else {
-                drawVoidEnemy(ctx, drawX, drawY, enemy.renderW, enemy.renderH);
+                drawVoidEnemy(ctx, drawX, drawY, enemy);
             }
         } else if (currentLevelIndex >= 15) {
             if (enemy.isBoss) {
@@ -3213,3 +2923,92 @@ window.onload = () => {
     loadLevel(currentLevelIndex);
     gameLoop();
 };
+
+
+let audioCtx = null;
+function playEpicMusic() {
+    if (audioCtx) return; // already playing
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return; // Not supported
+    
+    audioCtx = new AudioContext();
+    
+    // Create Reverb (Impulse Response)
+    let length = audioCtx.sampleRate * 4.0; // 4 second massive reverb
+    let impulse = audioCtx.createBuffer(2, length, audioCtx.sampleRate);
+    let left = impulse.getChannelData(0);
+    let right = impulse.getChannelData(1);
+    for (let i = 0; i < length; i++) {
+        let decay = Math.exp(-i / (audioCtx.sampleRate * 0.8)); // Long decay
+        left[i] = (Math.random() * 2 - 1) * decay;
+        right[i] = (Math.random() * 2 - 1) * decay;
+    }
+    let convolver = audioCtx.createConvolver();
+    convolver.buffer = impulse;
+    
+    let mainVolume = audioCtx.createGain();
+    mainVolume.gain.value = 0.4;
+    mainVolume.connect(convolver);
+    convolver.connect(audioCtx.destination);
+    
+    // Heroic Chord progression: C Major, G Major, A Minor, F Major
+    const progression = [
+        [261.63, 329.63, 392.00, 523.25], // C Maj
+        [196.00, 246.94, 293.66, 392.00], // G Maj
+        [220.00, 261.63, 329.63, 440.00], // A Min
+        [174.61, 220.00, 261.63, 349.23]  // F Maj
+    ];
+    
+    // Bass notes (octave lower)
+    const bassProg = [65.41, 49.00, 55.00, 43.65];
+    
+    let now = audioCtx.currentTime;
+    let beatLength = 4.0; // 4 seconds per chord swell
+    
+    // Schedule 16 chords (loops for 64 seconds)
+    for (let i = 0; i < 20; i++) {
+        let chord = progression[i % 4];
+        let bass = bassProg[i % 4];
+        let startTime = now + i * beatLength;
+        
+        // Play Thundering Bass
+        let bassOsc = audioCtx.createOscillator();
+        bassOsc.type = 'sine';
+        bassOsc.frequency.value = bass;
+        let bassGain = audioCtx.createGain();
+        bassGain.gain.setValueAtTime(0, startTime);
+        bassGain.gain.linearRampToValueAtTime(1.0, startTime + 2.0);
+        bassGain.gain.linearRampToValueAtTime(0, startTime + beatLength);
+        bassOsc.connect(bassGain);
+        bassGain.connect(mainVolume);
+        bassOsc.start(startTime);
+        bassOsc.stop(startTime + beatLength);
+        
+        // Play Orchestral Swell Chords
+        for (let freq of chord) {
+            let osc = audioCtx.createOscillator();
+            osc.type = 'sawtooth'; // Brass/Strings feel
+            
+            // Filter swell for orchestral dynamics
+            let filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(200, startTime); // Start muffled
+            filter.frequency.exponentialRampToValueAtTime(2000, startTime + 2.5); // Swell bright
+            filter.frequency.exponentialRampToValueAtTime(200, startTime + beatLength); // Fade muffled
+            
+            osc.frequency.value = freq;
+            
+            let gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(0.12, startTime + 2.5); // Peak volume slightly past middle
+            gain.gain.linearRampToValueAtTime(0, startTime + beatLength);
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(mainVolume);
+            
+            osc.start(startTime);
+            osc.stop(startTime + beatLength);
+        }
+    }
+}
