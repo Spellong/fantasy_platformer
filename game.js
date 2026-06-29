@@ -154,8 +154,8 @@ function spawnParticles(x, y, color, count, speedMult = 1) {
     }
 }
 function spawnAmbientParticle() {
-    // Only spawn ambient embers for the Fire levels (>= 15) to keep parallax clean in Storm/Forest
-    if (currentLevelIndex >= 15) {
+    // Only spawn ambient embers for the Fire levels (15-19) and Celestial (25+) to keep Void clean
+    if (currentLevelIndex >= 15 && !(currentLevelIndex >= 20 && currentLevelIndex < 25)) {
         // Subtle magical background atmosphere
         for (let i = 0; i < 2; i++) {
             if (Math.random() < 0.25) {
