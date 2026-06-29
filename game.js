@@ -2613,19 +2613,29 @@ function drawVoidEnemy(ctx, x, y, enemy) {
     let cx = x + width/2;
     let cy = y + height/2;
     
+    let isCelestial = currentLevelIndex >= 25;
+    let baseColor = isCelestial ? '#FFD700' : colors.enemy;
+    
     let blur = 20;
-    ctx.fillStyle = colors.enemy;
+    let currentColor = baseColor;
     
     if (enemy.burstState === 'charge') {
         blur = 20 + (enemy.burstTimer / 60) * 40; // Ramps up to 60
-        ctx.fillStyle = '#ffffff';
+        
+        // Ticking bomb flash
+        let progress = enemy.burstTimer / 60;
+        let freq = 1 + progress * 5; 
+        if (Math.sin(enemy.burstTimer * freq) > 0) {
+            currentColor = '#ffffff';
+        }
     } else if (enemy.burstState === 'active') {
         blur = 60 + Math.random() * 20;
-        ctx.fillStyle = '#ffffff';
+        currentColor = '#ffffff';
     }
     
+    ctx.fillStyle = currentColor;
     ctx.shadowBlur = blur;
-    ctx.shadowColor = (enemy.burstState === 'charge' || enemy.burstState === 'active') ? '#ffffff' : colors.enemy;
+    ctx.shadowColor = (currentColor === '#ffffff') ? '#ffffff' : baseColor;
     
     ctx.beginPath();
     ctx.arc(cx, cy, width/3, 0, Math.PI*2);
@@ -2639,19 +2649,29 @@ function drawBossVoid(ctx, x, y, enemy) {
     let cx = x + width/2;
     let cy = y + height/2;
     
+    let isCelestial = currentLevelIndex >= 25;
+    let baseColor = isCelestial ? '#FFD700' : colors.enemy;
+    
     let blur = 40;
-    ctx.fillStyle = colors.enemy;
+    let currentColor = baseColor;
     
     if (enemy.burstState === 'charge') {
         blur = 40 + (enemy.burstTimer / 60) * 60; // Ramps up to 100
-        ctx.fillStyle = '#ffffff';
+        
+        // Ticking bomb flash
+        let progress = enemy.burstTimer / 60;
+        let freq = 1 + progress * 5; 
+        if (Math.sin(enemy.burstTimer * freq) > 0) {
+            currentColor = '#ffffff';
+        }
     } else if (enemy.burstState === 'active') {
         blur = 100 + Math.random() * 30;
-        ctx.fillStyle = '#ffffff';
+        currentColor = '#ffffff';
     }
     
+    ctx.fillStyle = currentColor;
     ctx.shadowBlur = blur;
-    ctx.shadowColor = (enemy.burstState === 'charge' || enemy.burstState === 'active') ? '#ffffff' : colors.enemy;
+    ctx.shadowColor = (currentColor === '#ffffff') ? '#ffffff' : baseColor;
     
     // Circle mass
     ctx.beginPath();
