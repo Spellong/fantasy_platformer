@@ -2668,6 +2668,79 @@ function drawBossVoid(ctx, x, y, enemy) {
     ctx.shadowBlur = 0;
 }
 
+function drawMountainLayer(ctx, parallax, baseHeight, amp1, amp2, amp3, color, seedOffset) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    
+    let step = 30; // Fast rendering step
+    let levelOffset = currentLevelIndex * 99999;
+    let offsetX = camera.x * parallax + seedOffset + levelOffset;
+    
+    for (let x = 0; x <= canvas.width + step; x += step) {
+        let worldX = x + offsetX;
+        
+        let y = baseHeight;
+        // Layer 1: Large jagged peaks
+        y -= Math.abs(Math.sin(worldX * 0.001)) * amp1;
+        // Layer 2: Medium jaggedness
+        y -= Math.abs(Math.sin(worldX * 0.0031 + 10)) * amp2;
+        // Layer 3: Small rocky noise
+        y -= Math.sin(worldX * 0.0073 + 20) * amp3;
+        
+        ctx.lineTo(x, y);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.fill();
+}
+
+function drawSpikeLayer(ctx, parallax, baseHeight, amp, freq, color, seedOffset, inverted = false) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    
+    if (inverted) {
+        ctx.moveTo(0, 0);
+    } else {
+        ctx.moveTo(0, canvas.height);
+    }
+    
+    let step = 15; 
+    let levelOffset = currentLevelIndex * 99999;
+    let offsetX = camera.x * parallax + seedOffset + levelOffset;
+    
+    for (let x = 0; x <= canvas.width + step; x += step) {
+        let worldX = x + offsetX;
+        let y = baseHeight;
+        
+        let phase1 = ((worldX * freq) % 2 + 2) % 2;
+        let tri1 = Math.abs(phase1 - 1);
+        let spikeOffset = amp - (tri1 * amp);
+        
+        let phase2 = ((worldX * freq * 2.3 + 10) % 2 + 2) % 2;
+        let tri2 = Math.abs(phase2 - 1);
+        let amp2 = amp * 0.4;
+        spikeOffset += amp2 - (tri2 * amp2);
+        
+        spikeOffset += Math.sin(worldX * freq * 8.3 + 20) * (amp * 0.1);
+        
+        if (inverted) {
+            y += spikeOffset;
+        } else {
+            y -= spikeOffset;
+        }
+        
+        ctx.lineTo(x, y);
+    }
+    
+    if (inverted) {
+        ctx.lineTo(canvas.width, 0);
+    } else {
+        ctx.lineTo(canvas.width, canvas.height);
+    }
+    ctx.closePath();
+    ctx.fill();
+}
+
 function drawCloudLayer(ctx, parallax, baseHeight, color, seedOffset, scale) {
     ctx.fillStyle = color;
     let period = 2000;
