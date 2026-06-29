@@ -1134,7 +1134,7 @@ const levels = [
             {x: 400, y: 500, w: 300, h: 20}
         ],
         checkpoints: [
-            {x: 3800, y: 650, w: 40, h: 50},
+            {x: 3100, y: 650, w: 40, h: 50},
             {x: 2000, y: 650, w: 40, h: 50}
         ],
         hazards: [
@@ -2653,17 +2653,9 @@ function drawBossVoid(ctx, x, y, enemy) {
     ctx.shadowBlur = blur;
     ctx.shadowColor = (enemy.burstState === 'charge' || enemy.burstState === 'active') ? '#ffffff' : colors.enemy;
     
-    // Abstract polygonal mass
+    // Circle mass
     ctx.beginPath();
-    for (let i = 0; i < 8; i++) {
-        let angle = (Math.PI * 2 / 8) * i + gameTime * 0.02;
-        let r = width * 0.4 + Math.sin(gameTime * 0.1 + i) * (width * 0.1);
-        let px = cx + Math.cos(angle) * r;
-        let py = cy + Math.sin(angle) * r;
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
-    }
-    ctx.closePath();
+    ctx.arc(cx, cy, width * 0.4, 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowBlur = 0;
 }
