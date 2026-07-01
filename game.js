@@ -135,6 +135,7 @@ const themeCelestial = {
     player: '#ffffff'
 };
 
+Object.assign(colors, themeStorm); // Default for menu background
 
 // Background globals
 let ambientLightningFlash = 0;
