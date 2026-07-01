@@ -235,30 +235,30 @@ let currentLevelIndex = 0;
 let activeEnemies = [];
 
 const levels = [
-    { // Level 1: Basic mechanics
-        title: "The Long Road.",
-        quote: "Keep moving right. It's a long way.",
+        { // Level 1: Basic mechanics
+        title: "Tutorial: The Basics.",
+        quote: "Move with arrows. Jump with space. They will hunt you.",
         platforms: [
-            {x: 0, y: 500, w: 1000, h: 20},
-            {x: 1200, y: 500, w: 600, h: 20},
-            {x: 2000, y: 400, w: 200, h: 20},
-            {x: 2400, y: 300, w: 200, h: 20},
-            {x: 2800, y: 500, w: 800, h: 20},
-            {x: 3800, y: 400, w: 300, h: 20}
+            {x: 0, y: 500, w: 400, h: 20},
+            {x: 450, y: 600, w: 100, h: 20},
+            {x: 600, y: 500, w: 600, h: 20},
+            {x: 1400, y: 400, w: 200, h: 20},
+            {x: 1800, y: 300, w: 200, h: 20},
+            {x: 2200, y: 500, w: 800, h: 20},
+            {x: 3200, y: 400, w: 300, h: 20}
         ],
         checkpoints: [
-            {x: 1500, y: 450, w: 40, h: 50},
-            {x: 3000, y: 450, w: 40, h: 50}
+            {x: 1500, y: 350, w: 40, h: 50},
+            {x: 2500, y: 450, w: 40, h: 50}
         ],
         hazards: [
             {x: -100, y: 800, w: 5000, h: 50} // Pit
         ],
         enemies: [
-            { x: 1400, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
-            { x: 3200, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
-            { x: 3800, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
+            { x: 500, y: 550, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
+            { x: 2600, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
         ],
-        goal: {x: 4000, y: 350, w: 50, h: 50}, 
+        goal: {x: 3400, y: 350, w: 50, h: 50}, 
         spawn: {x: 100, y: 400}
     },
     { // Level 2: Gravity is a harsh mistress
@@ -287,11 +287,8 @@ const levels = [
         hazards: [
             {x: -100, y: 800, w: 4000, h: 50}
         ],
-        enemies: [
-            { x: 800, y: 500, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
-            { x: 1500, y: 500, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
-            { x: 2500, y: 100, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 },
-            { x: 1100, y: 100, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
+                enemies: [
+            { x: 1500, y: 500, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
         ],
         goal: {x: 50, y: -150, w: 50, h: 50}, 
         spawn: {x: 100, y: 500}
@@ -318,9 +315,8 @@ const levels = [
         hazards: [
             {x: -100, y: 1000, w: 6000, h: 50}
         ],
-        enemies: [
-            { x: 1400, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 },
-            { x: 3500, y: 200, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
+                enemies: [
+            { x: 1900, y: 300, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
         ],
         goal: {x: 4500, y: 450, w: 50, h: 50}, 
         spawn: {x: 100, y: 300}
@@ -1154,7 +1150,14 @@ const levels = [
     ];
 
 let level = null;
-let state = 'transition'; 
+let state = 'menu'; 
+
+function startGame() {
+    state = 'transition';
+    document.getElementById('main-menu').classList.add('hidden');
+    currentLevelIndex = 0;
+    loadLevel(0);
+}
 
 function loadLevel(index) {
     if (index >= levels.length) {
@@ -1317,6 +1320,11 @@ function toggleMenu() {
 function selectLevel(index) {
     if (state === 'transition') return;
     document.getElementById('level-list').classList.add('hidden');
+    
+    // Hide main menu if selecting a level directly from it
+    let mainMenu = document.getElementById('main-menu');
+    if (mainMenu) mainMenu.classList.add('hidden');
+    
     currentLevelIndex = index;
     state = 'transition';
     fadeLayer.classList.remove('transparent'); 
@@ -3043,8 +3051,9 @@ function gameLoop() {
 
 // Init
 window.onload = () => {
-    loadLevel(currentLevelIndex);
-    gameLoop();
+    // Only draw the background initially
+    level = levels[0];
+    requestAnimationFrame(gameLoop);
 };
 
 
