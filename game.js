@@ -28,6 +28,7 @@ window.addEventListener('keyup', e => keys[e.code] = false);
 // Global Game State
 let playerHasMoved = false;
 let gameTime = 0;
+let bossLightningCooldown = 0;
 let lightningStrikes = [];
 let fallingLeaves = [];
 let fallingIcicles = [];
@@ -1940,11 +1941,30 @@ function updatePhysics() {
     // Boss Mechanics
     if (level && level.enemies.some(e => e.isBoss) && state === 'playing' && playerHasMoved) {
         if (currentLevelIndex === 4) { // Storm Boss Lightning
-            if (gameTime % 120 === 0) { // Every 2 seconds
-                lightningStrikes.push({
-                    x: player.x + (Math.random() * 300 - 150),
-                    timer: 60 // 1 second indicator
-                });
+            if (bossLightningCooldown > 0) {
+                bossLightningCooldown--;
+            } else {
+                // Random cooldown between 0.3 and 1.5 seconds (20 to 90 frames)
+                // Averaging 55 frames, roughly 2-3x faster than 120 frames, plus multiple strikes makes it feel 5x faster
+                bossLightningCooldown = 20 + Math.random() * 70;
+                
+                // Spawn 1 to 3 strikes at once
+                let strikeCount = 1 + Math.floor(Math.random() * 3);
+                for (let i = 0; i < strikeCount; i++) {
+                    let targetX;
+                    if (Math.random() < 0.6) {
+                        // 60% chance to somewhat track the player (offset slightly)
+                        targetX = player.x + (Math.random() * 400 - 200);
+                    } else {
+                        // 40% chance for a completely random strike anywhere on the screen
+                        targetX = camera.x + (Math.random() * 1000 - 100);
+                    }
+                    
+                    lightningStrikes.push({
+                        x: targetX,
+                        timer: 20 + Math.random() * 20 // 0.3 to 0.6 second indicator (much faster than previous 1s)
+                    });
+                }
             }
         } else if (currentLevelIndex === 9) { // Leaf Boss Falling Leaves
             if (gameTime % 60 === 0) { // Slower, less overwhelming flurry
