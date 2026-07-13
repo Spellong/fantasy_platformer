@@ -459,57 +459,39 @@ const levels = [
         goal: {x: 3900, y: 350, w: 50, h: 50},
         spawn: {x: 100, y: 500}
     },
-        { // Level 8: Vertical Tree Climbing
+            { // Level 8: Vertical Tree Climbing (Redesigned as Chimneys)
         title: "Tree climbing 101. Wall jumps and double jumps.",
         quote: "You're basically a squirrel now. Act like one.",
         platforms: [
-            {x: 0, y: 600, w: 600, h: 20}, // Start
+            {x: -100, y: 600, w: 700, h: 20}, // Start
 
-            // Tree 1
-            {x: 600, y: -200, w: 20, h: 800},
-            {x: 620, y: 400, w: 200, h: 20}, // Right
-            {x: 400, y: 250, w: 200, h: 20}, // Left
-            {x: 620, y: 150, w: 200, h: 20}, // Right
-            {x: 400, y: 0, w: 200, h: 20},   // Left
-            {x: 620, y: -100, w: 200, h: 20}, // Right
-            {x: 400, y: -200, w: 200, h: 20}, // Left
+            // Chimney 1
+            {x: 600, y: -500, w: 20, h: 1100}, // Left Wall (taller to act as backboard at top)
+            {x: 970, y: -300, w: 20, h: 900},  // Right Wall
             
-            // Tree 2
-            {x: 1100, y: -600, w: 20, h: 1000},
-            {x: 900, y: 200, w: 200, h: 20},  // Left
-            {x: 1120, y: 50, w: 200, h: 20},  // Right
-            {x: 900, y: -50, w: 200, h: 20},  // Left
-            {x: 1120, y: -200, w: 200, h: 20}, // Right
-            {x: 900, y: -300, w: 200, h: 20}, // Left
-            {x: 1120, y: -450, w: 200, h: 20}, // Right
-            {x: 900, y: -550, w: 200, h: 20}, // Left
+            // Bridge 1 (Combat Arena)
+            {x: 990, y: -300, w: 800, h: 20},
             
-            // Tree 3
-            {x: 1600, y: -1000, w: 20, h: 1000},
-            {x: 1400, y: -100, w: 200, h: 20}, // Left
-            {x: 1620, y: -250, w: 200, h: 20}, // Right
-            {x: 1400, y: -350, w: 200, h: 20}, // Left
-            {x: 1620, y: -500, w: 200, h: 20}, // Right
-            {x: 1400, y: -600, w: 200, h: 20}, // Left
-            {x: 1620, y: -750, w: 200, h: 20}, // Right
-            {x: 1400, y: -850, w: 200, h: 20}, // Left
-            {x: 1620, y: -1000, w: 200, h: 20}, // Right
+            // Chimney 2
+            {x: 1790, y: -1400, w: 20, h: 1100}, // Left Wall (taller to act as backboard at top)
+            {x: 2160, y: -1200, w: 20, h: 900},  // Right Wall
             
-            // Canopy
-            {x: 1620, y: -1000, w: 600, h: 20}
+            // Bridge 2 (Goal Arena)
+            {x: 2180, y: -1200, w: 800, h: 20}
         ],
         checkpoints: [
-            {x: 950, y: 150, w: 40, h: 50},
-            {x: 1450, y: -150, w: 40, h: 50}
+            {x: 1050, y: -350, w: 40, h: 50},
+            {x: 2250, y: -1250, w: 40, h: 50}
         ],
         hazards: [
-            {x: -100, y: 900, w: 3000, h: 50}
+            {x: -100, y: 900, w: 4000, h: 50}
         ],
         enemies: [
-            { x: 950, y: -100, width: 40, height: 24, vx: 0, vy: 0, speed: 10, aggro: 1500 },
-            { x: 1900, y: -1050, width: 40, height: 24, vx: 0, vy: 0, speed: 10, aggro: 1500 }
+            // Placed on wide bridges, making it impossible to camp the chimneys
+            { x: 1400, y: -350, width: 40, height: 24, vx: 0, vy: 0, speed: 10, aggro: 1500 },
+            { x: 2600, y: -1250, width: 40, height: 24, vx: 0, vy: 0, speed: 10, aggro: 1500 }
         ],
-        goal: {x: 2100, y: -1050, w: 50, h: 50},
+        goal: {x: 2900, y: -1250, w: 50, h: 50},
         spawn: {x: 100, y: 500}
     },
     { // Level 9: The Bridge
