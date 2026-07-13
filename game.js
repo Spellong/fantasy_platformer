@@ -322,7 +322,7 @@ const levels = [
         goal: {x: 4500, y: 450, w: 50, h: 50}, 
         spawn: {x: 100, y: 300}
     },
-    { // Level 4: Parkour
+        { // Level 4: Parkour
         title: "The Wall Jump Cavern.",
         quote: "Hug the walls. They won't hurt you... much.",
         platforms: [
@@ -333,8 +333,14 @@ const levels = [
             {x: 420, y: 600, w: 280, h: 20},
             // CP 1 platform
             {x: 720, y: -300, w: 300, h: 20},
-            // Corridor
-            {x: 1020, y: -300, w: 800, h: 20},
+            
+            // Corridor redesigned into an Enemy Trap (Bowl)
+            {x: 1020, y: -300, w: 200, h: 20}, // Entry to corridor
+            {x: 1220, y: -300, w: 20, h: 200}, // Left wall of bowl
+            {x: 1220, y: -100, w: 400, h: 20}, // Bottom of bowl
+            {x: 1600, y: -300, w: 20, h: 200}, // Right wall of bowl
+            {x: 1620, y: -300, w: 200, h: 20}, // Exit of corridor
+            
             // Pit 2
             {x: 1820, y: -1000, w: 20, h: 700},
             {x: 2120, y: -1000, w: 20, h: 700},
@@ -354,7 +360,10 @@ const levels = [
         hazards: [
             {x: -100, y: 1500, w: 4000, h: 50}
         ],
-        enemies: [],
+        enemies: [
+            // Enemy is trapped in the bowl until you approach!
+            { x: 1400, y: -150, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 800 }
+        ],
         goal: {x: 3200, y: 150, w: 50, h: 50},
         spawn: {x: 100, y: 400}
     },
