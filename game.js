@@ -354,10 +354,7 @@ const levels = [
         hazards: [
             {x: -100, y: 1500, w: 4000, h: 50}
         ],
-        enemies: [
-            { x: 600, y: 550, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 },
-            { x: 1980, y: -400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 1500 }
-        ],
+        enemies: [],
         goal: {x: 3200, y: 150, w: 50, h: 50},
         spawn: {x: 100, y: 400}
     },
