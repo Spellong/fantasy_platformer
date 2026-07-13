@@ -1377,8 +1377,8 @@ function updateEnemies() {
     if (!playerHasMoved) return;
 
     for (let enemy of activeEnemies) {
-        // Force ALL enemies to match the player's exact top speed
-        enemy.speed = MAX_SPEED * window.playerSpeedMult;
+        // Nerf AI tracking slightly (90% of player speed) so they are outrunnable
+        enemy.speed = MAX_SPEED * window.playerSpeedMult * 0.90;
         
         // AI Logic: Always active regardless of distance
         let atLedge = false;
@@ -1600,13 +1600,16 @@ function updateEnemies() {
             } else {
                 // Add randomness to movement so they don't line up like robots
                 if (enemy.chaseOffset === undefined) {
-                    enemy.chaseOffset = (Math.random() - 0.5) * 60; // Offset so they don't clump
+                    enemy.chaseOffset = (Math.random() - 0.5) * 120; // Increased offset for loose tracking
                 }
-                if (Math.random() < 0.02) enemy.chaseOffset = (Math.random() - 0.5) * 60; // Occasionally shuffle
+                if (Math.random() < 0.05) enemy.chaseOffset = (Math.random() - 0.5) * 120; // Shuffle more frequently
+                
+                // Add occasional hesitation
+                if (Math.random() < 0.01) enemy.reactionTimer = 15; // Hesitate for 0.25 seconds
                 
                 let targetX = player.x + enemy.chaseOffset;
-                moveLeft = (targetX < enemy.x - 10);
-                moveRight = (targetX > enemy.x + 10);
+                moveLeft = (targetX < enemy.x - 10) && enemy.reactionTimer <= 0;
+                moveRight = (targetX > enemy.x + 10) && enemy.reactionTimer <= 0;
             }
         }
             
