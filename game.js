@@ -459,7 +459,7 @@ const levels = [
         goal: {x: 3900, y: 350, w: 50, h: 50},
         spawn: {x: 100, y: 500}
     },
-    { // Level 8: Vertical Tree Climbing
+        { // Level 8: Vertical Tree Climbing
         title: "Tree climbing 101. Wall jumps and double jumps.",
         quote: "You're basically a squirrel now. Act like one.",
         platforms: [
@@ -467,39 +467,46 @@ const levels = [
 
             // Tree 1
             {x: 600, y: -200, w: 20, h: 800},
-            {x: 620, y: 400, w: 200, h: 20},
-            {x: 400, y: 200, w: 200, h: 20},
-            {x: 620, y: 0, w: 200, h: 20},
-            {x: 400, y: -200, w: 200, h: 20},
+            {x: 620, y: 400, w: 200, h: 20}, // Right
+            {x: 400, y: 250, w: 200, h: 20}, // Left
+            {x: 620, y: 150, w: 200, h: 20}, // Right
+            {x: 400, y: 0, w: 200, h: 20},   // Left
+            {x: 620, y: -100, w: 200, h: 20}, // Right
+            {x: 400, y: -200, w: 200, h: 20}, // Left
             
             // Tree 2
             {x: 1100, y: -600, w: 20, h: 1000},
-            {x: 900, y: 200, w: 200, h: 20},
-            {x: 1120, y: 0, w: 200, h: 20},
-            {x: 900, y: -200, w: 200, h: 20},
-            {x: 1120, y: -400, w: 200, h: 20},
-            {x: 900, y: -600, w: 200, h: 20},
+            {x: 900, y: 200, w: 200, h: 20},  // Left
+            {x: 1120, y: 50, w: 200, h: 20},  // Right
+            {x: 900, y: -50, w: 200, h: 20},  // Left
+            {x: 1120, y: -200, w: 200, h: 20}, // Right
+            {x: 900, y: -300, w: 200, h: 20}, // Left
+            {x: 1120, y: -450, w: 200, h: 20}, // Right
+            {x: 900, y: -550, w: 200, h: 20}, // Left
             
             // Tree 3
             {x: 1600, y: -1000, w: 20, h: 1000},
-            {x: 1400, y: -200, w: 200, h: 20},
-            {x: 1620, y: -400, w: 200, h: 20},
-            {x: 1400, y: -600, w: 200, h: 20},
-            {x: 1620, y: -800, w: 200, h: 20},
-            {x: 1400, y: -1000, w: 200, h: 20},
+            {x: 1400, y: -100, w: 200, h: 20}, // Left
+            {x: 1620, y: -250, w: 200, h: 20}, // Right
+            {x: 1400, y: -350, w: 200, h: 20}, // Left
+            {x: 1620, y: -500, w: 200, h: 20}, // Right
+            {x: 1400, y: -600, w: 200, h: 20}, // Left
+            {x: 1620, y: -750, w: 200, h: 20}, // Right
+            {x: 1400, y: -850, w: 200, h: 20}, // Left
+            {x: 1620, y: -1000, w: 200, h: 20}, // Right
             
             // Canopy
             {x: 1620, y: -1000, w: 600, h: 20}
         ],
         checkpoints: [
             {x: 950, y: 150, w: 40, h: 50},
-            {x: 1450, y: -250, w: 40, h: 50}
+            {x: 1450, y: -150, w: 40, h: 50}
         ],
         hazards: [
             {x: -100, y: 900, w: 3000, h: 50}
         ],
         enemies: [
-            { x: 950, y: -250, width: 40, height: 24, vx: 0, vy: 0, speed: 10, aggro: 1500 },
+            { x: 950, y: -100, width: 40, height: 24, vx: 0, vy: 0, speed: 10, aggro: 1500 },
             { x: 1900, y: -1050, width: 40, height: 24, vx: 0, vy: 0, speed: 10, aggro: 1500 }
         ],
         goal: {x: 2100, y: -1050, w: 50, h: 50},
