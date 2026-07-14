@@ -1947,6 +1947,9 @@ function updatePhysics() {
             }
         }
     }
+    
+    // Cleanup enemies that fall into bottomless pits to prevent memory leaks and breaking the clone limit
+    activeEnemies = activeEnemies.filter(e => e.y < 2500);
 
     // Update Enemies
     updateEnemies();
