@@ -1937,10 +1937,8 @@ function updatePhysics() {
                 if (pullForce > (enemy.isBoss ? 6.0 : 3.5)) pullForce = (enemy.isBoss ? 6.0 : 3.5);
                 
                 if (isVoid) {
-                    if (!player.isGrounded || enemy.isBoss) {
-                        player.vx += (dx / dist) * pullForce;
-                        if (!player.isGrounded || enemy.isBoss) player.vy += (dy / dist) * pullForce;
-                    }
+                    player.vx += (dx / dist) * pullForce;
+                    player.vy += (dy / dist) * pullForce;
                 } else if (isCelestial) {
                     // PUSH AWAY
                     player.vx -= (dx / dist) * pullForce;
