@@ -1625,6 +1625,24 @@ function updateEnemies() {
                 }
             }
             
+            // Bosses NEVER walk off ledges (keeps them trapped in arenas)
+            if (enemy.isBoss && enemy.isGrounded) {
+                let lookAheadX = moveLeft ? enemy.x - 5 : (moveRight ? enemy.x + enemy.width + 5 : enemy.x);
+                let isSafe = false;
+                if (moveLeft || moveRight) {
+                    for (const plat of level.platforms) {
+                        if (lookAheadX >= plat.x && lookAheadX <= plat.x + plat.w &&
+                            enemy.y + enemy.height + 5 >= plat.y && enemy.y + enemy.height + 5 <= plat.y + plat.h + 20) {
+                            isSafe = true; break;
+                        }
+                    }
+                    if (!isSafe) { 
+                        moveLeft = false;
+                        moveRight = false;
+                    }
+                }
+            }
+
             // Apply physics scaling based on their unique speed property
             let speedRatio = enemy.speed / MAX_SPEED;
             let enemyAccel = ACCEL * speedRatio;
