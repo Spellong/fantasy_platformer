@@ -26,11 +26,19 @@ window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
 // Audio System
-const AudioContext = window.AudioContext || window.webkitAudioContext;
-const audioCtx = new AudioContext();
+let audioCtx = null;
 
 function playSound(type) {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    try {
+        if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    } catch (e) {
+        console.warn("Audio not supported or blocked", e);
+        return;
+    }
     
     const osc = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
