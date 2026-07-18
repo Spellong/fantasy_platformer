@@ -1725,7 +1725,7 @@ function updateEnemies() {
             if (currentLevelIndex >= 5 && currentLevelIndex < 10 && !enemy.isBoss && enemy.vy < prevVy && enemy.isGrounded === false) {
                 // The Leaf Enemy just jumped!
                 enemy.jumpCount = (enemy.jumpCount || 0) + 1;
-                if (enemy.jumpCount % 3 === 0) {
+                if (enemy.jumpCount % 5 === 0) {
                     // Clone itself
                     if (activeEnemies.length < 12) { // Cap clones to prevent infinite lag
                         activeEnemies.push({
