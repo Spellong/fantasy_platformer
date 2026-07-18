@@ -3173,13 +3173,14 @@ window.onload = () => {
 };
 
 
-let audioCtx = null;
+let epicAudioCtx = null;
 function playEpicMusic() {
-    if (audioCtx) return; // already playing
+    if (epicAudioCtx) return; // already playing
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) return; // Not supported
     
-    audioCtx = new AudioContext();
+    epicAudioCtx = new AudioContext();
+    let audioCtx = epicAudioCtx; // Alias for the rest of the function to avoid renaming everything
     
     // Create Reverb (Impulse Response)
     let length = audioCtx.sampleRate * 4.0; // 4 second massive reverb
