@@ -25,6 +25,65 @@ const keys = {};
 window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
+// Audio System
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioContext();
+
+function playSound(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    const now = audioCtx.currentTime;
+    
+    if (type === 'jump') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+        gainNode.gain.setValueAtTime(0.1, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now);
+        osc.stop(now + 0.1);
+    } else if (type === 'death') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(50, now + 0.3);
+        gainNode.gain.setValueAtTime(0.1, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+    } else if (type === 'checkpoint') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.setValueAtTime(600, now + 0.1);
+        gainNode.gain.setValueAtTime(0.05, now);
+        gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+    } else if (type === 'revive') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.4);
+        gainNode.gain.setValueAtTime(0.1, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
+    } else if (type === 'level') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.linearRampToValueAtTime(600, now + 0.2);
+        osc.frequency.linearRampToValueAtTime(800, now + 0.4);
+        gainNode.gain.setValueAtTime(0.1, now);
+        gainNode.gain.linearRampToValueAtTime(0.01, now + 0.6);
+        osc.start(now);
+        osc.stop(now + 0.6);
+    }
+}
+
 // Global Game State
 let playerHasMoved = false;
 let gameTime = 0;
@@ -1165,6 +1224,7 @@ function startGame() {
 }
 
 function loadLevel(index) {
+    playSound('level');
     if (index >= levels.length) {
         // Trigger Victory Screen
         document.getElementById('victory-screen').classList.remove('hidden');
@@ -1859,6 +1919,7 @@ function updatePhysics() {
     if (player.jumpBufferTimer > 0) {
         if (player.wallCoyoteTimer > 0 && !player.isGrounded) {
             // Wall Jump
+            playSound('jump');
             player.vy = JUMP_FORCE * currentJumpMult;
             player.vx = -player.lastWallDir * currentMaxSpeed * 1.5;
             player.jumpsLeft = 1;
@@ -1869,6 +1930,7 @@ function updatePhysics() {
             spawnParticles(player.x + (player.lastWallDir === 1 ? player.width : 0), player.y + player.height / 2, colors.player, 15, 1);
         } else if (player.coyoteTimer > 0) {
             // Ground Jump
+            playSound('jump');
             player.vy = JUMP_FORCE * currentJumpMult;
             player.jumpsLeft = 1; 
             player.isGrounded = false;
@@ -1879,6 +1941,7 @@ function updatePhysics() {
             spawnParticles(player.x + player.width / 2, player.y + player.height, colors.player, 10, 0.5);
         } else if (jumpJustPressed && player.jumpsLeft > 0) {
             // Double Jump
+            playSound('jump');
             player.vy = JUMP_FORCE * 0.9 * currentJumpMult;
             player.jumpsLeft--;
             player.jumpBufferTimer = 0;
@@ -2165,6 +2228,7 @@ function updatePhysics() {
             let passX = player.x >= cp.x && player.x <= cp.x + 150;
             let passY = player.y >= cp.y - 600 && player.y <= cp.y + cp.h + 20;
             if (!cp.active && passX && passY) {
+                playSound('checkpoint');
                 cp.active = true;
                 level.spawn = { x: cp.x, y: cp.y }; // Permanently updates spawn for this level instance
                 spawnParticles(cp.x + cp.w/2, cp.y + cp.h/2, colors.goal, 20, 2);
@@ -2191,6 +2255,7 @@ function updatePhysics() {
 
 function die() {
     if (state === 'transition') return;
+    playSound('death');
     state = 'transition';
     spawnParticles(player.x + player.width/2, player.y + player.height/2, colors.enemy, 30, 2);
     fadeLayer.classList.remove('transparent'); 
