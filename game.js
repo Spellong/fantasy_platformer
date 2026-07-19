@@ -1064,12 +1064,8 @@ const levels = [
             {x: 800, y: 900, w: 5000, h: 50} // Pit only in the scrolling section
         ],
         enemies: [
-            // Boss
-            { x: -500, y: 500, width: 120, height: 120, vx: 0, vy: 0, speed: 2, aggro: 4000, isBoss: true },
-            // 3 Minions scattered across the boss arena
-            { x: -400, y: 600, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 3000 },
-            { x: 100, y: 600, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 3000 },
-            { x: -200, y: 300, width: 30, height: 30, vx: 0, vy: 0, speed: 2, aggro: 3000 }
+            // Boss (Removed minions per user feedback to make gravity pull dodgeable)
+            { x: -500, y: 500, width: 120, height: 120, vx: 0, vy: 0, speed: 2, aggro: 4000, isBoss: true }
         ],
         goal: {x: -900, y: 600, w: 50, h: 50},
         spawn: {x: 5000, y: 600}
