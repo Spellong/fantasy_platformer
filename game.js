@@ -1442,6 +1442,11 @@ function handleEntityCollisions(entity, isAxisX) {
 function updateEnemies() {
     if (!playerHasMoved) return;
 
+    if (typeof window.playerHistory === 'undefined') window.playerHistory = [];
+    window.playerHistory.push({x: player.x, y: player.y});
+    if (window.playerHistory.length > 15) window.playerHistory.shift();
+    let ghost = window.playerHistory[0];
+
     for (let enemy of activeEnemies) {
         // Force ALL enemies to match the player's exact top speed
         enemy.speed = MAX_SPEED * window.playerSpeedMult;
@@ -1521,8 +1526,8 @@ function updateEnemies() {
         if (currentLevelIndex >= 20 && currentLevelIndex < 30) {
             let isCelestial = currentLevelIndex >= 25;
             enemy.speed = isCelestial ? MAX_SPEED * 0.9 : MAX_SPEED;
-            moveLeft = (player.x < enemy.x - 10);
-            moveRight = (player.x > enemy.x + 10);
+            moveLeft = (ghost.x < enemy.x - 10);
+            moveRight = (ghost.x > enemy.x + 10);
             
             // Gravity Burst State Machine
             if (!enemy.burstState) {
@@ -1530,7 +1535,7 @@ function updateEnemies() {
                 enemy.burstTimer = 0;
                 enemy.cooldownMax = 60 + Math.random() * 240; // 1 to 5 seconds
             }
-            let distToPlayer = Math.sqrt(Math.pow(enemy.x - player.x, 2) + Math.pow(enemy.y - player.y, 2));
+            let distToPlayer = Math.sqrt(Math.pow(enemy.x - ghost.x, 2) + Math.pow(enemy.y - ghost.y, 2));
             
             if (enemy.burstState === 'cooldown') {
                 enemy.burstTimer++;
@@ -1622,8 +1627,8 @@ function updateEnemies() {
                 moveLeft = false; moveRight = false; // Bypass normal physics
             } else {
                 // Relentless Chase AI
-                moveLeft = (player.x < enemy.x - 10);
-                moveRight = (player.x > enemy.x + 10);
+                moveLeft = (ghost.x < enemy.x - 10);
+                moveRight = (ghost.x > enemy.x + 10);
             }
         } else if (currentLevelIndex >= 10) {
             // Ice Enemies Dash Mechanic
@@ -1637,7 +1642,7 @@ function updateEnemies() {
                 } else {
                     enemy.dashCooldown = 30 + Math.random() * 90;
                     enemy.dashTimer = 15; // Dash lasts for 15 frames
-                    enemy.vx = (player.x > enemy.x ? enemy.speed * 3.5 : -enemy.speed * 3.5);
+                    enemy.vx = (ghost.x > enemy.x ? enemy.speed * 3.5 : -enemy.speed * 3.5);
                     enemy.vy = -JUMP_FORCE * 0.4; // Slight hop
                     enemy.isGrounded = false;
                     spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, colors.enemy, 20, 2);
@@ -1646,8 +1651,8 @@ function updateEnemies() {
             
             // Ice enemies commit to a direction during their reaction delay so they don't awkwardly stop in mid-air
             if (enemy.reactionTimer <= 0) {
-                if (player.x < enemy.x - 10) enemy.moveDir = -1;
-                else if (player.x > enemy.x + 10) enemy.moveDir = 1;
+                if (ghost.x < enemy.x - 10) enemy.moveDir = -1;
+                else if (ghost.x > enemy.x + 10) enemy.moveDir = 1;
                 else enemy.moveDir = 0;
                 
                 enemy.reactionTimer = 10 + Math.random() * 15; // 0.15 to 0.4 second reaction delay
@@ -1670,7 +1675,7 @@ function updateEnemies() {
                 }
                 if (Math.random() < 0.05) enemy.chaseOffset = (Math.random() - 0.5) * 120; // Shuffle more frequently
                 
-                let targetX = player.x + enemy.chaseOffset;
+                let targetX = ghost.x + enemy.chaseOffset;
                 moveLeft = (targetX < enemy.x - 10);
                 moveRight = (targetX > enemy.x + 10);
             }
@@ -1737,7 +1742,7 @@ function updateEnemies() {
             // Clumsier Platforming Logic (Worse AI for Levels 1-5)
             // If they are on the ground and moving into a wall, or they want to jump towards player, or they are at a ledge
             if (enemy.isGrounded && enemy.jumpCooldown <= 0 && !enemy.isBoss) {
-                if (enemy.touchWallDir !== 0 || (player.y < enemy.y - 40 && Math.abs(player.x - enemy.x) < 200) || atLedge) {
+                if (enemy.touchWallDir !== 0 || (ghost.y < enemy.y - 40 && Math.abs(ghost.x - enemy.x) < 200) || atLedge) {
                     let isForest = (currentLevelIndex >= 5 && currentLevelIndex < 10);
                     // 25% dumber jump logic: Math.random() < 0.075 instead of 0.1
                     let shouldJump = (isForest && atLedge) ? true : (Math.random() < 0.075);
@@ -1746,7 +1751,7 @@ function updateEnemies() {
                         enemy.vy = JUMP_FORCE;
                         if (atLedge) {
                             // Give them forward momentum to clear the gap!
-                            enemy.vx = (player.x > enemy.x ? enemy.speed : -enemy.speed);
+                            enemy.vx = (ghost.x > enemy.x ? enemy.speed : -enemy.speed);
                         }
                         enemy.isGrounded = false;
                         enemy.jumpsLeft = 1;
@@ -1765,7 +1770,7 @@ function updateEnemies() {
                     enemy.renderW = enemy.width - 14.4;
                     enemy.renderH = enemy.height + 14.4;
                     spawnParticles(enemy.x + (enemy.touchWallDir === 1 ? enemy.width : 0), enemy.y + enemy.height / 2, colors.enemy, 10, 1);
-                } else if (enemy.isGrounded && player.y < enemy.y - 80) {
+                } else if (enemy.isGrounded && ghost.y < enemy.y - 80) {
                     // Ground Jump
                     enemy.vy = JUMP_FORCE;
                     enemy.jumpsLeft = 1;
@@ -1773,7 +1778,7 @@ function updateEnemies() {
                     enemy.jumpCooldown = 5;
                     enemy.renderW = enemy.width - 12;
                     enemy.renderH = enemy.height + 12;
-                } else if (!enemy.isGrounded && enemy.jumpsLeft > 0 && enemy.vy > 5 && player.y < enemy.y - 20) {
+                } else if (!enemy.isGrounded && enemy.jumpsLeft > 0 && enemy.vy > 5 && ghost.y < enemy.y - 20) {
                     // Double jump
                     enemy.vy = JUMP_FORCE * 0.9;
                     enemy.jumpsLeft--;
@@ -1815,8 +1820,8 @@ function updateEnemies() {
             if (currentLevelIndex >= 15 && currentLevelIndex < 20) {
                 // Fire Boss floats heavily and aggressively charges
                 enemy.isGrounded = false;
-                let dirX = player.x - enemy.x;
-                let dirY = player.y - enemy.y - 100; // Aim slightly above player
+                let dirX = ghost.x - enemy.x;
+                let dirY = ghost.y - enemy.y - 100; // Aim slightly above player
                 let distToTarget = Math.sqrt(dirX*dirX + dirY*dirY);
                 if (distToTarget > 5) {
                     enemy.vx += (dirX / distToTarget) * 0.5;
