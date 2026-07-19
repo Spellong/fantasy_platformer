@@ -647,7 +647,9 @@ const levels = [
         ],
         hazards: [],
         enemies: [
-            { x: 650, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1000 }
+            { x: 650, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1000 },
+            { x: 800, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1000 },
+            { x: 1000, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1000 }
         ],
         goal: {x: 1200, y: 450, w: 50, h: 50},
         spawn: {x: 50, y: 400}
@@ -665,7 +667,9 @@ const levels = [
         hazards: [],
         enemies: [
             { x: 400, y: 350, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1500 },
-            { x: 1000, y: 150, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1500 }
+            { x: 700, y: 250, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1500 },
+            { x: 1000, y: 150, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1500 },
+            { x: 1200, y: 50, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1500 }
         ],
         goal: {x: 1300, y: 50, w: 50, h: 50},
         spawn: {x: 50, y: 400}
@@ -680,8 +684,11 @@ const levels = [
         ],
         hazards: [],
         enemies: [
-            { x: 700, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 2000 },
-            { x: 400, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 2000 }
+            { x: 1000, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 2000 },
+            { x: 800, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 2000 },
+            { x: 600, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 2000 },
+            { x: 400, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 2000 },
+            { x: 200, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 2000 }
         ],
         goal: {x: 50, y: 450, w: 50, h: 50},
         spawn: {x: 1300, y: 400}
@@ -694,7 +701,9 @@ const levels = [
         ],
         hazards: [],
         enemies: [
-            { x: 700, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1500 }
+            { x: 700, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1500 },
+            { x: 500, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1500 },
+            { x: 300, y: 400, width: 40, height: 40, vx: 0, vy: 0, speed: 14, aggro: 1500 }
         ],
         goal: {x: 900, y: 450, w: 50, h: 50},
         spawn: {x: 100, y: 400}
@@ -737,10 +746,12 @@ const levels = [
         enemies: [
             // Boss
             { x: -500, y: 400, width: 100, height: 100, vx: 0, vy: 0, speed: 14, aggro: 3000, isBoss: true, jumpTimer: 0 },
-            // 3 Minions (Ice dashers)
+            // 5 Minions (Ice dashers)
             { x: -200, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 3000, jumpCooldown: 0 },
-            { x: 300, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 3000, jumpCooldown: 0 },
-            { x: 700, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 3000, jumpCooldown: 0 }
+            { x: 0, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 3000, jumpCooldown: 0 },
+            { x: 200, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 3000, jumpCooldown: 0 },
+            { x: 500, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 3000, jumpCooldown: 0 },
+            { x: 800, y: 400, width: 40, height: 24, vx: 0, vy: 0, speed: 14, aggro: 3000, jumpCooldown: 0 }
         ],
         goal: {x: -900, y: 550, w: 50, h: 50},
         spawn: {x: 5000, y: 450}
@@ -2105,7 +2116,7 @@ function updatePhysics() {
     // Level hazards (non-boss)
     if (state === 'playing' && playerHasMoved) {
         if (currentLevelIndex === 14) { // Only boss level has extra icicles
-            if (Math.random() < 0.03) {
+            if (Math.random() < 0.08) { // INCREASED FROM 0.03 to 0.08 FOR MORE DIFFICULTY
                 fallingIcicles.push({
                     x: player.x + (Math.random() * 800 - 200),
                     y: camera.y - 100,
