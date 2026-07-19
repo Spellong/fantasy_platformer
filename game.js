@@ -1801,18 +1801,16 @@ function updateEnemies() {
                 enemy.jumpCount = (enemy.jumpCount || 0) + 1;
                 if (enemy.jumpCount % 5 === 0) {
                     // Clone itself
-                    if (activeEnemies.length < 12) { // Cap clones to prevent infinite lag
-                        activeEnemies.push({
-                            x: enemy.x, y: enemy.y,
-                            width: enemy.width, height: enemy.height,
-                            vx: -enemy.vx, vy: enemy.vy, // Clone jumps in opposite direction
-                            speed: enemy.speed, aggro: enemy.aggro,
-                            jumpCooldown: 30, jumpsLeft: enemy.jumpsLeft,
-                            renderW: enemy.renderW, renderH: enemy.renderH,
-                            jumpCount: 0
-                        });
-                        spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, colors.enemyLeaf, 20, 1.5);
-                    }
+                    activeEnemies.push({
+                        x: enemy.x, y: enemy.y,
+                        width: enemy.width, height: enemy.height,
+                        vx: -enemy.vx, vy: enemy.vy, // Clone jumps in opposite direction
+                        speed: enemy.speed, aggro: enemy.aggro,
+                        jumpCooldown: 30, jumpsLeft: enemy.jumpsLeft,
+                        renderW: enemy.renderW, renderH: enemy.renderH,
+                        jumpCount: 0
+                    });
+                    spawnParticles(enemy.x + enemy.width/2, enemy.y + enemy.height/2, colors.enemyLeaf, 20, 1.5);
                 }
             }
 
