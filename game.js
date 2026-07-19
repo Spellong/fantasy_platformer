@@ -1711,6 +1711,24 @@ function updateEnemies() {
                 }
             }
 
+            // --- 25% Dumb AI Nerf ---
+            if (enemy.dumbCycle === undefined) {
+                enemy.dumbCycle = Math.floor(Math.random() * 60);
+            }
+            enemy.dumbCycle = (enemy.dumbCycle + 1) % 60;
+            // The first 15 frames of the 60 frame cycle (25%), they are "dumb"
+            if (enemy.dumbCycle < 15) {
+                // Coast blindly (ignores player tracking)
+                moveLeft = enemy.lastMoveLeft || false;
+                moveRight = enemy.lastMoveRight || false;
+                enemy.jumpCooldown = 10; // Prevent them from jumping while dumb
+            } else {
+                // They are smart, update cache
+                enemy.lastMoveLeft = moveLeft;
+                enemy.lastMoveRight = moveRight;
+            }
+            // ------------------------
+
             // Apply physics scaling based on their unique speed property
             let speedRatio = enemy.speed / MAX_SPEED;
             let enemyAccel = ACCEL * speedRatio;
