@@ -1872,6 +1872,12 @@ function updateEnemies() {
         enemy.x += enemy.vx;
         enemy.touchWallDir = 0;
         
+        // Arena Leash: Prevent Bosses from walking off the cliff while the player approaches from afar
+        if (currentLevelIndex === 24 || currentLevelIndex === 29) {
+            if (enemy.x > 900) { enemy.x = 900; enemy.vx = 0; }
+            if (enemy.x < -900) { enemy.x = -900; enemy.vx = 0; }
+        }
+        
         handleEntityCollisions(enemy, true);
 
         // Y Physics
