@@ -1837,7 +1837,7 @@ function updateEnemies() {
             } else if (currentLevelIndex >= 20) {
                 enemy.jumpTimer = (enemy.jumpTimer || 0) + 1;
                 if (enemy.isGrounded && enemy.jumpTimer > 60) { 
-                    enemy.vy = JUMP_FORCE * 1.5;
+                    enemy.vy = enemy.isBoss ? JUMP_FORCE * 0.7 : JUMP_FORCE * 1.5;
                     enemy.jumpTimer = 0;
                 }
             } else {
@@ -2014,9 +2014,9 @@ function updatePhysics() {
             let dist = Math.sqrt(distSq);
             if (dist > 10 && dist < 1200) {
                 // Drastically increase pullStrength because it only lasts 0.5s!
-                let pullStrength = enemy.isBoss ? 1200 : 450;
+                let pullStrength = enemy.isBoss ? 2200 : 450;
                 let pullForce = pullStrength / dist;
-                if (pullForce > (enemy.isBoss ? 6.0 : 3.5)) pullForce = (enemy.isBoss ? 6.0 : 3.5);
+                if (pullForce > (enemy.isBoss ? 8.0 : 3.5)) pullForce = (enemy.isBoss ? 8.0 : 3.5);
                 
                 if (isVoid) {
                     player.vx += (dx / dist) * pullForce;
@@ -2134,9 +2134,11 @@ function updatePhysics() {
         let strike = lightningStrikes[i];
         strike.timer--;
         
-        if (strike.timer === 0) {
+        if (strike.timer <= 0) {
             let strikeRect = { x: strike.x - 20, y: -2000, w: 40, h: 4000 };
-            spawnParticles(strike.x, player.y, '#ffd700', 30, 2);
+            if (strike.timer === 0) {
+                spawnParticles(strike.x, player.y, '#ffd700', 30, 2);
+            }
             
             if (checkRectOverlap(player, strikeRect)) {
                 die();
